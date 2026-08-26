@@ -1,0 +1,26 @@
+2026-08-21 13:34:43.349 +08:00 [INF] Now listening on: http://localhost:5122
+2026-08-21 13:34:43.382 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-08-21 13:34:43.384 +08:00 [INF] Hosting environment: Development
+2026-08-21 13:34:43.384 +08:00 [INF] Content root path: C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration
+2026-08-21 13:35:00.076 +08:00 [INF] 【TokenManager】Loading Token...
+2026-08-21 13:35:00.078 +08:00 [INF] 【TokenManager】Recived Token
+2026-08-21 13:35:04.677 +08:00 [ERR] 【WindFarmApi Service】System exception occurred: 無法連線，因為目標電腦拒絕連線。 (localhost:5193)
+System.Net.Http.HttpRequestException: 無法連線，因為目標電腦拒絕連線。 (localhost:5193)
+ ---> System.Net.Sockets.SocketException (10061): 無法連線，因為目標電腦拒絕連線。
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at WindFarmApiService.SendWindFarmDataAsync[T](List`1 dataList, String apiPath, String dataTypeLabel) in C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration\Service\API\WindFarmApiService.cs:line 80
+2026-08-21 13:37:49.147 +08:00 [INF] Application is shutting down...

@@ -1,0 +1,51 @@
+2026-08-14 08:54:15.442 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/SystemConfig/backgroundTaskStatus - null null
+2026-08-14 08:54:18.576 +08:00 [INF] Executing endpoint 'SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration)'
+2026-08-14 08:54:19.142 +08:00 [INF] Route matched with {action = "GetBackgroundTaskStatus", controller = "SystemConfig"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetBackgroundTaskStatus() on controller SystemConfigController (tai_wind_integration).
+2026-08-14 08:54:19.820 +08:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[tai_wind_integration.Modle.SystemConfig.BackgroundTaskStatusDto, tai_wind_integration, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-08-14 08:54:20.175 +08:00 [INF] Executed action SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration) in 355.5432ms
+2026-08-14 08:54:20.184 +08:00 [INF] Executed endpoint 'SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration)'
+2026-08-14 08:54:20.242 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/SystemConfig/backgroundTaskStatus - 200 null application/json; charset=utf-8 4799.7747ms
+2026-08-14 08:54:49.093 +08:00 [WRN] 【WindFarmSyncBackground】檢測到時間過期，跳過本輪，準備對齊下個刻度
+2026-08-14 08:55:00.112 +08:00 [INF] 【TokenManager 服務】載入Token...
+2026-08-14 08:55:00.114 +08:00 [INF] 【TokenManager 服務】取得Token
+2026-08-14 08:55:00.166 +08:00 [INF] Start processing HTTP request POST http://localhost:5193/windfarm/forecastData/new
+2026-08-14 08:55:00.168 +08:00 [INF] Sending HTTP request POST http://localhost:5193/windfarm/forecastData/new
+2026-08-14 08:55:04.445 +08:00 [INF] HTTP request failed after 4273.3319ms
+System.Net.Http.HttpRequestException: 無法連線，因為目標電腦拒絕連線。 (localhost:5193)
+ ---> System.Net.Sockets.SocketException (10061): 無法連線，因為目標電腦拒絕連線。
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+2026-08-14 08:55:05.087 +08:00 [INF] HTTP request failed after 4930.2147ms
+System.Net.Http.HttpRequestException: 無法連線，因為目標電腦拒絕連線。 (localhost:5193)
+ ---> System.Net.Sockets.SocketException (10061): 無法連線，因為目標電腦拒絕連線。
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.SocketsHttpHandler.<SendAsync>g__CreateHandlerAndSendAsync|115_0(HttpRequestMessage request, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+   at Microsoft.Extensions.Http.Logging.LoggingScopeHttpMessageHandler.<SendCoreAsync>g__Core|4_0(HttpRequestMessage request, Boolean useAsync, CancellationToken cancellationToken)
+2026-08-14 08:55:05.101 +08:00 [ERR] 【WindFarmApi 服務】系統例外錯誤: 無法連線，因為目標電腦拒絕連線。 (localhost:5193)
+2026-08-14 08:55:05.224 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/SystemConfig/backgroundTaskStatus - null null
+2026-08-14 08:55:05.228 +08:00 [INF] Executing endpoint 'SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration)'
+2026-08-14 08:55:05.244 +08:00 [INF] Route matched with {action = "GetBackgroundTaskStatus", controller = "SystemConfig"}. Executing controller action with signature Microsoft.AspNetCore.Mvc.IActionResult GetBackgroundTaskStatus() on controller SystemConfigController (tai_wind_integration).
+2026-08-14 08:55:05.267 +08:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.Dictionary`2[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[tai_wind_integration.Modle.SystemConfig.BackgroundTaskStatusDto, tai_wind_integration, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-08-14 08:55:05.269 +08:00 [INF] Executed action SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration) in 22.7378ms
+2026-08-14 08:55:05.272 +08:00 [INF] Executed endpoint 'SystemConfigController.GetBackgroundTaskStatus (tai_wind_integration)'
+2026-08-14 08:55:05.274 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/SystemConfig/backgroundTaskStatus - 200 null application/json; charset=utf-8 50.0179ms

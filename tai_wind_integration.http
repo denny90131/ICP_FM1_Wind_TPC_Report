@@ -1,0 +1,6 @@
+@tai_wind_integration_HostAddress = http://localhost:5122
+
+GET {{tai_wind_integration_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

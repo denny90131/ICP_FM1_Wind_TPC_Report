@@ -1,0 +1,483 @@
+@{
+    ViewData["Title"] = "Canary API 管理頁面";
+}
+
+<div class="container mb-5">
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4">
+        <h5 class="fw-bold mb-3 text-light"><i class="bi bi-gear me-2 text-info"></i>API 基礎設定 (從後端設定檔載入)</h5>
+        <hr class="border-secondary my-4">
+
+        <h5 class="fw-bold mb-3 text-light"><i class="bi bi-key me-2 text-warning"></i>Token 參數設定</h5>
+        <div class="mb-3">
+            <label for="apiToken" class="form-label small fw-bold text-light">API Token (從後端設定檔載入)：</label>
+            <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="apiToken" value="@ViewBag.CanaryApiToken">
+        </div>
+
+        <div class="mb-3"> <!-- This div now correctly contains the dynamic tag inputs -->
+            <label class="form-label small fw-bold text-light">Tags (請為每個 Tag 獨立命名)：</label>
+            <div id="tagsInputContainer" class="border p-3 rounded-3 border-secondary bg-dark">
+                <!-- Initial tag input pair -->
+                <div class="mb-2 tag-entry">
+                    <input type="text" class="form-control border-secondary bg-dark text-light shadow-none tag-value-input" placeholder="Tag 值 (例如: sensor_temp)" value="">
+                    <input type="text" class="form-control border-secondary bg-dark text-light shadow-none tag-name-input" placeholder="Tag 顯示名稱 (例如: 溫度感測器)" value="">
+                    <button type="button" class="btn btn-outline-danger remove-tag-btn" onclick="removeTagInput(this)" title="移除此 Tag"><i class="bi bi-x-lg"></i></button>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addTagBtn"><i class="bi bi-plus-lg me-1"></i>新增 Tag</button>
+        </div>
+
+        <div class="mb-3">
+            <label for="existingLiveDataToken" class="form-label small fw-bold text-light">現有的 Live Data Token (若已有舊 Token 請填這)：</label>
+            <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="existingLiveDataToken" placeholder="請貼上之前取得的 liveDataToken">
+        </div>
+
+        <div class="mb-3">
+            <label for="mode" class="form-label small fw-bold text-light">模式 (Mode，重新初始化時使用)：</label>
+            <select class="form-select border-secondary bg-dark text-light shadow-none" id="mode">
+                <option value="AllValues">AllValues (所有變更數值)</option>
+                <option value="LastValue">LastValue (僅最後一筆)</option>
+            </select>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="button" class="btn btn-primary fw-bold px-4 py-2 shadow-sm" onclick="startLiveDataFlow()">
+                <i class="bi bi-arrow-clockwise me-1"></i> 1. 初始化並取得資料
+            </button>
+            <button type="button" class="btn btn-success fw-bold px-4 py-2 shadow-sm" onclick="useExistingToken()">
+                <i class="bi bi-play-fill me-1"></i> 2. 直接使用現有 Token 抓資料
+            </button>
+            <button type="button" class="btn btn-danger fw-bold px-4 py-2 shadow-sm" onclick="revokeToken()">
+                <i class="bi bi-x-circle me-1"></i> 3. 註銷/移除 Token
+            </button>
+        </div>
+    </div>
+
+    <!-- Token 狀態顯示區 -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4">
+        <h5 class="fw-bold text-light mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Token 狀態</h5>
+        <p id="tokenStatus" class="text-light">尚未初始化</p>
+    </div>
+
+    <!-- 已儲存的 Token 設定顯示區 -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4" style="background-color: #2b3035;">
+        <h5 class="fw-bold text-light mb-3"><i class="bi bi-bookmark-check me-2 text-primary"></i>已儲存的 Token 設定</h5>
+        <div id="savedTokenConfigsList">
+            <p class="text-muted">目前沒有儲存的 Token 設定。</p>
+        </div>
+    </div>
+
+    <!-- 即時資料回應顯示區 -->
+    <div class="card shadow-sm border-0 p-4 rounded-4" style="background-color: #2b3035;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-light mb-0"><i class="bi bi-code-square me-2 text-success"></i>即時資料回應 (Data)</h5>
+            <span class="badge bg-secondary font-monospace">JSON Output</span>
+        </div>
+        <div style="width: 100%;">
+            <pre id="responseOutput" class="p-3 rounded-3 border-0 m-0 shadow-inner" style="background-color: #212529 !important; color: #00ff66 !important; max-height: 400px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-all;">等待資料...</pre>
+        </div>
+    </div>
+    <p class="text-secondary mt-4 mb-0">此工具用於測試與即時資料 API 的互動，請確保 API 基礎網址正確。</p>
+</div>
+
+@section Scripts {
+    <script>
+        let currentLiveDataToken = null;
+        let currentContinuation = null;
+        let updateInterval = null;
+        let consecutiveErrors = 0;
+        const LOCAL_STORAGE_KEY = 'canaryApiTokens';
+
+        // 頁面載入時執行
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSavedTokens();
+        });
+
+        // 點擊「直接使用現有 Token 抓資料」按鈕
+        function useExistingToken() {
+            const inputToken = document.getElementById('existingLiveDataToken').value.trim();
+
+            if (!inputToken) {
+                alert('請先在「現有的 Live Data Token」欄位中填入 Token！');
+                return;
+            }
+
+            currentLiveDataToken = inputToken;
+            document.getElementById('tokenStatus').innerText = `使用現有 Token: ${currentLiveDataToken.substring(0, 8)}...`;
+
+            startPolling();
+        }
+
+        // 從 UI 收集所有 Tag 值和顯示名稱，並驗證是否皆不為空
+        function getTagsFromUI() {
+            const tagsData = [];
+            const tagEntries = document.querySelectorAll('#tagsInputContainer .tag-entry');
+            
+            for (let entry of tagEntries) {
+                const valueInput = entry.querySelector('.tag-value-input');
+                const nameInput = entry.querySelector('.tag-name-input');
+                const tagValue = valueInput ? valueInput.value.trim() : '';
+                const tagName = nameInput ? nameInput.value.trim() : '';
+
+                // 檢查是否有任何一個欄位為空（若只要填其中一個有值即可，可自行調整條件）
+                if (!tagValue || !tagName) {
+                    alert('所有 Tag 的「Tag 值」與「Tag 顯示名稱」皆不得為空！');
+                    return null; // 回傳 null 代表驗證失敗
+                }
+
+                tagsData.push({
+                    value: tagValue,
+                    displayName: tagName
+                });
+            }
+
+            if (tagsData.length === 0) {
+                alert('請至少新增一個 Tag！');
+                return null;
+            }
+
+            return tagsData;
+        }
+        
+        // 點擊「1. 初始化並取得資料」按鈕
+        async function startLiveDataFlow() {
+            const tagsData = getTagsFromUI(); // 取得所有 Tag 值和顯示名稱
+            const mode = document.getElementById('mode').value;
+
+            getTagsFromUI();
+
+            // 驗證輸入
+            // BaseUrl and ApiToken are now managed by the backend
+            if (tagsData.length === 0) {
+                alert('請至少新增一個 Tag！');
+                return;
+            }
+
+            document.getElementById('tokenStatus').innerText = '正在重新初始化取得 Token...';
+            try {
+                // 調用後端代理 API
+                const tokenResponse = await fetch('/api/Canary/GetLiveDataToken', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tags: tagsData,
+                        mode: mode
+                    }) // 後端會處理提取 Tag 值
+                });
+                
+                if (!tokenResponse.ok) {
+                    const errorData = await tokenResponse.json();
+                    throw new Error(errorData.message || `HTTP 錯誤: ${tokenResponse.status}`);
+                }
+
+                const tokenData = await tokenResponse.json();
+
+                if (tokenData.statusCode !== 'Good' || !tokenData.liveDataToken) {
+                    throw new Error('初始化 Token 失敗: ' + JSON.stringify(tokenData.errors));
+                    // 使用 tokenData.details 或 tokenData.errors 來顯示更詳細的後端錯誤
+                    const errorDetails = tokenData.details || tokenData.errors || '未知錯誤';
+                    throw new Error('初始化 Token 失敗: ' + (typeof errorDetails === 'object' ? JSON.stringify(errorDetails) : errorDetails));
+                }
+
+                currentLiveDataToken = tokenData.liveDataToken; // 先設定 currentLiveDataToken
+
+                // 成功取得 Token 後，提示使用者輸入一個名稱來儲存此設定
+                let configName = prompt('請為此 Token 設定輸入一個名稱 (例如: "風場A_每日資料")：', `Token_${new Date().toLocaleString()}`);
+                
+
+                // 如果使用者取消或未輸入名稱，給一個預設名稱
+                if (!configName || configName.trim() === '') {
+                    configName = `未命名 Token_${new Date().toLocaleString()}`;
+                }
+                
+                // 無論是否輸入名稱，都嘗試儲存 Token 設定
+                saveTokenConfig({ name: configName, liveDataToken: tokenData.liveDataToken, tags: tagsData, mode: mode }); // 儲存 Tag 物件陣列
+                renderSavedTokens(); // 重新渲染儲存的 Token 列表
+
+                // 自動把新取得的 Token 填入輸入框，方便你複製
+                document.getElementById('existingLiveDataToken').value = currentLiveDataToken;
+                document.getElementById('tokenStatus').innerText = `成功取得新 Token: ${currentLiveDataToken.substring(0, 8)}...`;
+
+                // 只有在有 Token 的情況下才開始輪詢
+                if (currentLiveDataToken) startPolling();
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tokenStatus').innerText = '發生錯誤';
+                document.getElementById('tokenStatus').innerText = `發生錯誤: ${error.message}`;
+                document.getElementById('responseOutput').innerText = error.message;
+            }
+        }
+
+        // 點擊「3. 註銷/移除 Token」按鈕
+        async function revokeToken() {
+            const tokenToRevoke = document.getElementById('existingLiveDataToken').value.trim() || currentLiveDataToken;            if (!tokenToRevoke) {
+                alert('目前沒有可註銷的 Token！');
+                return;
+            }
+            // 停止背景輪詢
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+
+            document.getElementById('tokenStatus').innerText = '正在註銷 Token...';
+
+            try { // 調用後端代理 API
+                const response = await fetch('/api/Canary/RevokeLiveDataToken', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        liveDataToken: tokenToRevoke
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP 錯誤: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.statusCode === 'Good') {
+                    document.getElementById('tokenStatus').innerText = 'Token 已成功註銷並釋放伺服器資源';
+                    document.getElementById('responseOutput').innerText = JSON.stringify(result, null, 2);
+                } else {
+                    throw new Error('註銷失敗: ' + JSON.stringify(result.errors));
+                    const errorDetails = result.details || result.errors || '未知錯誤';
+                    throw new Error('註銷失敗: ' + (typeof errorDetails === 'object' ? JSON.stringify(errorDetails) : errorDetails));
+                }
+
+                // 清空本地狀態
+                // 如果註銷的是當前正在使用的 Token，則清空相關狀態
+                if (currentLiveDataToken === tokenToRevoke) {
+                    currentLiveDataToken = null;
+                    currentContinuation = null;
+                    document.getElementById('existingLiveDataToken').value = '';
+                }
+                // 從 localStorage 中移除此 Token
+                deleteSavedToken(tokenToRevoke, true); // 傳遞 true 表示是從 revokeToken 呼叫
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tokenStatus').innerText = '註銷發生錯誤';
+                document.getElementById('tokenStatus').innerText = `註銷發生錯誤: ${error.message}`;
+                document.getElementById('responseOutput').innerText = error.message;
+            }
+        }
+
+        // 儲存 Token 設定到 localStorage (移除 baseUrl 參數)
+        function saveTokenConfig(config) {
+            let configs = loadTokenConfigs();
+            // 檢查是否已存在相同的 liveDataToken，避免重複儲存
+            const existingIndex = configs.findIndex(c => c.liveDataToken === config.liveDataToken);
+            if (existingIndex !== -1) {
+                // 如果存在，更新其名稱和時間戳
+                configs[existingIndex] = { ...configs[existingIndex], name: config.name, timestamp: new Date().toISOString() };
+            } else {
+                // 否則，新增一個新的設定
+                configs.push({
+                    id: Date.now().toString(), // 使用時間戳作為唯一ID
+                    timestamp: new Date().toISOString(),
+                    ...config
+                });
+            }
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(configs));
+        }
+
+        // 從 localStorage 載入所有 Token 設定
+        function loadTokenConfigs() {
+            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        // 渲染已儲存的 Token 設定到 UI
+        function renderSavedTokens() {
+            const savedTokenConfigsList = document.getElementById('savedTokenConfigsList');
+            const configs = loadTokenConfigs();
+            savedTokenConfigsList.innerHTML = ''; // 清空現有內容
+
+            if (configs.length === 0) {
+                savedTokenConfigsList.innerHTML = '<p class="text-muted">目前沒有儲存的 Token 設定。</p>';
+                return;
+            }
+
+            configs.forEach(config => {
+                const tokenDisplay = config.liveDataToken ? `${config.liveDataToken.substring(0, 8)}...${config.liveDataToken.slice(-4)}` : 'N/A';
+                const configElement = document.createElement('div');
+                configElement.className = 'card bg-dark border-secondary p-3 mb-2';
+                configElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold text-light mb-0">${config.name}</h6>
+                        <span class="badge bg-secondary">${new Date(config.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p class="small text-muted mb-1">Token: <span class="text-info">${tokenDisplay}</span></p>`;
+                
+                // 顯示每個 Tag 及其顯示名稱
+                if (config.tags && config.tags.length > 0) {
+                    configElement.innerHTML += `<p class="small text-muted mb-1">Tags:</p>`;
+                    config.tags.forEach(tag => {
+                        configElement.innerHTML += `<p class="small text-light ms-3 mb-0">- ${tag.displayName || tag.value} (<span class="text-info">${tag.value}</span>)</p>`;
+                    });
+                } else {
+                    configElement.innerHTML += `<p class="small text-muted mb-1">Tags: <span class="text-light">無</span></p>`;
+                }
+
+                configElement.innerHTML += `
+                    <p class="small text-muted mb-2">Mode: <span class="text-light">${config.mode}</span></p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="useSavedToken('${config.id}')">
+                            <i class="bi bi-play-fill me-1"></i> 使用此 Token
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSavedToken('${config.id}')">
+                            <i class="bi bi-trash me-1"></i> 刪除
+                        </button>
+                    </div>
+                `;
+                savedTokenConfigsList.appendChild(configElement);
+            });
+        }
+
+        // 使用一個已儲存的 Token
+        function useSavedToken(id) {
+            const configs = loadTokenConfigs();
+            const configToUse = configs.find(c => c.id === id);
+
+            if (configToUse) {
+                // 停止任何正在進行的輪詢
+                if (updateInterval) {
+                    clearInterval(updateInterval);
+                    updateInterval = null;
+                }
+
+                currentLiveDataToken = configToUse.liveDataToken;
+                    document.getElementById('mode').value = configToUse.mode || 'AllValues'; // 載入對應的 Mode
+
+                // 清空並重建 Tags 輸入框
+                document.getElementById('tagsInputContainer').innerHTML = '';
+                if (configToUse.tags && configToUse.tags.length > 0) {
+                    configToUse.tags.forEach(tag => addTagInput(tag.value, tag.displayName));
+                } else { // 如果沒有 Tags，則新增一個空的輸入框
+                    addTagInput();
+                }
+                // Also update the existing token input field
+                document.getElementById('existingLiveDataToken').value = currentLiveDataToken;
+                document.getElementById('tokenStatus').innerText = `已載入並使用儲存的 Token: ${configToUse.name}`;
+                startPolling();
+            } else {
+                alert('找不到指定的 Token 設定。');
+            }
+        }
+
+        // 刪除一個已儲存的 Token
+        function deleteSavedToken(idOrToken, isFromRevoke = false) {
+            let configs = loadTokenConfigs();
+            const initialLength = configs.length;
+            configs = configs.filter(c => c.id !== idOrToken && c.liveDataToken !== idOrToken); // 支援ID或Token字串刪除
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(configs));
+            
+            if (initialLength > configs.length && !isFromRevoke) { // 如果有刪除且不是從 revokeToken 呼叫
+                alert('Token 設定已刪除。');
+            }
+            renderSavedTokens(); // 重新渲染列表
+
+            // 如果刪除的是當前正在使用的 Token，則清空相關狀態
+            if (currentLiveDataToken === idOrToken || (configs.length < initialLength && currentLiveDataToken === idOrToken)) {
+                currentLiveDataToken = null;
+                currentContinuation = null;
+                document.getElementById('existingLiveDataToken').value = '';
+                if (updateInterval) {
+                    clearInterval(updateInterval);
+                    updateInterval = null;
+                }
+            }
+        }
+
+        // 動態新增 Tag 輸入框
+        function addTagInput(value = '', displayName = '') {
+            const tagsInputContainer = document.getElementById('tagsInputContainer');
+            const newTagEntry = document.createElement('div');
+            newTagEntry.className = 'mb-2 tag-entry';
+            newTagEntry.innerHTML = `
+                <input type="text" class="form-control border-secondary bg-dark text-light shadow-none tag-value-input" placeholder="Tag 值" value="${value}" title="Tag 的實際值">
+                <input type="text" class="form-control border-secondary bg-dark text-light shadow-none tag-name-input" placeholder="Tag 顯示名稱" value="${displayName}" title="Tag 的顯示名稱">
+                <button type="button" class="btn btn-outline-danger remove-tag-btn" onclick="removeTagInput(this)" title="移除此 Tag"><i class="bi bi-x-lg"></i></button>
+            `;
+            tagsInputContainer.appendChild(newTagEntry);
+        }
+
+        // 移除 Tag 輸入框
+        function removeTagInput(buttonElement) {
+            const tagEntry = buttonElement.closest('.tag-entry');
+            if (tagEntry) {
+                tagEntry.remove();
+            }
+        }
+
+        // 初始化時，如果沒有任何 Tag 輸入框，則新增一個
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelectorAll('#tagsInputContainer .tag-entry').length === 0) {
+                addTagInput();
+            }
+            document.getElementById('addTagBtn').addEventListener('click', () => addTagInput());
+        });
+        
+        //啟用輪詢
+        function startPolling() {
+            if (updateInterval) clearInterval(updateInterval);
+            consecutiveErrors = 0; // 每次重新開始輪詢時，重置錯誤計數器
+
+            fetchLiveData();
+            updateInterval = setInterval(fetchLiveData, 2000); // 每 2 秒自動抓取一次
+        }
+        // 抓取資料
+        async function fetchLiveData() {
+            if (!currentLiveDataToken) return;
+
+            try {
+                // 調用後端代理 API
+                const dataResponse = await fetch('/api/Canary/GetLiveData', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        liveDataToken: currentLiveDataToken,
+                        continuation: currentContinuation
+                    })
+                });
+
+                if (!dataResponse.ok) {
+                    throw new Error('Token 可能已失效，請嘗試重新初始化。');
+                    // 嘗試解析後端回傳的 JSON 錯誤訊息
+                    const errorData = await dataResponse.json().catch(() => null); // 如果解析失敗，回傳 null
+                    const errorMessage = errorData?.details || errorData?.message || `HTTP 錯誤 ${dataResponse.status}。Token 可能已失效，請嘗試重新初始化。`;
+                    // 將錯誤訊息轉換為 Error 物件拋出
+                    throw new Error(errorMessage);
+                }
+
+                // 請求成功，重置錯誤計數器
+                consecutiveErrors = 0;
+
+                const result = await dataResponse.json();
+                document.getElementById('responseOutput').innerText = JSON.stringify(result, null, 2);
+                
+                if (result.continuation) {
+                    currentContinuation = result.continuation;
+                } else {
+                    currentContinuation = null;
+                }
+            } catch (err) {
+                console.error("抓取資料失敗:", err);
+                document.getElementById('responseOutput').innerText = err.message;
+                consecutiveErrors++;
+                document.getElementById('tokenStatus').innerText = `抓取資料失敗，連續錯誤: ${consecutiveErrors} 次。`;
+
+                if (consecutiveErrors >= 3) {
+                    if (updateInterval) {
+                        clearInterval(updateInterval);
+                        updateInterval = null;
+                    }
+                    document.getElementById('tokenStatus').innerText = '連續 3 次抓取資料失敗，已停止自動更新。請檢查 Token 或網路連線。';
+                }
+            }
+        }
+    </script>
+}

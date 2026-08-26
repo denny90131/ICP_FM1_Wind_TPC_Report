@@ -1,0 +1,257 @@
+@{
+    ViewData["Title"] = "各風機信息概覽";
+}
+<div style="height: calc(100vh - 180px); overflow: hidden;">
+    <div class="row g-3 h-100">
+        <!-- 左側：操作面板 -->
+        <div class="col-lg-3 h-100" style="min-height: 0;">
+            <div class="card shadow-sm border-0 p-4 rounded-4 h-100 d-flex flex-column" style="background-color: #2b3035; min-height: 0; overflow: hidden;">
+                <h5 class="fw-bold mb-3 text-light flex-shrink-0"><i class="bi bi-gear-wide-connected me-2 text-primary"></i>操作面板</h5>
+
+                <!-- 子系統選擇 -->
+                <div class="mb-3 flex-shrink-0">
+                    <label for="moduleSelector" class="form-label small fw-bold text-light">1. 選擇子系統</label>
+                    <select id="moduleSelector" class="form-select border-secondary bg-dark text-light shadow-none">
+                        <option selected>載入中...</option>
+                    </select>
+                </div>
+
+                <!-- 檔案選擇 -->
+                <div class="mb-3 flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                    <div class="d-flex justify-content-between align-items-center flex-shrink-0">
+                        <label for="fileSelector" class="form-label small fw-bold text-light mb-1">2. 選擇檔案</label>
+                    </div>
+                    <!-- 路徑導覽列 -->
+                    <div id="pathNavigator" class="mb-1 p-1 rounded-2 small flex-shrink-0" style="background-color: #212529; min-height: 28px;"></div>
+                    <!-- 檔案/資料夾列表 -->
+                    <div id="fileListContainer" class="list-group bg-dark rounded-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #495057; min-height: 0;">
+                        <div class="list-group-item list-group-item-dark text-muted">請先選擇子系統</div>
+                    </div>
+                </div>
+                <small class="text-muted text-center mt-2 flex-shrink-0">雙擊檔案即可直接讀取資料</small>
+            </div>
+        </div>
+
+        <!-- 右側：資料預覽區 -->
+        <div class="col-lg-9 h-100" style="min-height: 0;">
+            <div class="card shadow-sm border-0 p-4 rounded-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
+                <h5 class="fw-bold text-light mb-3 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
+
+                <!-- 執行結果訊息 -->
+                <div id="resultMessage" class="mb-3 p-3 rounded-3 flex-shrink-0" style="background-color: #212529; color: #e0e0e0; display: none;">
+                    <span class="text-muted">等待執行...</span>
+                </div>
+
+                <!-- 資料表格 -->
+                <div id="dataTableContainer" class="table-responsive flex-grow-1" style="overflow-y: auto; min-height: 0;">
+                    <p class="text-muted">執行處理後，結果將會顯示於此。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+<style>
+    .list-group-item-action.active {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    .list-group-item-dark {
+        background-color: #343a40;
+        border-color: #495057;
+        color: #adb5bd;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const moduleSelector = document.getElementById('moduleSelector');
+        
+        // 頁面載入時，自動獲取子系統列表
+        fetchModules();
+
+        // 當子系統變更時，自動獲取對應的檔案列表
+        moduleSelector.addEventListener('change', function() {
+            const selectedModuleId = this.value;
+            if (selectedModuleId) {
+                fetchFiles(selectedModuleId);
+            } else {
+                resetFileSelector();
+            }
+        });
+    });
+
+    // 獲取子系統列表
+    async function fetchModules() {
+        const moduleSelector = document.getElementById('moduleSelector');
+        try {
+            const response = await fetch('/api/excelreader/modules');
+            if (!response.ok) throw new Error('無法獲取子系統列表');
+            
+            const modules = await response.json();
+            moduleSelector.innerHTML = '<option value="" selected>-- 請選擇一個子系統 --</option>'; // 清空並加入預設選項
+            
+            modules.forEach(module => {
+                const option = new Option(`${module.moduleName} (${module.moduleId})`, module.moduleId);
+                moduleSelector.add(option);
+            });
+        } catch (error) {
+            moduleSelector.innerHTML = `<option selected>錯誤: ${error.message}</option>`;
+            console.error(error);
+        }
+    }
+
+    // 獲取指定子系統的檔案列表
+    async function fetchFiles(moduleId, path = '') {
+        const fileListContainer = document.getElementById('fileListContainer');        fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">載入檔案中...</div>';
+
+        try {
+            const response = await fetch(`/api/excelreader/files/${moduleId}?path=${encodeURIComponent(path)}`);
+            if (!response.ok) throw new Error('無法獲取檔案列表');
+
+            const result = await response.json();
+            const items = result.items;
+            updatePathNavigator(moduleId, result.currentPath); // 更新路徑導覽列
+
+            fileListContainer.innerHTML = ''; // 清空
+
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const fileItem = document.createElement('a');
+                    fileItem.href = '#';
+                    fileItem.className = 'list-group-item list-group-item-action list-group-item-dark';
+
+                    if (item.isDirectory) {
+                        fileItem.innerHTML = `<i class="bi bi-folder-fill text-warning me-2"></i><strong>${item.name}</strong>`;
+                        fileItem.onclick = (e) => {
+                            e.preventDefault();
+                            fetchFiles(moduleId, item.path); // 點擊資料夾，載入新路徑
+                        };
+                    } else {
+                        fileItem.innerHTML = `<i class="bi bi-file-earmark-text text-info me-2"></i>${item.name}`;
+                        fileItem.dataset.filePath = item.path; // 檔案才設定 filePath
+                        
+                        // 單擊：僅高亮選取項目
+                        fileItem.onclick = function (e) {
+                            e.preventDefault();
+                            document.querySelectorAll('#fileListContainer .list-group-item').forEach(el => el.classList.remove('active'));
+                            this.classList.add('active');
+                        };
+
+                        // 雙擊：直接執行處理
+                        fileItem.ondblclick = function (e) {
+                            e.preventDefault();
+                            processFile(this.dataset.filePath); // 直接將檔案路徑傳入並執行
+                        };
+                    }
+                    fileListContainer.appendChild(fileItem);
+                });
+            } else {
+                fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">此目錄是空的</div>';
+            }
+        } catch (error) {
+            fileListContainer.innerHTML = `<div class="list-group-item list-group-item-danger">${error.message}</div>`;
+            console.error(error);
+        }
+    }
+
+    // 更新路徑導覽列
+    function updatePathNavigator(moduleId, currentPath) {
+        const pathNavigator = document.getElementById('pathNavigator');
+        let html = '';
+
+        // 如果不是根目錄，就顯示 "返回上一層"
+        if (currentPath && currentPath !== '/') {
+            let parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            if (parentPath === '') parentPath = '/'; // 如果上一層是根目錄
+
+            html += `<a href="#" onclick="event.preventDefault(); fetchFiles('${moduleId}', '${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
+                        <i class="bi bi-arrow-left-circle"></i> 返回
+                     </a> | `;
+        }
+
+        html += `<span class="text-light">路徑: </span><strong class="text-success">${currentPath}</strong>`;
+        pathNavigator.innerHTML = html;
+    }
+
+    // 重設檔案選擇器狀態
+    function resetFileSelector() {
+        const fileListContainer = document.getElementById('fileListContainer');
+        document.getElementById('pathNavigator').innerHTML = ''; // 清空路徑導覽
+        fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">請先選擇子系統</div>';
+    }
+
+    // 處理檔案
+    async function processFile(filePath) {
+        const moduleId = document.getElementById('moduleSelector').value;
+        
+        const resultMessage = document.getElementById('resultMessage');
+        const tableContainer = document.getElementById('dataTableContainer');
+
+        if (!moduleId || !filePath) {
+            alert('請先選擇子系統和檔案！');
+            return;
+        }
+
+        // 顯示處理中狀態
+        resultMessage.style.display = 'block';
+        resultMessage.innerHTML = '<span class="text-info">處理中，請稍候...</span>';
+        tableContainer.innerHTML = '<p class="text-info">正在等待後端回傳資料...</p>';
+
+        try {
+            const response = await fetch('/api/excelreader/execute-by-file', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ModuleId: moduleId, FilePath: filePath })
+            });
+
+            const result = await response.json();
+
+            // 顯示執行結果訊息
+            const messageClass = result.isSuccess ? 'text-success' : 'text-danger';
+            resultMessage.innerHTML = `<span class="${messageClass}">${result.message}</span>`;
+
+            // 如果成功且有資料，則渲染表格
+            if (result.isSuccess && result.data && result.data.length > 0) {
+                renderTable(result.data);
+            } else {
+                tableContainer.innerHTML = '<p class="text-muted">無資料可供顯示。</p>';
+            }
+
+        } catch (error) {
+            resultMessage.innerHTML = `<span class="text-danger">請求失敗: ${error.message}</span>`;
+            tableContainer.innerHTML = `<p class="text-danger">無法載入資料: ${error.message}</p>`;
+            console.error(error);
+        }
+    }
+
+    // 將 JSON 資料渲染成 HTML 表格
+    function renderTable(data) {
+        const tableContainer = document.getElementById('dataTableContainer');
+        if (!data || data.length === 0) {
+            tableContainer.innerHTML = '<p class="text-muted">回傳資料為空。</p>';
+            return;
+        }
+
+        const headers = Object.keys(data[0]);
+        let tableHtml = '<table class="table table-dark table-striped table-hover table-bordered">';
+        
+        // 表頭
+        tableHtml += '<thead><tr>';
+        headers.forEach(header => tableHtml += `<th>${header}</th>`);
+        tableHtml += '</tr></thead>';
+
+        // 表身
+        tableHtml += '<tbody>';
+        data.forEach(row => {
+            tableHtml += '<tr>';
+            headers.forEach(header => tableHtml += `<td>${row[header] || ''}</td>`);
+            tableHtml += '</tr>';
+        });
+        tableHtml += '</tbody></table>';
+
+        tableContainer.innerHTML = tableHtml;
+    }
+</script>
+}

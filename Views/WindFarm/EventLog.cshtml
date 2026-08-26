@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "風場報表事件紀錄";
+}
+
+<div class="container mb-5">
+    <!-- 篩選器卡片 -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4" >
+        <h5 class="fw-bold mb-3 text-light"><i class="bi bi-funnel me-2 text-primary"></i>日誌篩選</h5>
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-4 col-md-6">
+                <label for="logSearchTerm" class="form-label small fw-bold text-light">關鍵字搜尋</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-light border-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="logSearchTerm" placeholder="輸入關鍵字...">
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label for="logLevelFilter" class="form-label small fw-bold text-light">日誌層級</label>
+                <select class="form-select border-secondary bg-dark text-light shadow-none" id="logLevelFilter">
+                    <option value="">所有層級</option>
+                    <option value="INF">資訊 (INF)</option>
+                    <option value="WRN">警告 (WRN)</option>
+                    <option value="ERR">錯誤 (ERR)</option>
+                    <option value="DBG">除錯 (DBG)</option>
+                    <option value="FTL">嚴重 (FTL)</option>
+                    <option value="TRC">追蹤 (TRC)</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <label for="logDateFilter" class="form-label small fw-bold text-light">指定日期</label>
+                <input type="date" class="form-control border-secondary bg-dark text-light shadow-none" id="logDateFilter" value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <button type="button" class="btn btn-primary w-100 fw-bold shadow-sm py-2" onclick="fetchLogs()">
+                    <i class="bi bi-arrow-repeat me-1"></i> 篩選日誌
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日誌內容輸出卡片 -->
+    <div class="card shadow-sm border-0 p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-light mb-0"><i class="bi bi-terminal me-2 text-success"></i>日誌內容輸出</h5>
+            <span class="badge bg-secondary font-monospace" id="logStatusBadge">Ready</span>
+        </div>
+
+        <div style="width: 100%;">
+            <pre id="logContent" class="p-3 rounded-3 border-0 m-0 shadow-inner" style="background-color: #212529 !important; color: #00ff66 !important; max-height: 550px; min-height: 350px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-all;">載入中...</pre>
+        </div>
+    </div>
+    <p class="text-secondary mt-4 mb-0">即時檢視應用程式日誌，可透過關鍵字、日誌層級和日期進行精準篩選。</p>
+</div>
+
+@section Scripts {
+    <script>
+        async function fetchLogs() {
+            const searchTerm = document.getElementById('logSearchTerm').value;
+            const logLevel = document.getElementById('logLevelFilter').value;
+            const logDate = document.getElementById('logDateFilter').value;
+
+            let url = `/api/SystemConfig/GetLogs?`;
+            if (searchTerm) url += `searchTerm=${encodeURIComponent(searchTerm)}&`;
+            if (logLevel) url += `logLevel=${encodeURIComponent(logLevel)}&`;
+            if (logDate) url += `date=${encodeURIComponent(logDate)}&`;
+
+            if (url.endsWith('&')) {
+                url = url.slice(0, -1);
+            }
+
+            const logContentElement = document.getElementById('logContent');
+            const statusBadge = document.getElementById('logStatusBadge');
+            
+            logContentElement.innerText = '載入中...';
+            statusBadge.className = 'badge bg-warning text-dark font-monospace';
+            statusBadge.innerText = 'Loading...';
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    logContentElement.innerText = `錯誤: ${response.status} - ${errorText}`;
+                    statusBadge.className = 'badge bg-danger font-monospace';
+                    statusBadge.innerText = 'Error';
+                    return;
+                }
+                const logs = await response.json();
+                if (logs.length === 0) {
+                    logContentElement.innerText = '沒有找到符合條件的日誌。';
+                    statusBadge.className = 'badge bg-info text-dark font-monospace';
+                    statusBadge.innerText = '0 Results';
+                } else {
+                    logContentElement.innerText = logs.join('\n');
+                    statusBadge.className = 'badge bg-success font-monospace';
+                    statusBadge.innerText = `${logs.length} entries`;
+                }
+            } catch (error) {
+                logContentElement.innerText = `載入日誌失敗: ${error.message}`;
+                statusBadge.className = 'badge bg-danger font-monospace';
+                statusBadge.innerText = 'Failed';
+                console.error('Error fetching logs:', error);
+            }
+        }
+    </script>
+}

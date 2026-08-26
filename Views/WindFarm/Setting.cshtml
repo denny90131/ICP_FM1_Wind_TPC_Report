@@ -1,0 +1,213 @@
+@{
+    ViewData["Title"] = "風場報表系統參數設置";
+}
+
+<div class="container mb-5">    
+    <!-- API 服務設定卡片 -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4" style="background-color: #2b3035;">
+        <h5 class="fw-bold mb-3 text-light"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>1. API 服務設定</h5>
+        <form id="apiSettingsForm">
+            <div class="mb-3">
+                <label for="apiDomain" class="form-label small fw-bold text-light">API 服務網域 <span class="text-muted">(conf_API:Domain)</span></label>
+                <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="apiDomain" value="" readonly>
+            </div>
+            
+            <hr class="border-secondary my-4">
+
+            <!-- API Token 檢視區塊 -->
+            <h5 class="fw-bold text-light mb-3"><i class="bi bi-key me-2 text-warning"></i>API Token 管理</h5>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="small text-muted">目前系統使用的 API Token。</span>
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="viewToken()">
+                    <i class="bi bi-eye me-1"></i> 查看 Token
+                </button>
+            </div>
+            <div style="width: 100%;">
+                <pre id="apiTokenDisplay" class="p-3 rounded-3 border-0 m-0 shadow-inner" style="background-color: #212529 !important; color: #00ff66 !important; max-height: 200px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-all;">點擊 "查看 Token" 按鈕顯示...</pre>
+            </div>
+            
+            <hr class="border-secondary my-4">
+
+            <!-- 更新 API Token 區塊 -->
+            <h5 class="fw-bold mb-3 text-light"><i class="bi bi-arrow-clockwise me-2 text-info"></i>更新 API Token</h5>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="newTokenInput" placeholder="輸入新的 API Token...">
+                <button class="btn btn-info fw-bold px-4 py-2 shadow-sm" type="button" onclick="updateApiToken()">
+                    <i class="bi bi-upload me-1"></i> 更新 Token
+                </button>
+            </button>
+        </form>
+    </div>
+
+    <!-- SFTP 服務設定卡片 -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4" style="background-color: #2b3035;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-light mb-0"><i class="bi bi-server me-2 text-primary"></i>2. SFTP 服務設定</h5>
+        </div>
+        <form id="sftpSettingsForm">
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="sftpHost" class="form-label small fw-bold text-light">SFTP 主機 <span class="text-muted">(conf_SFTP:Host)</span></label>
+                    <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="sftpHost" value="" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="sftpPort" class="form-label small fw-bold text-light">SFTP 埠號 <span class="text-muted">(conf_SFTP:Port)</span></label>
+                    <input type="number" class="form-control border-secondary bg-dark text-light shadow-none" id="sftpPort" value="" readonly>
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="sftpUsername" class="form-label small fw-bold text-light">SFTP 使用者名稱 <span class="text-muted">(conf_SFTP:Username)</span></label>
+                    <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="sftpUsername" value="" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="sftpPassword" class="form-label small fw-bold text-light">SFTP 密碼 <span class="text-muted">(conf_SFTP:Password)</span></label>
+                    <input type="password" class="form-control border-secondary bg-dark text-light shadow-none" id="sftpPassword" value="" readonly>
+                </div>
+            </div>
+            <span id="sftpVerificationResult" class="ms-3 mt-3 text-muted small"></span>
+        </form>
+    </div>
+
+    <p class="text-secondary mt-4 mb-0">請注意，API Token 應妥善保管，避免洩露。</p>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApiSettings();
+            loadSftpSettings();
+        });
+
+        // 載入 API_Domain 設定
+        async function loadApiSettings() {
+            try {
+                const response = await fetch('/api/SystemConfig/apiSettings');
+                if (!response.ok) {
+                    console.error('Failed to load API settings:', response.status, await response.text());
+                    document.getElementById('apiDomain').value = '載入失敗';
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('apiDomain').value = data.apiDomain || '';
+            } catch (error) {
+                console.error('Error fetching API settings:', error);
+                document.getElementById('apiDomain').value = '載入錯誤';
+            }
+        }
+        // 載入 SFTP 設定
+        async function loadSftpSettings() {
+            try {
+                const response = await fetch('/api/SystemConfig/sftpSettings');
+                if (!response.ok) {
+                    console.error('Failed to load SFTP settings:', response.status, await response.text());
+                    document.getElementById('sftpHost').value = '載入失敗';
+                    document.getElementById('sftpPort').value = '';
+                    document.getElementById('sftpUsername').value = '載入失敗';
+                    document.getElementById('sftpPassword').value = '載入失敗';
+                    return;
+                }
+                const data = await response.json();
+                document.getElementById('sftpHost').value = data.sftpHost || '';
+                document.getElementById('sftpPort').value = data.sftpPort !== undefined ? data.sftpPort : '';
+                document.getElementById('sftpUsername').value = data.sftpUsername || '';
+                // Security Note: Displaying password in frontend, even read-only, is generally not recommended.
+                // For demonstration as requested, it's included.
+                document.getElementById('sftpPassword').value = data.sftpPassword || '';
+            } catch (error) {
+                console.error('Error fetching SFTP settings:', error);
+                document.getElementById('sftpHost').value = '載入錯誤';
+                document.getElementById('sftpPort').value = '';
+                document.getElementById('sftpUsername').value = '載入錯誤';
+                document.getElementById('sftpPassword').value = '載入錯誤';
+            }
+        }
+        // 檢視 API Token
+        async function viewToken() {
+            const tokenDisplay = document.getElementById('apiTokenDisplay');
+            tokenDisplay.innerText = '載入中...';
+
+            try {
+                const response = await fetch('/api/SystemConfig/token');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    tokenDisplay.innerText = `錯誤: ${response.status} - ${errorText}`;
+                    alert(`查看 Token 失敗: ${response.status} - ${errorText}`);
+                    return;
+                }
+                const data = await response.json();
+                const fullToken = data.token;
+                if (fullToken && typeof fullToken === 'string') {
+                    if (fullToken.length > 5) { // 如果 Token 長度大於 5
+                        const numX = fullToken.length - 5; // 計算需要多少個 'x'
+                        const maskedPart = 'x'.repeat(numX); // 生成 'x' 字串
+                        tokenDisplay.innerText = maskedPart + fullToken.slice(-5); // 顯示遮罩部分和後5碼
+                    } else {
+                        tokenDisplay.innerText = fullToken; // 如果 Token 不足5碼，則全部顯示
+                    }
+                } else {
+                    tokenDisplay.innerText = '沒有 Token 資料。';
+                }
+            } catch (error) {
+                tokenDisplay.innerText = `載入 Token 失敗: ${error.message}`;
+                alert(`查看 Token 失敗: ${error.message}`);
+                console.error('Error fetching token:', error);
+            }
+        }
+        // 更新 API Token
+        async function updateApiToken() {
+            const newTokenInput = document.getElementById('newTokenInput');
+            const newToken = newTokenInput.value.trim();
+
+            if (!newToken) {
+                alert('請輸入要更新的 API Token。');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/SystemConfig/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: newToken })
+                });
+
+                const result = await response.json();
+                alert(result.msg || 'Token 更新成功！');
+                if (response.ok) {
+                    viewToken(); // 更新成功後重新載入並顯示最新 Token
+                }
+            } catch (error) {
+                alert(`更新 Token 失敗: ${error.message}`);
+                console.error('Error updating token:', error);
+            }
+        }
+        // 驗證SFTP連線 (-- 已移除 --)
+        async function verifySftpConnection() {
+            const verificationResultElement = document.getElementById('sftpVerificationResult');
+            verificationResultElement.className = 'ms-3 mt-3 badge bg-info text-white small'; // 設定為資訊/載入狀態，背景藍色，文字白色
+            verificationResultElement.innerText = '驗證中...';
+
+            try {
+                const response = await fetch('/api/Sftp/verify'); // 呼叫新的 SFTP 驗證 API
+                const result = await response.json();
+
+                if (response.ok) {
+                    verificationResultElement.className = 'ms-3 mt-3 badge bg-success text-white small'; // 成功狀態，背景綠色，文字白色
+                    verificationResultElement.innerText = `驗證成功: ${result.message}`;
+                    alert(result.message);
+                } else {
+                    verificationResultElement.className = 'ms-3 mt-3 badge bg-danger text-white small'; // 錯誤狀態，背景紅色，文字白色
+                    verificationResultElement.innerText = `驗證失敗: ${result.message}`;
+                    alert(`SFTP 連線驗證失敗: ${result.message}`);
+                }
+            } catch (error) {
+                verificationResultElement.className = 'ms-3 mt-3 badge bg-danger text-white small'; // 捕捉網路錯誤，背景紅色，文字白色
+                verificationResultElement.innerText = `驗證失敗: ${error.message}`;
+                alert(`SFTP 連線驗證失敗: ${error.message}`);
+                console.error('Error verifying SFTP connection:', error);
+            }
+        }
+    </script>
+}

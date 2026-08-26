@@ -1,0 +1,245 @@
+2026-08-03 08:54:37.320 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 08:54:37.436 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:54:37.479 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:54:37.528 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 08:54:37.643 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 140.6159ms.
+2026-08-03 08:54:37.646 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 164.9782ms
+2026-08-03 08:54:37.648 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:54:37.655 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 341.7404ms
+2026-08-03 08:54:37.662 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/css/site.css - null null
+2026-08-03 08:54:37.667 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:54:37.677 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 10.7518ms
+2026-08-03 08:54:37.682 +08:00 [INF] The file /css/site.css was not modified
+2026-08-03 08:54:37.685 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/css/site.css - 304 null text/css 23.718ms
+2026-08-03 08:54:44.300 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - null null
+2026-08-03 08:54:44.305 +08:00 [INF] Executing endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:54:44.316 +08:00 [INF] Route matched with {action = "SFTPManagement", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] SFTPManagement() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:54:44.320 +08:00 [INF] Executing ViewResult, running view SFTPManagement.
+2026-08-03 08:54:44.331 +08:00 [INF] Executed ViewResult - view SFTPManagement executed in 12.4674ms.
+2026-08-03 08:54:44.333 +08:00 [INF] Executed action WindFarmController.SFTPManagement (tai_wind_integration) in 14.7626ms
+2026-08-03 08:54:44.334 +08:00 [INF] Executed endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:54:44.336 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - 200 null text/html; charset=utf-8 35.2477ms
+2026-08-03 08:54:44.342 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:54:44.345 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.2189ms
+2026-08-03 08:54:46.112 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - null null
+2026-08-03 08:54:46.116 +08:00 [INF] Executing endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:54:46.127 +08:00 [INF] Route matched with {action = "EventLog", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] EventLog() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:54:46.130 +08:00 [INF] Executing ViewResult, running view EventLog.
+2026-08-03 08:54:46.141 +08:00 [INF] Executed ViewResult - view EventLog executed in 11.1294ms.
+2026-08-03 08:54:46.142 +08:00 [INF] Executed action WindFarmController.EventLog (tai_wind_integration) in 13.46ms
+2026-08-03 08:54:46.143 +08:00 [INF] Executed endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:54:46.144 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - 200 null text/html; charset=utf-8 32.3067ms
+2026-08-03 08:54:46.150 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:54:46.153 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.0131ms
+2026-08-03 08:54:51.025 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - null null
+2026-08-03 08:54:51.029 +08:00 [INF] Executing endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:54:51.030 +08:00 [INF] Route matched with {action = "SFTPManagement", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] SFTPManagement() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:54:51.032 +08:00 [INF] Executing ViewResult, running view SFTPManagement.
+2026-08-03 08:54:51.034 +08:00 [INF] Executed ViewResult - view SFTPManagement executed in 1.7836ms.
+2026-08-03 08:54:51.035 +08:00 [INF] Executed action WindFarmController.SFTPManagement (tai_wind_integration) in 3.4384ms
+2026-08-03 08:54:51.037 +08:00 [INF] Executed endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:54:51.039 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - 200 null text/html; charset=utf-8 13.7082ms
+2026-08-03 08:54:51.044 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:54:51.048 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.4409ms
+2026-08-03 08:54:57.743 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 08:54:57.746 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:54:57.748 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:54:57.750 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 08:54:57.752 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 2.2549ms.
+2026-08-03 08:54:57.754 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 4.0586ms
+2026-08-03 08:54:57.756 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:54:57.758 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 15.2073ms
+2026-08-03 08:54:57.762 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:54:57.765 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 2.9128ms
+2026-08-03 08:55:31.025 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - null null
+2026-08-03 08:55:31.089 +08:00 [INF] Executing endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:55:31.091 +08:00 [INF] Route matched with {action = "SFTPManagement", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] SFTPManagement() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:55:31.094 +08:00 [INF] Executing ViewResult, running view SFTPManagement.
+2026-08-03 08:55:31.097 +08:00 [INF] Executed ViewResult - view SFTPManagement executed in 2.9791ms.
+2026-08-03 08:55:31.100 +08:00 [INF] Executed action WindFarmController.SFTPManagement (tai_wind_integration) in 6.0361ms
+2026-08-03 08:55:31.103 +08:00 [INF] Executed endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:55:31.105 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - 200 null text/html; charset=utf-8 80.3179ms
+2026-08-03 08:55:31.111 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:55:31.115 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 4.5443ms
+2026-08-03 08:55:35.061 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - null null
+2026-08-03 08:55:35.065 +08:00 [INF] Executing endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:55:35.067 +08:00 [INF] Route matched with {action = "EventLog", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] EventLog() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:55:35.070 +08:00 [INF] Executing ViewResult, running view EventLog.
+2026-08-03 08:55:35.072 +08:00 [INF] Executed ViewResult - view EventLog executed in 2.0681ms.
+2026-08-03 08:55:35.074 +08:00 [INF] Executed action WindFarmController.EventLog (tai_wind_integration) in 4.2188ms
+2026-08-03 08:55:35.075 +08:00 [INF] Executed endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:55:35.077 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - 200 null text/html; charset=utf-8 15.7976ms
+2026-08-03 08:55:35.082 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:55:35.085 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.0479ms
+2026-08-03 08:56:35.507 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-03 - null null
+2026-08-03 08:56:35.511 +08:00 [INF] Executing endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:35.513 +08:00 [INF] Route matched with {action = "GetLogs", controller = "SystemConfig"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetLogs(System.String, System.String, System.Nullable`1[System.DateTime]) on controller SystemConfigController (tai_wind_integration).
+2026-08-03 08:56:35.520 +08:00 [INF] ========================================
+2026-08-03 08:56:35.529 +08:00 [INF] 【SFTP 服務】載入設定與初始化檢查...
+2026-08-03 08:56:35.531 +08:00 [INF] Host     : 127.0.0.1
+2026-08-03 08:56:35.532 +08:00 [INF] Port     : 22
+2026-08-03 08:56:35.534 +08:00 [INF] UserName : root
+2026-08-03 08:56:35.536 +08:00 [INF] 【狀態】SFTP 設定完整，準備就緒。
+2026-08-03 08:56:35.538 +08:00 [INF] ========================================
+2026-08-03 08:56:35.617 +08:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-08-03 08:56:35.649 +08:00 [INF] Executed action SystemConfigController.GetLogs (tai_wind_integration) in 134.2912ms
+2026-08-03 08:56:35.651 +08:00 [INF] Executed endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:35.658 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-03 - 200 null application/json; charset=utf-8 151.1553ms
+2026-08-03 08:56:43.038 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-02 - null null
+2026-08-03 08:56:43.042 +08:00 [INF] Executing endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:43.045 +08:00 [INF] Route matched with {action = "GetLogs", controller = "SystemConfig"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetLogs(System.String, System.String, System.Nullable`1[System.DateTime]) on controller SystemConfigController (tai_wind_integration).
+2026-08-03 08:56:43.048 +08:00 [INF] ========================================
+2026-08-03 08:56:43.050 +08:00 [INF] 【SFTP 服務】載入設定與初始化檢查...
+2026-08-03 08:56:43.052 +08:00 [INF] Host     : 127.0.0.1
+2026-08-03 08:56:43.054 +08:00 [INF] Port     : 22
+2026-08-03 08:56:43.055 +08:00 [INF] UserName : root
+2026-08-03 08:56:43.056 +08:00 [INF] 【狀態】SFTP 設定完整，準備就緒。
+2026-08-03 08:56:43.056 +08:00 [INF] ========================================
+2026-08-03 08:56:43.058 +08:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-08-03 08:56:43.062 +08:00 [INF] Executed action SystemConfigController.GetLogs (tai_wind_integration) in 14.1479ms
+2026-08-03 08:56:43.064 +08:00 [INF] Executed endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:43.067 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-02 - 200 null application/json; charset=utf-8 29.1721ms
+2026-08-03 08:56:46.165 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-03 - null null
+2026-08-03 08:56:46.169 +08:00 [INF] Executing endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:46.170 +08:00 [INF] Route matched with {action = "GetLogs", controller = "SystemConfig"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetLogs(System.String, System.String, System.Nullable`1[System.DateTime]) on controller SystemConfigController (tai_wind_integration).
+2026-08-03 08:56:46.174 +08:00 [INF] ========================================
+2026-08-03 08:56:46.175 +08:00 [INF] 【SFTP 服務】載入設定與初始化檢查...
+2026-08-03 08:56:46.176 +08:00 [INF] Host     : 127.0.0.1
+2026-08-03 08:56:46.177 +08:00 [INF] Port     : 22
+2026-08-03 08:56:46.178 +08:00 [INF] UserName : root
+2026-08-03 08:56:46.179 +08:00 [INF] 【狀態】SFTP 設定完整，準備就緒。
+2026-08-03 08:56:46.180 +08:00 [INF] ========================================
+2026-08-03 08:56:46.182 +08:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-08-03 08:56:46.184 +08:00 [INF] Executed action SystemConfigController.GetLogs (tai_wind_integration) in 10.1651ms
+2026-08-03 08:56:46.186 +08:00 [INF] Executed endpoint 'SystemConfigController.GetLogs (tai_wind_integration)'
+2026-08-03 08:56:46.189 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/SystemConfig/GetLogs?date=2026-08-03 - 200 null application/json; charset=utf-8 23.7972ms
+2026-08-03 08:58:35.495 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 08:58:35.500 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:58:35.501 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:58:35.507 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 08:58:35.515 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 10.3883ms.
+2026-08-03 08:58:35.516 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 12.943ms
+2026-08-03 08:58:35.517 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:58:35.518 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 23.0158ms
+2026-08-03 08:58:35.526 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:58:35.530 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.9722ms
+2026-08-03 08:58:39.317 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - null null
+2026-08-03 08:58:39.320 +08:00 [INF] Executing endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:58:39.321 +08:00 [INF] Route matched with {action = "EventLog", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] EventLog() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:58:39.323 +08:00 [INF] Executing ViewResult, running view EventLog.
+2026-08-03 08:58:39.326 +08:00 [INF] Executed ViewResult - view EventLog executed in 2.7268ms.
+2026-08-03 08:58:39.329 +08:00 [INF] Executed action WindFarmController.EventLog (tai_wind_integration) in 6.2927ms
+2026-08-03 08:58:39.332 +08:00 [INF] Executed endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 08:58:39.334 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - 200 null text/html; charset=utf-8 16.3515ms
+2026-08-03 08:58:39.337 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:58:39.340 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 2.7866ms
+2026-08-03 08:58:44.071 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - null null
+2026-08-03 08:58:44.074 +08:00 [INF] Executing endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:58:44.075 +08:00 [INF] Route matched with {action = "SFTPManagement", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] SFTPManagement() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:58:44.077 +08:00 [INF] Executing ViewResult, running view SFTPManagement.
+2026-08-03 08:58:44.079 +08:00 [INF] Executed ViewResult - view SFTPManagement executed in 1.9508ms.
+2026-08-03 08:58:44.080 +08:00 [INF] Executed action WindFarmController.SFTPManagement (tai_wind_integration) in 3.5928ms
+2026-08-03 08:58:44.082 +08:00 [INF] Executed endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 08:58:44.084 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - 200 null text/html; charset=utf-8 12.2205ms
+2026-08-03 08:58:44.089 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:58:44.091 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 2.6584ms
+2026-08-03 08:58:48.744 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 08:58:48.746 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:58:48.747 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 08:58:48.749 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 08:58:48.751 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 2.0354ms.
+2026-08-03 08:58:48.753 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 4.5201ms
+2026-08-03 08:58:48.755 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 08:58:48.756 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 12.5211ms
+2026-08-03 08:58:48.762 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 08:58:48.764 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 2.7535ms
+2026-08-03 10:59:25.954 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 10:59:26.007 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 51.6823ms
+2026-08-03 15:14:57.053 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework - null null
+2026-08-03 15:14:57.100 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework - 404 null null 47.5608ms
+2026-08-03 15:14:57.140 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/_framework, Response status code: 404
+2026-08-03 15:15:09.820 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/ - null null
+2026-08-03 15:15:09.825 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/ - 404 null null 5.4211ms
+2026-08-03 15:15:09.911 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/, Response status code: 404
+2026-08-03 15:15:19.609 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - null null
+2026-08-03 15:15:19.620 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - 404 null null 9.5482ms
+2026-08-03 15:15:19.623 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/ForecastDataSummary, Response status code: 404
+2026-08-03 15:15:24.788 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - null null
+2026-08-03 15:15:24.790 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - 404 null null 2.241ms
+2026-08-03 15:15:24.793 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/ForecastDataSummary, Response status code: 404
+2026-08-03 15:15:29.829 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - null null
+2026-08-03 15:15:29.831 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - 404 null null 2.2227ms
+2026-08-03 15:15:29.833 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/ForecastDataSummary, Response status code: 404
+2026-08-03 15:15:35.885 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - null null
+2026-08-03 15:15:35.889 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/ForecastDataSummary - 404 null null 4.0306ms
+2026-08-03 15:15:35.891 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/ForecastDataSummary, Response status code: 404
+2026-08-03 15:15:53.655 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/ForecastDataSummary - null null
+2026-08-03 15:15:53.658 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/ForecastDataSummary - 404 null null 3.2338ms
+2026-08-03 15:15:53.660 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/api/ForecastDataSummary, Response status code: 404
+2026-08-03 15:16:49.373 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 15:16:49.532 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 15:16:49.569 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 15:16:49.734 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 15:16:49.818 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 214.8609ms.
+2026-08-03 15:16:49.823 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 251.2583ms
+2026-08-03 15:16:49.827 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/css/site.css - null null
+2026-08-03 15:16:49.827 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 15:16:49.829 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/images/ICP_icon.png - null null
+2026-08-03 15:16:49.834 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 461.2055ms
+2026-08-03 15:16:49.835 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 15:16:49.849 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 13.498ms
+2026-08-03 15:16:49.981 +08:00 [INF] Sending file. Request path: '/images/ICP_icon.png'. Physical path: 'C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration\wwwroot\images\ICP_icon.png'
+2026-08-03 15:16:49.983 +08:00 [INF] Sending file. Request path: '/css/site.css'. Physical path: 'C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration\wwwroot\css\site.css'
+2026-08-03 15:16:49.986 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/images/ICP_icon.png - 200 6729 image/png 156.7775ms
+2026-08-03 15:16:49.987 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/css/site.css - 200 5576 text/css 159.9342ms
+2026-08-03 15:16:50.234 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/favicon.ico - null null
+2026-08-03 15:16:50.252 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/favicon.ico - 404 0 null 18.0746ms
+2026-08-03 15:16:50.254 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET http://localhost:5122/favicon.ico, Response status code: 404
+2026-08-03 16:11:10.366 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - null null
+2026-08-03 16:11:10.393 +08:00 [INF] Executing endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 16:11:10.404 +08:00 [INF] Route matched with {action = "SFTPManagement", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] SFTPManagement() on controller WindFarmController (tai_wind_integration).
+2026-08-03 16:11:10.433 +08:00 [INF] Executing ViewResult, running view SFTPManagement.
+2026-08-03 16:11:10.450 +08:00 [INF] Executed ViewResult - view SFTPManagement executed in 35.4308ms.
+2026-08-03 16:11:10.452 +08:00 [INF] Executed action WindFarmController.SFTPManagement (tai_wind_integration) in 45.1375ms
+2026-08-03 16:11:10.454 +08:00 [INF] Executed endpoint 'WindFarmController.SFTPManagement (tai_wind_integration)'
+2026-08-03 16:11:10.457 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/SFTPManagement - 200 null text/html; charset=utf-8 91.5409ms
+2026-08-03 16:11:10.465 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 16:11:10.473 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 7.8312ms
+2026-08-03 16:11:16.925 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - null null
+2026-08-03 16:11:16.930 +08:00 [INF] Executing endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 16:11:16.932 +08:00 [INF] Route matched with {action = "EventLog", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] EventLog() on controller WindFarmController (tai_wind_integration).
+2026-08-03 16:11:16.937 +08:00 [INF] Executing ViewResult, running view EventLog.
+2026-08-03 16:11:16.941 +08:00 [INF] Executed ViewResult - view EventLog executed in 5.4498ms.
+2026-08-03 16:11:16.944 +08:00 [INF] Executed action WindFarmController.EventLog (tai_wind_integration) in 8.966ms
+2026-08-03 16:11:16.946 +08:00 [INF] Executed endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 16:11:16.948 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - 200 null text/html; charset=utf-8 22.3072ms
+2026-08-03 16:11:16.952 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 16:11:16.955 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 3.0788ms
+2026-08-03 16:54:41.717 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 16:54:42.240 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 16:54:42.527 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 16:54:43.234 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 16:54:43.634 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 882.7412ms.
+2026-08-03 16:54:43.649 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 1089.8825ms
+2026-08-03 16:54:43.651 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 16:54:43.679 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 1954.2718ms
+2026-08-03 16:54:44.390 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - null null
+2026-08-03 16:54:44.407 +08:00 [INF] Executing endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 16:54:44.409 +08:00 [INF] Route matched with {action = "ForecastDataSummary", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] ForecastDataSummary() on controller WindFarmController (tai_wind_integration).
+2026-08-03 16:54:44.452 +08:00 [INF] Executing ViewResult, running view ForecastDataSummary.
+2026-08-03 16:54:44.507 +08:00 [INF] Executed ViewResult - view ForecastDataSummary executed in 54.9694ms.
+2026-08-03 16:54:44.527 +08:00 [INF] Executed action WindFarmController.ForecastDataSummary (tai_wind_integration) in 99.9668ms
+2026-08-03 16:54:44.528 +08:00 [INF] Executed endpoint 'WindFarmController.ForecastDataSummary (tai_wind_integration)'
+2026-08-03 16:54:44.529 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/ForecastDataSummary - 200 null text/html; charset=utf-8 138.2075ms
+2026-08-03 16:54:45.339 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 16:54:45.397 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 57.6893ms
+2026-08-03 16:54:48.877 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - null null
+2026-08-03 16:54:48.958 +08:00 [INF] Executing endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 16:54:48.963 +08:00 [INF] Route matched with {action = "EventLog", controller = "WindFarm"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] EventLog() on controller WindFarmController (tai_wind_integration).
+2026-08-03 16:54:48.971 +08:00 [INF] Executing ViewResult, running view EventLog.
+2026-08-03 16:54:48.991 +08:00 [INF] Executed ViewResult - view EventLog executed in 20.7177ms.
+2026-08-03 16:54:48.996 +08:00 [INF] Executed action WindFarmController.EventLog (tai_wind_integration) in 32.166ms
+2026-08-03 16:54:48.998 +08:00 [INF] Executed endpoint 'WindFarmController.EventLog (tai_wind_integration)'
+2026-08-03 16:54:49.011 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/api/WindFarm/logViewer - 200 null text/html; charset=utf-8 123.858ms
+2026-08-03 16:54:49.015 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - null null
+2026-08-03 16:54:49.015 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:5122/_framework/aspnetcore-browser-refresh.js - 200 14901 application/javascript; charset=utf-8 0.7503ms

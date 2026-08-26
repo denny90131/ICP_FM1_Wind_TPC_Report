@@ -1,0 +1,206 @@
+@{
+    ViewData["Title"] = "風場預測資料管理";
+    var now = DateTime.Now;
+    var totalMinutes = now.Hour * 60 + now.Minute;
+    var roundedTotalMinutes = (int)Math.Round((double)totalMinutes / 5) * 5;
+    var roundedTime = now.Date.AddMinutes(roundedTotalMinutes);
+    var defaultDataTime = roundedTime.ToString("yyyy-MM-ddTHH:mm");
+}
+
+<div class="container mb-5">
+    <form id="forecastForm">
+        <!-- 核心參數設定卡片 -->
+        <div class="card shadow-sm border-0 p-4 mb-4 rounded-4">
+            <h5 class="fw-bold mb-3 text-light"><i class="bi bi-sliders me-2 text-info"></i>1. 填寫基礎參數</h5>
+            
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="farmId" class="form-label small fw-bold text-light">風場編號 <span class="text-muted">(farmId)</span></label>
+                    <input type="number" class="form-control border-secondary bg-dark text-light shadow-none" id="farmId" value="50000001">
+                </div>
+                <div class="col-md-4">
+                    <label for="status" class="form-label small fw-bold text-light">風場狀態 <span class="text-muted">(status)</span></label>
+                    <select class="form-select border-secondary bg-dark text-light shadow-none" id="status">
+                        <option value="0">0: Avail (正常)</option>
+                        <option value="1">1: Out (全場機組停檢修)</option>
+                        <option value="2">2: Test (全場機組測試)</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="dataTime" class="form-label small fw-bold text-light">起始日期時間 <span class="text-muted">(dataTime)</span></label>
+                    <input type="datetime-local" class="form-control border-secondary bg-dark text-light shadow-none" id="dataTime" value="@defaultDataTime">
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4">
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="maxPower" class="form-label small fw-bold text-light">最大出力 <span class="text-muted">(MW)</span></label>
+                    <input type="number" step="0.01" class="form-control border-secondary bg-dark text-light shadow-none" id="maxPower" value="192.39">
+                </div>
+                <div class="col-md-3">
+                    <label for="windSpeed" class="form-label small fw-bold text-light">平均風速 <span class="text-muted">(m/s)</span></label>
+                    <input type="number" step="0.01" class="form-control border-secondary bg-dark text-light shadow-none" id="windSpeed" value="18.43">
+                </div>
+                <div class="col-md-3">
+                    <label for="avgPower" class="form-label small fw-bold text-light">總發電 <span class="text-muted">(MW)</span></label>
+                    <input type="number" step="0.01" class="form-control border-secondary bg-dark text-light shadow-none" id="avgPower" value="192.39">
+                </div>
+                <div class="col-md-3">
+                    <label for="activeFansCount" class="form-label small fw-bold text-light">線上風機數量 <span class="text-muted">(activeFansCount)</span></label>
+                    <input type="number" class="form-control border-secondary bg-dark text-light shadow-none" id="activeFansCount" value="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- 執行動作卡片 -->
+        <div class="card shadow-sm border-0 p-4 mb-4 rounded-4">
+            <h5 class="fw-bold mb-3 text-light"><i class="bi bi-play-circle me-2 text-warning"></i>2. 執行產生與送出</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary fw-bold px-4 py-2 shadow-sm" onclick="submitSingleData()">
+                    <i class="bi bi-send me-1"></i> 送出單筆資料
+                </button>
+                <button type="button" class="btn btn-outline-info py-2" onclick="generateBatchData(12)">
+                    未來 1 小時 <span class="badge bg-info text-dark ms-1">12筆</span>
+                </button>
+                <button type="button" class="btn btn-outline-info py-2" onclick="generateBatchData(288)">
+                    未來 1 天 <span class="badge bg-info text-dark ms-1">288筆</span>
+                </button>
+                <button type="button" class="btn btn-outline-info py-2" onclick="generateBatchData(864)">
+                    未來 3 天 <span class="badge bg-info text-dark ms-1">864筆</span>
+                </button>
+                <button type="button" class="btn btn-outline-info py-2" onclick="generateBatchData(2016)">
+                    未來 7 天 <span class="badge bg-info text-dark ms-1">2016筆</span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- 回傳結果顯示區 -->
+    <div class="card shadow-sm border-0 p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-light mb-0"><i class="bi bi-code-square me-2 text-success"></i>API 回傳與 Payload 預覽</h5>
+            <span class="badge bg-secondary font-monospace">JSON Output</span>
+        </div>
+
+        <div style="width: 100%;">
+            <pre id="apiResult" class="p-3 rounded-3 border-0 m-0 shadow-inner" style="background-color: #212529 !important; color: #00ff66 !important; max-height: 400px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; word-break: break-all;">尚未執行...</pre>
+        </div>
+    </div>
+    <p class="text-secondary mt-4 mb-0">可透過上方設定快速產生並預覽風場預測資料的 JSON Payload 結構。</p>
+</div>
+
+@section Scripts {
+    <script>
+        //取得表單資料
+        function getCommonFormData() {
+            return {
+                farmId: parseInt(document.getElementById('farmId').value),
+                status: parseInt(document.getElementById('status').value),
+                maxPower: parseFloat(document.getElementById('maxPower').value),
+                windSpeed: parseFloat(document.getElementById('windSpeed').value),
+                avgPower: parseFloat(document.getElementById('avgPower').value),
+                activeFansCount: parseInt(document.getElementById('activeFansCount').value)
+            };
+        }
+
+        //驗證表單資料
+        function validateForm() {
+            const farmId = document.getElementById('farmId').value;
+            const dataTimeInput = document.getElementById('dataTime').value;
+            if (!farmId || isNaN(parseInt(farmId))) { alert('請輸入有效的風場編號。'); return false; }
+            if (!dataTimeInput) { alert('請輸入有效的日期時間。'); return false; }
+            return true;
+        }
+
+        //寄送單筆資料
+        function submitSingleData() {
+            if (!validateForm()) return;
+            const commonData = getCommonFormData();
+            const dataTimeInput = document.getElementById('dataTime').value;
+            const formattedDataTime = dataTimeInput.replace('T', ' ') + ':00';
+            const payload = [{ ...commonData, dataTime: formattedDataTime }];
+            sendApiRequest(payload);
+        }
+        //寄送多筆資料
+        function generateBatchData(totalRecords) {
+            if (!validateForm()) return;
+            const commonData = getCommonFormData();
+            const dataTimeInput = document.getElementById('dataTime').value;
+            let startTime = new Date(dataTimeInput);
+            
+            let payload = [];
+            for (let i = 0; i < totalRecords; i++) {
+                let currentTime = new Date(startTime.getTime() + i * 5 * 60000);
+                let year = currentTime.getFullYear();
+                let month = String(currentTime.getMonth() + 1).padStart(2, '0');
+                let day = String(currentTime.getDate()).padStart(2, '0');
+                let hours = String(currentTime.getHours()).padStart(2, '0');
+                let minutes = String(currentTime.getMinutes()).padStart(2, '0');
+                let seconds = String(currentTime.getSeconds()).padStart(2, '0');
+                let formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+                payload.push({ ...commonData, dataTime: formattedTime });
+            }
+            sendApiRequest(payload);
+        }
+        // 送出 API 請求（加入 async 以支援 await，並實際呼叫後端 API）
+        async function sendApiRequest(payload) {
+            try {
+                // 1. 先向後端取得目前的 Token 設置
+                const tokenResponse = await fetch('/api/SystemConfig/token');
+                if (!tokenResponse.ok) {
+                    throw new Error('無法取得 Token 設置');
+                }
+                
+                const configData = await tokenResponse.json();
+                const currentToken = configData.token; // 假設後端回傳如 "8888888" 或 "Bearer8888888"
+
+                if (!currentToken) {
+                    throw new Error('目前的 Token 設置為空');
+                }
+                else{
+                    console.log("Token代碼", currentToken);
+                }
+
+                // 2. 實際發送 POST 請求到本機的 WindFarm/Forecast API
+                const apiRes = await fetch('/api/Extensions/Forecast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}` // 配合後端沒有空格的寫法，若有空格請改為 `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const apiResultData = await apiRes.json();
+
+                // 3. 檢查 API 回傳狀態
+                if (!apiRes.ok) {
+                    document.getElementById('apiResult').innerText = JSON.stringify({
+                        "status": apiRes.status,
+                        "errorResponse": apiResultData
+                    }, null, 2);
+                    return;
+                }
+
+                // 4. 成功呈現結果
+                document.getElementById('apiResult').innerText = JSON.stringify({
+                    "note": `成功發送 ${payload.length} 筆資料至 API`,
+                    "responseFromServer": apiResultData,
+                    "usedToken": currentToken,
+                    "samplePayload": payload.slice(0, 3)
+                }, null, 2);
+
+            } catch (error) {
+                // 錯誤處理
+                document.getElementById('apiResult').innerText = JSON.stringify({
+                    "error": error.message,
+                    "msg": "Request Failed",
+                    "code": 500
+                }, null, 2);
+            }
+        }
+    </script>
+}

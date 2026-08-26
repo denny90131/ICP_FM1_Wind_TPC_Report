@@ -1,0 +1,223 @@
+@{
+    ViewData["Title"] = "風場SFTP管理作業";
+}
+<div class="container">
+    <!-- 0. 新增：SFTP 連線狀態提示 -->
+    <div class="d-flex justify-content-end align-items-center mb-3">
+        <span id="sftpStatusBadge" class="badge rounded-pill bg-secondary">
+            <i class="bi bi-question-circle me-1"></i>
+            <span>正在檢查 SFTP 連線狀態...</span>
+        </span>
+    </div>
+
+    <!-- 1. 上傳工具區塊 (保持不變) -->
+    <div class="card shadow-sm border-0 p-4 mb-4 rounded-4"">
+        <h5 class="fw-bold mb-3 text-light"><i class="bi bi-upload me-2 text-primary"></i>SFTP 手動檔案上傳工具</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="fileInput" class="form-label small fw-bold text-light">選擇本機檔案：</label>
+                <input type="file" class="form-control border-secondary bg-dark text-light shadow-none" id="fileInput" />
+                <small id="fileNameDisplay" class="form-text text-muted mt-1"></small>
+            </div>
+            <div class="col-md-6">
+                <label for="remotePathInput" class="form-label small fw-bold text-light">遠端路徑 (Remote Path)：</label>
+                <input type="text" class="form-control border-secondary bg-dark text-light shadow-none" id="remotePathInput" placeholder="/path/to/remote/directory/">
+                <small class="form-text text-muted mt-1">檔案將上傳至此 SFTP 路徑。</small>
+            </div>
+        </div>
+        <div class="mt-4">
+            <button type="button" class="btn btn-primary fw-bold px-4 py-2 shadow-sm" onclick="uploadToSftp()">
+                <i class="bi bi-cloud-arrow-up me-1"></i> 開始上傳至 SFTP
+            </button>
+        </div>
+        
+        <div id="resultMessage" class="mt-3 p-3 rounded-3" style="background-color: #212529; color: #e0e0e0; min-height: 50px;">
+            <span class="text-muted">等待上傳操作...</span>
+        </div>
+    </div>
+
+    <!-- 2. 新增：遠端目錄結構瀏覽區塊 -->
+    <div class="card shadow-sm border-0 p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-light mb-0"><i class="bi bi-folder2-open me-2 text-warning"></i>遠端主機資料結構</h5>
+            <button type="button" class="btn btn-outline-light btn-sm" onclick="loadSftpStructure('/')">
+                <i class="bi bi-arrow-clockwise me-1"></i> 重新整理結構
+            </button>
+        </div>
+        
+        <!-- 新增：路徑導覽列 -->
+        <div id="pathNavigator" class="mb-2 p-2 rounded-2" style="background-color: #212529;"></div>
+        
+        <div id="structureContainer" class="p-3 rounded-3 bg-dark text-light font-monospace" style="max-height: 400px; overflow-y: auto; font-size: 0.9rem;">
+            <span class="text-muted">點擊「重新整理結構」以載入遠端資料...</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    fileNameDisplay.textContent = `已選取檔案: ${this.files[0].name}`;
+                } else {
+                    fileNameDisplay.textContent = '';
+                }
+            });
+
+            // 頁面載入後自動抓取一次遠端結構 (選擇性)
+            loadSftpStructure('/C:/Users/root');
+
+            // 頁面載入後自動檢查 SFTP 連線狀態
+            checkSftpStatus();
+        });
+
+        // 上傳檔案邏輯
+        async function uploadToSftp() {
+            const fileInput = document.getElementById('fileInput');
+            const remotePathInput = document.getElementById('remotePathInput');
+            const msgDiv = document.getElementById('resultMessage');
+
+            if (fileInput.files.length === 0) {
+                alert("請先選擇檔案！");
+                return;
+            }
+
+            const selectedFile = fileInput.files[0];
+            const fileName = selectedFile.name;
+
+            let remotePath = remotePathInput.value.trim();
+            if (remotePath && !remotePath.endsWith('/')) {
+                remotePath += '/';
+            }
+            
+            const finalRemotePath = remotePath + fileName;
+
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("remotePath", finalRemotePath);
+
+            msgDiv.innerHTML = '<span class="text-info">正在上傳中，請稍候...</span>';
+
+            try {
+                const response = await fetch('/api/sftp/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    msgDiv.innerHTML = `<span class="text-success">${result.message}</span>`;
+                    // 上傳成功後，自動重新整理下方目錄結構
+                    // 假設我們不知道確切路徑，就刷新根目錄
+                    loadSftpStructure('/');
+                } else {
+                    msgDiv.innerHTML = `<span class="text-danger">失敗: ${result.message || '未知錯誤'}</span>`;
+                }
+            } catch (error) {
+                msgDiv.innerHTML = `<span class="text-danger">發生例外錯誤: ${error.message}</span>`;
+            }
+        }
+
+        // 新增：檢查 SFTP 連線狀態的函式
+        async function checkSftpStatus() {
+            const statusBadge = document.getElementById('sftpStatusBadge');
+            const icon = statusBadge.querySelector('i');
+            const text = statusBadge.querySelector('span');
+
+            try {
+                const response = await fetch('/api/sftp/verify');
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusBadge.className = 'badge rounded-pill bg-success';
+                    icon.className = 'bi bi-check-circle-fill me-1';
+                    text.innerText = 'SFTP 連線正常';
+                } else {
+                    statusBadge.className = 'badge rounded-pill bg-danger';
+                    icon.className = 'bi bi-x-circle-fill me-1';
+                    text.innerText = 'SFTP 連線失敗';
+                    console.error('SFTP 驗證失敗:', result.message);
+                }
+            } catch (error) {
+                statusBadge.className = 'badge rounded-pill bg-danger';
+                icon.className = 'bi bi-exclamation-triangle-fill me-1';
+                text.innerText = '無法驗證 SFTP 連線';
+                console.error('SFTP 驗證請求錯誤:', error);
+            }
+        }
+
+
+        // 載入遠端 SFTP 目錄結構 (修改後可接收路徑)
+        async function loadSftpStructure(path = '/') {
+            const container = document.getElementById('structureContainer');
+            const pathNavigator = document.getElementById('pathNavigator');
+            container.innerHTML = '<span class="text-info">正在載入遠端目錄結構...</span>';
+            updatePathNavigator(path); // 更新路徑顯示
+
+            try {
+                // 將路徑作為查詢參數傳遞給 API
+                const response = await fetch(`/api/sftp/structure?path=${encodeURIComponent(path)}`);
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (!result.data || result.data.length === 0) {
+                        container.innerHTML = '<span class="text-muted">遠端目錄目前是空的。</span>';
+                        return;
+                    }
+                    
+                    // 產生樹狀 HTML 內容
+                    let html = '<ul class="list-unstyled mb-0 sftp-list">';
+                    html += renderTree(result.data, 0);
+                    html += '</ul>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `<span class="text-danger">載入失敗: ${result.message || '未知錯誤'}</span>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<span class="text-danger">發生例外錯誤: ${error.message}</span>`;
+            }
+        }
+
+        // 產生階層 HTML 的函式 (不再遞迴)
+        function renderTree(items, level) {
+            let html = '';
+
+            items.forEach(item => {
+                if (item.isDirectory) {
+                    // 為資料夾加上點擊事件，並將路徑作為參數傳遞
+                    html += `<li class="sftp-item" onclick="loadSftpStructure('${item.path.replace(/'/g, "\\'")}')" style="cursor: pointer;">
+                                <i class="bi bi-folder-fill text-warning me-2"></i><strong>${item.name}</strong>
+                             </li>`;
+                } else {
+                    // 順便把檔案大小轉成 KB 顯示會更直覺
+                    const sizeKb = (item.size / 1024).toFixed(1);
+                    html += `<li class="sftp-item">
+                                <i class="bi bi-file-earmark-text text-info me-2"></i>${item.name} <span class="text-muted">(${sizeKb} KB)</span>
+                             </li>`;
+                }
+            });
+
+            return html;
+        }
+
+        // 更新路徑導覽列的函式
+        function updatePathNavigator(path) {
+            const pathNavigator = document.getElementById('pathNavigator');
+            let html = '';
+
+            if (path !== '/') {
+                const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
+                html += `<a href="#" onclick="event.preventDefault(); loadSftpStructure('${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
+                            <i class="bi bi-arrow-left-circle"></i> 返回上一層
+                         </a> | `;
+            }
+
+            html += `<span class="text-light">目前路徑: </span><strong class="text-success">${path}</strong>`;
+            pathNavigator.innerHTML = html;
+        }
+    </script>
+}
