@@ -1,0 +1,352 @@
+@{
+    ViewData["Title"] = "AD 角色與 RBAC 權限管理";
+}
+
+<div class="container-fluid mb-5">
+    <!-- 頁首 Masthead -->
+    <div class="page-masthead">
+        <div>
+            <span class="eyebrow">Access Control</span>
+            <h1 class="page-title">AD 角色與權限管理</h1>
+            <p class="page-desc">設定 Active Directory 群組對應之系統模組操作權限 (RBAC)，即時同步並賦予功能存取權限。</p>
+        </div>
+        <div class="page-meta">
+            LDAP 網域：<b>@(ViewBag.LdapDomain ?? "fm1.local")</b><br>
+            權限模型：<b>Role-Based Access Control</b>
+        </div>
+    </div>
+
+    <!-- 頂部操作與狀態列 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <span id="syncStatusLamp" class="status-lamp is-idle"></span>
+            <span id="syncStatusText" class="badge-outline">READY</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btnSyncAd" onclick="syncAdGroups()">
+            <i class="bi bi-arrow-repeat me-1"></i> 立即同步 AD 群組
+        </button>
+    </div>
+
+    <div class="row g-4">
+        <!-- 左側：AD 角色群組清單 -->
+        <div class="col-lg-4 col-md-5">
+            <div class="card p-4 h-100">
+                <div class="panel-head">
+                    <h5 class="panel-title">
+                        <span class="idx">01</span>
+                        <i class="bi bi-diagram-3"></i> AD 角色群組
+                    </h5>
+                    <span class="badge-outline" id="roleCountBadge">0 ROLES</span>
+                </div>
+
+                <div class="role-list-scroll" id="roleListContainer" style="max-height: 600px; overflow-y: auto;">
+                    <div class="text-center py-5 text-muted empty-state">
+                        <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                        <div>載入 AD 角色中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側：按模組分類的權限矩陣配置 -->
+        <div class="col-lg-8 col-md-7">
+            <div class="card p-4 h-100">
+                <div class="panel-head">
+                    <div>
+                        <h5 class="panel-title mb-1">
+                            <span class="idx">02</span>
+                            <i class="bi bi-shield-lock"></i> 模組權限配置
+                        </h5>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <span class="fw-bold fs-6" id="selectedRoleTitle" style="color: var(--text-1);">請先從左側選擇角色</span>
+                            <span class="badge-outline d-none" id="selectedRoleBadge" style="color: var(--accent-cyan); border-color: var(--accent-cyan-dim);"></span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm" id="btnSavePermissions" onclick="savePermissions()" disabled>
+                        <i class="bi bi-check2-circle me-1"></i> 儲存變更
+                    </button>
+                </div>
+
+                <div id="permissionPanelContainer" style="max-height: 600px; overflow-y: auto;">
+                    <div class="text-center py-5 empty-state" id="noRoleSelectedPrompt">
+                        <i class="bi bi-arrow-left-circle display-5 mb-3 d-block" style="color: var(--text-3);"></i>
+                        請在左側點選要設定的 AD 角色群組
+                    </div>
+                    <!-- 動態渲染各模組區塊 -->
+                    <div id="moduleGroupsContainer" class="d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 專用清單項目樣式：完美呼應 design token 與 site.css */
+    .role-picker-item {
+        background: var(--bg-panel-raised);
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius-md);
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .role-picker-item:hover {
+        border-color: var(--accent-cyan);
+        transform: translateX(3px);
+        background: rgba(63, 208, 201, 0.05);
+    }
+    .role-picker-item.active {
+        background: var(--sidebar-active-bg, rgba(63, 208, 201, 0.12));
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 12px rgba(63, 208, 201, 0.15);
+    }
+    .role-picker-item.active .role-name {
+        color: var(--accent-cyan) !important;
+    }
+    .role-picker-item.active .bi-chevron-right {
+        color: var(--accent-cyan) !important;
+    }
+
+    /* 權限模組卡片樣式 */
+    .module-card {
+        background: var(--bg-panel-raised);
+        border: 1px solid var(--hairline);
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    .module-card-head {
+        background: rgba(255, 255, 255, 0.015);
+        border-bottom: 1px solid var(--hairline-soft);
+        padding: 0.65rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .module-card-body {
+        padding: 1rem;
+    }
+
+    /* 自訂 Checkbox 外觀符合暗色調 */
+    .form-check-input {
+        background-color: var(--bg-input);
+        border-color: var(--hairline);
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: var(--accent-cyan);
+        border-color: var(--accent-cyan);
+    }
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(63, 208, 201, 0.16);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        let groupedPermissions = [];
+        let currentSelectedRoleId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([loadRoles(), loadGroupedPermissions()]);
+        });
+
+        // 1. 載入 AD 角色清單
+        async function loadRoles() {
+            const container = document.getElementById('roleListContainer');
+            const badge = document.getElementById('roleCountBadge');
+            try {
+                const res = await fetch('/api/RoleManagement/roles');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                
+                const roles = await res.json();
+                badge.innerText = `${roles.length} ROLES`;
+
+                if (roles.length === 0) {
+                    container.innerHTML = '<div class="text-center py-4 empty-state">目前無任何角色，請點選上方同步。</div>';
+                    return;
+                }
+
+                container.innerHTML = roles.map(role => `
+                    <div class="role-picker-item" id="role-item-${role.roleId}" onclick="selectRole('${role.roleId}')">
+                        <div class="text-truncate me-2">
+                            <div class="fw-bold role-name text-truncate" style="font-size: 0.9rem; color: var(--text-1);">${role.roleName || role.adGroupName}</div>
+                            <div class="text-truncate font-mono" style="font-size: 0.72rem; color: var(--text-3);">${role.adGroupName}</div>
+                        </div>
+                        <i class="bi bi-chevron-right" style="color: var(--text-3); font-size: 0.8rem;"></i>
+                    </div>
+                `).join('');
+
+                // 預設選取第一個角色
+                if (roles.length > 0) {
+                    selectRole(roles[0].roleId);
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="p-3 text-center empty-state text-danger">載入失敗: ${err.message}</div>`;
+            }
+        }
+
+        // 2. 載入按模組分類的權限結構
+        async function loadGroupedPermissions() {
+            try {
+                const res = await fetch('/api/RoleManagement/permissions');
+                if (!res.ok) throw new Error('無法載入權限清單');
+                groupedPermissions = await res.json();
+                renderPermissionTemplate();
+            } catch (err) {
+                console.error('載入權限結構失敗:', err);
+            }
+        }
+
+        // 3. 渲染權限模組清單 DOM
+        function renderPermissionTemplate() {
+            const container = document.getElementById('moduleGroupsContainer');
+            container.innerHTML = groupedPermissions.map(group => `
+                <div class="module-card">
+                    <div class="module-card-head">
+                        <span class="eyebrow" style="font-size: 0.7rem;">
+                            ${group.module || 'General Module'}
+                        </span>
+                        <button type="button" class="btn-mini btn-mini-positive" onclick="toggleModuleCheckboxes('${group.module}')">
+                            <i class="bi bi-check-all"></i> 全選 / 反選
+                        </button>
+                    </div>
+                    <div class="module-card-body">
+                        <div class="row g-3">
+                            ${group.permissions.map(p => `
+                                <div class="col-md-6">
+                                    <div class="form-check d-flex align-items-start gap-2">
+                                        <input class="form-check-input mt-1 perm-checkbox module-perm-${group.module}" 
+                                               type="checkbox" 
+                                               value="${p.id}" 
+                                               id="perm-${p.id}">
+                                        <label class="form-check-label" for="perm-${p.id}" style="cursor: pointer;">
+                                            <span class="fw-bold d-block font-mono" style="font-size: 0.82rem; color: var(--accent-cyan);">${p.code}</span>
+                                            <span class="d-block" style="font-size: 0.78rem; color: var(--text-2);">${p.description || '無描述'}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 4. 切換選取角色並透過 RoleDetailDto 載入已勾選項目
+        async function selectRole(roleId) {
+            currentSelectedRoleId = roleId;
+
+            // 切換 Active 樣式
+            document.querySelectorAll('.role-picker-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`role-item-${roleId}`);
+            if (activeEl) activeEl.classList.add('active');
+
+            // 重設勾選狀態
+            document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = false);
+
+            try {
+                const res = await fetch(`/api/RoleManagement/roles/${roleId}`);
+                if (!res.ok) throw new Error('取得角色資訊失敗');
+                
+                const roleDetail = await res.json();
+
+                // 更新標題與標籤
+                document.getElementById('selectedRoleTitle').innerText = roleDetail.roleName || roleDetail.adGroupName;
+                const badge = document.getElementById('selectedRoleBadge');
+                badge.innerText = roleDetail.adGroupName;
+                badge.classList.remove('d-none');
+
+                document.getElementById('noRoleSelectedPrompt').classList.add('d-none');
+                document.getElementById('moduleGroupsContainer').classList.remove('d-none');
+                document.getElementById('btnSavePermissions').disabled = false;
+
+                // 勾選已擁有的權限
+                if (roleDetail.assignedPermissionIds) {
+                    roleDetail.assignedPermissionIds.forEach(permId => {
+                        const cb = document.getElementById(`perm-${permId}`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 模組全選/反選切換
+        function toggleModuleCheckboxes(moduleName) {
+            const checkboxes = document.querySelectorAll(`.module-perm-${moduleName}`);
+            const isAllChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !isAllChecked);
+        }
+
+        // 5. 儲存角色權限配置
+        async function savePermissions() {
+            if (!currentSelectedRoleId) return;
+
+            const btn = document.getElementById('btnSavePermissions');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 儲存中...';
+
+            const checkedBoxes = document.querySelectorAll('.perm-checkbox:checked');
+            const permissionIds = Array.from(checkedBoxes).map(cb => cb.value);
+
+            try {
+                const res = await fetch('/api/RoleManagement/update-permissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roleId: currentSelectedRoleId,
+                        permissionIds: permissionIds
+                    })
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    alert(result.message || '權限配置更新成功！');
+                } else {
+                    alert('儲存失敗：' + (result.message || res.statusText));
+                }
+            } catch (err) {
+                alert('連線失敗：' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> 儲存變更';
+            }
+        }
+
+        // 6. 重新同步 AD 群組
+        async function syncAdGroups() {
+            const btn = document.getElementById('btnSyncAd');
+            const lamp = document.getElementById('syncStatusLamp');
+            const statusText = document.getElementById('syncStatusText');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 同步中...';
+            lamp.className = 'status-lamp is-busy';
+            statusText.innerText = 'SYNCING AD';
+
+            try {
+                const res = await fetch('/api/RoleManagement/sync-ad', { method: 'POST' });
+                const result = await res.json();
+
+                lamp.className = 'status-lamp is-live';
+                statusText.innerText = 'SYNCED';
+                alert(result.message || 'AD 群組與系統權限已重新同步！');
+
+                await loadRoles();
+            } catch (err) {
+                lamp.className = 'status-lamp is-error';
+                statusText.innerText = 'SYNC ERROR';
+                alert('同步失敗：' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 立即同步 AD 群組';
+            }
+        }
+    </script>
+}

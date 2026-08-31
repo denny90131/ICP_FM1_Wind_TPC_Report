@@ -1,14 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
-using Microsoft.AspNetCore.Hosting; // Required for IWebHostEnvironment
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
+[Authorize]
 [Route("api/[controller]")]
 public class WindFarmController : Controller
 {
@@ -22,6 +16,7 @@ public class WindFarmController : Controller
     /// <summary>
     //預測資料相關
     /// </summary>
+    [Authorize(Policy = AppPermissions.ViewBrowser.ForecastDataManager)]
     [HttpGet("ForecastDataSummary")] 
     public async Task<IActionResult> ForecastDataSummary()
     {
@@ -32,6 +27,7 @@ public class WindFarmController : Controller
     /// CanaryAPI管理頁面
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.ViewBrowser.CanaryAPIManager)]
     [HttpGet("CanaryAPIManager")] 
     public async Task<IActionResult> CanaryAPIManager()
     {
@@ -49,6 +45,7 @@ public class WindFarmController : Controller
     /// 事件日誌
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.ViewBrowser.EventLogViewer)]
     [HttpGet("LogViewer")] 
     public async Task<IActionResult> EventLog()
     {
@@ -59,6 +56,7 @@ public class WindFarmController : Controller
     /// 設置
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.SystemAdmin.SystemAdminOption)]
     [HttpGet("Setting")] 
     public async Task<IActionResult> Setting()
     {
@@ -69,6 +67,7 @@ public class WindFarmController : Controller
     /// SFTP管理頁面
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.ViewBrowser.SFTPManager)]
     [HttpGet("SFTPManagement")] 
     public async Task<IActionResult> SFTPManagement()
     {
@@ -78,6 +77,7 @@ public class WindFarmController : Controller
     /// SFTP管理頁面
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.ViewBrowser.TaskManager)]
     [HttpGet("TaskManagement")] 
     public async Task<IActionResult> TaskManagement()
     {
@@ -87,9 +87,26 @@ public class WindFarmController : Controller
     /// SFTP管理頁面
     /// </summary>
     /// <returns></returns>
+    [Authorize(Policy = AppPermissions.ViewBrowser.WTGOperator)]
     [HttpGet("WindTurbineTable")] 
     public async Task<IActionResult> WindTurbineTable()
     {
+        return View();
+    }
+    /// <summary>
+    /// Role管理頁面
+    /// </summary>
+    /// <returns></returns>
+    [Authorize(Policy = AppPermissions.SystemAdmin.SystemAdminPermission)]
+    [HttpGet("RolePermissionManager")] 
+    public async Task<IActionResult> RolePermissionManager()
+    {
+        string ldapPath = _configuration["ActiveDirectory:LdapPath"] ?? "LDAP://fm1.local";
+    
+        // 去除 LDAP:// 前綴與可能包含的結尾斜線，取得純網域名稱 (fm1.local)
+        string domain = ldapPath.Replace("LDAP://", "", StringComparison.OrdinalIgnoreCase).Trim('/');
+
+        ViewBag.LdapDomain = domain;
         return View();
     }
 }

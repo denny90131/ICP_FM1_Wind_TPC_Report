@@ -1,0 +1,227 @@
+@model LoginRequest
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+    ViewData["Title"] = "系統登入";
+}
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-color: var(--bg-void);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--bg-panel);
+            border: 1px solid var(--hairline);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-float);
+            padding: 2.25rem 2rem;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.75rem 0;
+            color: var(--text-3);
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+            letter-spacing: 0.12em;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .auth-divider:not(:empty)::before { margin-right: 1.2em; }
+        .auth-divider:not(:empty)::after { margin-left: 1.2em; }
+
+        .btn-sso {
+            border: 1px solid var(--hairline);
+            background: var(--bg-panel-raised);
+            color: var(--text-1);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1rem;
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+
+        .btn-sso:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            background: var(--bg-panel);
+            box-shadow: 0 0 12px rgba(63, 208, 201, 0.15);
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent-cyan);
+        }
+
+        .input-group:focus-within .input-group-text,
+        .input-group:focus-within .form-control,
+        .input-group:focus-within .btn-toggle-pwd {
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-toggle-pwd {
+            background-color: var(--bg-input);
+            border: 1px solid var(--hairline);
+            border-left: none;
+            color: var(--text-2);
+            border-top-right-radius: var(--radius-sm) !important;
+            border-bottom-right-radius: var(--radius-sm) !important;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .btn-toggle-pwd:hover {
+            color: var(--accent-cyan);
+            background-color: var(--bg-input);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        
+        <!-- 登入頁面抬頭 -->
+        <div class="text-center mb-4">
+            <span class="eyebrow mb-2">SYSTEM ACCESS</span>
+            <h3 class="fw-bold mt-2 mb-1" style="color: var(--text-1); font-size: 1.5rem;">渢妙風場身分驗證</h3>
+            <p class="small mb-0" style="color: var(--text-3); font-size: 0.82rem;">請輸入 AD 網域帳號密碼或透過企業單一簽入存取系統</p>
+        </div>
+
+        <!-- 錯誤訊息提示 -->
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-danger py-2 px-3 small mb-3 d-flex align-items-center" 
+                 role="alert" 
+                 style="background: rgba(234, 90, 90, 0.1); border-color: var(--accent-red-dim); color: var(--accent-red); border-radius: var(--radius-sm);">
+                <i class="bi bi-exclamation-triangle-fill me-2 flex-shrink-0"></i>
+                <div>@ViewBag.ErrorMessage</div>
+            </div>
+        }
+
+        <!-- AD 帳密表單 -->
+        <form method="post" asp-action="Login" asp-controller="Auth" id="loginForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="returnUrl" />
+            @* 帳號輸入框 *@
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label">AD 帳號 / Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <input asp-for="Username" class="form-control font-mono"
+                           placeholder="請輸入帳號" required autocomplete="username" autofocus />
+                </div>
+            </div>
+            @* 密碼輸入框 *@
+            <div class="mb-4">
+                <label asp-for="Password" class="form-label mb-1">AD 密碼 / Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                    <input asp-for="Password" class="form-control font-mono" 
+                        placeholder="••••••••" required autocomplete="current-password" 
+                        style="border-right: none;" />
+                    <button class="btn btn-toggle-pwd cursor-pointer" type="button" id="togglePasswordBtn" onclick="togglePasswordVisibility()">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+            @* AD網域登入按鈕 *@
+            <button type="submit" class="btn btn-primary w-100 py-2" id="submitBtn">
+                <i class="bi bi-box-arrow-in-right me-1" id="submitIcon"></i>
+                <span id="submitText">網域帳號登入</span>
+            </button>
+        </form>
+
+        @* SSO登入提示字分割 *@
+        <div class="auth-divider">OR ENTERPRISE SIGN-IN</div>
+
+        <!-- SSO 快捷登入 -->
+        <div class="d-grid gap-2">
+            <a asp-action="WindowsSso" asp-controller="Auth" asp-route-returnUrl="@Model?.returnUrl" class="btn btn-sso">
+                <i class="bi bi-windows" style="color: var(--accent-cyan);"></i>
+                <span>內部網域快速單一簽入 (Windows SSO)</span>
+            </a>
+        </div>
+
+        @* 頁面結尾提示字 *@
+        <div class="page-footnote">
+            工業物聯網與能源管理系統 &copy; @DateTime.Now.Year
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('Password');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function () {
+        const submitBtn = document.getElementById('submitBtn');
+        const submitIcon = document.getElementById('submitIcon');
+        const submitText = document.getElementById('submitText');
+
+        submitBtn.disabled = true;
+        submitIcon.className = 'spinner-border spinner-border-sm me-1';
+        submitText.innerText = '驗證中...';
+        this.submit();
+    });
+</script>
+
+</body>
+</html>

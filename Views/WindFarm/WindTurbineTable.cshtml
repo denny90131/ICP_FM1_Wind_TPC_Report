@@ -5,13 +5,13 @@
     <div class="row g-3 h-100">
         <!-- 左側：操作面板 -->
         <div class="col-lg-3 h-100" style="min-height: 0;">
-            <div class="card shadow-sm border-0 p-4 rounded-4 h-100 d-flex flex-column" style="background-color: #2b3035; min-height: 0; overflow: hidden;">
-                <h5 class="fw-bold mb-3 text-light flex-shrink-0"><i class="bi bi-gear-wide-connected me-2 text-primary"></i>操作面板</h5>
+            <div class="card shadow-sm p-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
+                <h5 class="fw-bold mb-3 flex-shrink-0"><i class="bi bi-gear-wide-connected me-2 text-primary"></i>操作面板</h5>
 
                 <!-- 子系統選擇 -->
                 <div class="mb-3 flex-shrink-0">
-                    <label for="moduleSelector" class="form-label small fw-bold text-light">1. 選擇子系統</label>
-                    <select id="moduleSelector" class="form-select border-secondary bg-dark text-light shadow-none">
+                    <label for="moduleSelector" class="form-label small fw-bold">1. 選擇子系統</label>
+                    <select id="moduleSelector" class="form-select shadow-none">
                         <option selected>載入中...</option>
                     </select>
                 </div>
@@ -19,48 +19,92 @@
                 <!-- 檔案選擇 -->
                 <div class="mb-3 flex-grow-1 d-flex flex-column" style="min-height: 0;">
                     <div class="d-flex justify-content-between align-items-center flex-shrink-0">
-                        <label for="fileSelector" class="form-label small fw-bold text-light mb-1">2. 選擇檔案</label>
+                        <label for="fileSelector" class="form-label small fw-bold mb-1">2. 選擇檔案</label>
                     </div>
                     <!-- 路徑導覽列 -->
-                    <div id="pathNavigator" class="mb-1 p-1 rounded-2 small flex-shrink-0" style="background-color: #212529; min-height: 28px;"></div>
+                    <div id="pathNavigator" class="entry-card mb-1 p-2 rounded-2 small flex-shrink-0 font-mono" style="min-height: 28px;"></div>
                     <!-- 檔案/資料夾列表 -->
-                    <div id="fileListContainer" class="list-group bg-dark rounded-3 flex-grow-1" style="overflow-y: auto; border: 1px solid #495057; min-height: 0;">
-                        <div class="list-group-item list-group-item-dark text-muted">請先選擇子系統</div>
+                    <div id="fileListContainer" class="list-group flex-grow-1 data-readout" style="overflow-y: auto; min-height: 0;">
+                        <div class="list-group-item text-muted border-0 bg-transparent">請先選擇子系統</div>
                     </div>
                 </div>
-                <small class="text-muted text-center mt-2 flex-shrink-0">雙擊檔案即可直接讀取資料</small>
+                <small class="text-muted text-center mt-2 flex-shrink-0 font-mono">雙擊檔案即可直接讀取資料</small>
             </div>
         </div>
 
         <!-- 右側：資料預覽區 -->
         <div class="col-lg-9 h-100" style="min-height: 0;">
-            <div class="card shadow-sm border-0 p-4 rounded-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
-                <h5 class="fw-bold text-light mb-3 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
+            <div class="card shadow-sm p-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
+                <h5 class="fw-bold mb-3 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
 
                 <!-- 執行結果訊息 -->
-                <div id="resultMessage" class="mb-3 p-3 rounded-3 flex-shrink-0" style="background-color: #212529; color: #e0e0e0; display: none;">
+                <div id="resultMessage" class="entry-card mb-3 p-3 rounded-3 flex-shrink-0 font-mono" style="display: none;">
                     <span class="text-muted">等待執行...</span>
                 </div>
 
                 <!-- 資料表格 -->
-                <div id="dataTableContainer" class="table-responsive flex-grow-1" style="overflow-y: auto; min-height: 0;">
+                <div id="dataTableContainer" class="table-responsive flex-grow-1 font-mono" style="overflow-y: auto; min-height: 0;">
                     <p class="text-muted">執行處理後，結果將會顯示於此。</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 @section Scripts {
 <style>
-    .list-group-item-action.active {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-    .list-group-item-dark {
-        background-color: #343a40;
-        border-color: #495057;
-        color: #adb5bd;
+    /* 檔案選單項目樣式適配主題 */
+    #fileListContainer .list-group-item {
+        color: var(--text-1);
+        background-color: transparent;
+        border: none;
+        border-radius: var(--radius-sm);
+        margin: 2px 4px;
+        padding: 0.45rem 0.75rem;
         cursor: pointer;
+        font-size: 0.85rem;
+        line-height: 1.4;              /* 1. 明確指定正常行高，防止字體被垂直擠壓 */
+        display: flex;                  /* 2. 改為彈性盒子排版 */
+        align-items: center;            /* 3. 圖示與文字垂直居中對齊 */
+        white-space: nowrap;            /* 4. 單行不換行 */
+        flex-shrink: 0;                 /* 5. 防止 flex 容器把每一列壓扁 */
+        font-family: inherit;           /* 6. 若被 font-mono 破壞，強制使用預設字體 */
+        transition: all 0.15s ease;
+    }
+    #fileListContainer .list-group-item:hover {
+        background-color: var(--sidebar-hover-bg, var(--sidebar-hover-bg-fallback));
+        color: var(--accent-cyan);
+    }
+    #fileListContainer .list-group-item.active {
+        background-color: var(--sidebar-active-bg, var(--sidebar-active-bg-fallback));
+        color: var(--accent-cyan);
+        font-weight: 600;
+        border-left: 3px solid var(--sidebar-accent-color, var(--sidebar-accent-color-fallback));
+    }
+
+    /* 預覽表格樣式適配主題 */
+    .table-theme-custom {
+        color: var(--text-1);
+        border-color: var(--hairline);
+        vertical-align: middle;
+        font-size: 0.85rem;
+    }
+    .table-theme-custom thead th {
+        background-color: var(--bg-panel-raised);
+        color: var(--text-2);
+        border-color: var(--hairline);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        padding: 0.65rem 0.75rem;
+    }
+    .table-theme-custom tbody td {
+        background-color: transparent;
+        color: var(--text-1);
+        border-color: var(--hairline-soft);
+        padding: 0.6rem 0.75rem;
+    }
+    .table-theme-custom tbody tr:hover td {
+        background-color: var(--sidebar-hover-bg, var(--sidebar-hover-bg-fallback));
     }
 </style>
 
@@ -68,10 +112,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         const moduleSelector = document.getElementById('moduleSelector');
         
-        // 頁面載入時，自動獲取子系統列表
         fetchModules();
 
-        // 當子系統變更時，自動獲取對應的檔案列表
         moduleSelector.addEventListener('change', function() {
             const selectedModuleId = this.value;
             if (selectedModuleId) {
@@ -82,7 +124,6 @@
         });
     });
 
-    // 獲取子系統列表
     async function fetchModules() {
         const moduleSelector = document.getElementById('moduleSelector');
         try {
@@ -90,7 +131,7 @@
             if (!response.ok) throw new Error('無法獲取子系統列表');
             
             const modules = await response.json();
-            moduleSelector.innerHTML = '<option value="" selected>-- 請選擇一個子系統 --</option>'; // 清空並加入預設選項
+            moduleSelector.innerHTML = '<option value="" selected>-- 請選擇一個子系統 --</option>';
             
             modules.forEach(module => {
                 const option = new Option(`${module.moduleName} (${module.moduleId})`, module.moduleId);
@@ -102,9 +143,9 @@
         }
     }
 
-    // 獲取指定子系統的檔案列表
     async function fetchFiles(moduleId, path = '') {
-        const fileListContainer = document.getElementById('fileListContainer');        fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">載入檔案中...</div>';
+        const fileListContainer = document.getElementById('fileListContainer');
+        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">載入檔案中...</div>';
 
         try {
             const response = await fetch(`/api/excelreader/files/${moduleId}?path=${encodeURIComponent(path)}`);
@@ -112,80 +153,73 @@
 
             const result = await response.json();
             const items = result.items;
-            updatePathNavigator(moduleId, result.currentPath); // 更新路徑導覽列
+            updatePathNavigator(moduleId, result.currentPath);
 
-            fileListContainer.innerHTML = ''; // 清空
+            fileListContainer.innerHTML = '';
 
             if (items.length > 0) {
                 items.forEach(item => {
                     const fileItem = document.createElement('a');
                     fileItem.href = '#';
-                    fileItem.className = 'list-group-item list-group-item-action list-group-item-dark';
+                    fileItem.className = 'list-group-item list-group-item-action text-truncate';
 
                     if (item.isDirectory) {
                         fileItem.innerHTML = `<i class="bi bi-folder-fill text-warning me-2"></i><strong>${item.name}</strong>`;
                         fileItem.onclick = (e) => {
                             e.preventDefault();
-                            fetchFiles(moduleId, item.path); // 點擊資料夾，載入新路徑
+                            fetchFiles(moduleId, item.path);
                         };
                     } else {
                         fileItem.innerHTML = `<i class="bi bi-file-earmark-text text-info me-2"></i>${item.name}`;
-                        fileItem.dataset.filePath = item.path; // 檔案才設定 filePath
+                        fileItem.dataset.filePath = item.path;
                         
-                        // 單擊：僅高亮選取項目
                         fileItem.onclick = function (e) {
                             e.preventDefault();
                             document.querySelectorAll('#fileListContainer .list-group-item').forEach(el => el.classList.remove('active'));
                             this.classList.add('active');
                         };
 
-                        // 雙擊：直接執行處理
                         fileItem.ondblclick = function (e) {
                             e.preventDefault();
-                            processFile(this.dataset.filePath); // 直接將檔案路徑傳入並執行
+                            processFile(this.dataset.filePath);
                         };
                     }
                     fileListContainer.appendChild(fileItem);
                 });
             } else {
-                fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">此目錄是空的</div>';
+                fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">此目錄是空的</div>';
             }
         } catch (error) {
-            fileListContainer.innerHTML = `<div class="list-group-item list-group-item-danger">${error.message}</div>`;
+            fileListContainer.innerHTML = `<div class="list-group-item text-danger border-0 bg-transparent">${error.message}</div>`;
             console.error(error);
         }
     }
 
-    // 更新路徑導覽列
     function updatePathNavigator(moduleId, currentPath) {
         const pathNavigator = document.getElementById('pathNavigator');
         let html = '';
 
-        // 如果不是根目錄，就顯示 "返回上一層"
         if (currentPath && currentPath !== '/') {
             let parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            if (parentPath === '') parentPath = '/'; // 如果上一層是根目錄
+            if (parentPath === '') parentPath = '/';
 
             html += `<a href="#" onclick="event.preventDefault(); fetchFiles('${moduleId}', '${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
                         <i class="bi bi-arrow-left-circle"></i> 返回
                      </a> | `;
         }
 
-        html += `<span class="text-light">路徑: </span><strong class="text-success">${currentPath}</strong>`;
+        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${currentPath}</strong>`;
         pathNavigator.innerHTML = html;
     }
 
-    // 重設檔案選擇器狀態
     function resetFileSelector() {
         const fileListContainer = document.getElementById('fileListContainer');
-        document.getElementById('pathNavigator').innerHTML = ''; // 清空路徑導覽
-        fileListContainer.innerHTML = '<div class="list-group-item list-group-item-dark text-muted">請先選擇子系統</div>';
+        document.getElementById('pathNavigator').innerHTML = '';
+        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">請先選擇子系統</div>';
     }
 
-    // 處理檔案
     async function processFile(filePath) {
         const moduleId = document.getElementById('moduleSelector').value;
-        
         const resultMessage = document.getElementById('resultMessage');
         const tableContainer = document.getElementById('dataTableContainer');
 
@@ -194,7 +228,6 @@
             return;
         }
 
-        // 顯示處理中狀態
         resultMessage.style.display = 'block';
         resultMessage.innerHTML = '<span class="text-info">處理中，請稍候...</span>';
         tableContainer.innerHTML = '<p class="text-info">正在等待後端回傳資料...</p>';
@@ -207,12 +240,9 @@
             });
 
             const result = await response.json();
-
-            // 顯示執行結果訊息
             const messageClass = result.isSuccess ? 'text-success' : 'text-danger';
             resultMessage.innerHTML = `<span class="${messageClass}">${result.message}</span>`;
 
-            // 如果成功且有資料，則渲染表格
             if (result.isSuccess && result.data && result.data.length > 0) {
                 renderTable(result.data);
             } else {
@@ -226,7 +256,6 @@
         }
     }
 
-    // 將 JSON 資料渲染成 HTML 表格
     function renderTable(data) {
         const tableContainer = document.getElementById('dataTableContainer');
         if (!data || data.length === 0) {
@@ -235,14 +264,12 @@
         }
 
         const headers = Object.keys(data[0]);
-        let tableHtml = '<table class="table table-dark table-striped table-hover table-bordered">';
+        let tableHtml = '<table class="table table-theme-custom table-bordered">';
         
-        // 表頭
         tableHtml += '<thead><tr>';
         headers.forEach(header => tableHtml += `<th>${header}</th>`);
         tableHtml += '</tr></thead>';
 
-        // 表身
         tableHtml += '<tbody>';
         data.forEach(row => {
             tableHtml += '<tr>';

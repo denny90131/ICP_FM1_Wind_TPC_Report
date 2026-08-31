@@ -7,6 +7,11 @@ using Serilog.Events;
 using System.Diagnostics;
 using System.Security.Principal;
 using Microsoft.Win32;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 
 public static class ServiceExtensions
 {
@@ -87,6 +92,9 @@ public static class ServiceExtensions
         return services;
     }
 
+    /// <summary>
+    /// 註冊 CanaryLog 排程任務服務
+    /// </summary>
     public static IServiceCollection AddCanaryLogJob(this IServiceCollection services, IConfiguration config)
     {
         services.Configure<conf_Canary>(config.GetSection("Canary_API")); // Bind to the correct section name
@@ -168,6 +176,79 @@ public static class ServiceExtensions
             services.AddScoped(subsystemType, impl);
         }
 
+        return services;
+    }
+    
+    /// <summary>
+    /// 由 ServiceExtensions 統一讀取設定並註冊 Sqlite
+    /// </summary>
+    public static IServiceCollection AddSqliteServices(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite(config.GetConnectionString("DefaultConnection")));
+
+        return services;
+    }
+
+    /// <summary>
+    /// 註冊 AD 驗證服務
+    /// </summary>
+    public static IServiceCollection AddActiveDirectoryAuthServices(this IServiceCollection services)
+    {
+        services.AddScoped<IAuthService, AuthService>();
+        return services;
+    }
+
+    /// <summary>
+    /// 註冊 AD 同步服務
+    /// </summary>
+    public static IServiceCollection AddActiveDirectorySyncServices(this IServiceCollection services)
+    {
+        services.AddScoped<IGroupPermissionSyncService, GroupPermissionSyncService>();
+        return services;
+    }
+
+
+    /// <summary>
+    /// 在應用程式啟動時執行 AD 群組自動同步至 SQLite
+    /// </summary>
+    public static async Task UseAdGroupAutoSyncAsync(this IHost app)
+    {
+        using var scope = app.Services.CreateScope();
+        var syncService = scope.ServiceProvider.GetRequiredService<IGroupPermissionSyncService>();
+        await syncService.InitializeAsync();
+    }
+
+    /// <summary>
+    /// 註冊認證與授權服務（Cookie + Windows AD 整合驗證）
+    /// </summary>
+    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+    {
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/Auth/Logout";
+                options.AccessDeniedPath = "/Auth/AccessDenied"; // 必須指向公開頁面
+                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                options.SlidingExpiration = true;
+            })
+            .AddNegotiate(); // 支援 Windows AD SSO
+
+        // 授權全開設定：只要已登入即通過，不檢查任何特定角色或條件
+        services.AddAuthorization(options =>
+        {
+            options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+
+            // 動態將 AppPermissions.All 中的每一個 Code 註冊為 Policy
+            foreach (var meta in AppPermissions.All)
+            {
+                options.AddPolicy(meta.Code, policy => 
+                    policy.RequireClaim("Permission", meta.Code));
+            }
+        });
         return services;
     }
 }

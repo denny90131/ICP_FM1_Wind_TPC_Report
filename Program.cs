@@ -23,22 +23,41 @@ builder.Services.AddSingleton<ITokenManager, TokenManager>();
 builder.Services.AddSftpServices(builder.Configuration); // SFTP 註冊
 builder.Services.AddCanaryServices(builder.Configuration); // Canary API 服務註冊
 builder.Services.AddWindApiServices(builder.Configuration); //註冊風場 API 服務
+builder.Services.AddSqliteServices(builder.Configuration);  //註冊Sqlite服務
+builder.Services.AddAuthenticationServices();// 註冊服務
+builder.Services.AddActiveDirectoryAuthServices();// 註冊 AD 驗證服務
+builder.Services.AddActiveDirectorySyncServices();// 註冊 AD 群組同步服務
 
 builder.Services.AddWindFarmSyncBackgroundervices(); //註冊背景輪詢器 - TPC168
 builder.Services.AddCanarylogSyncBackgroundervices(); //註冊背景輪詢器 - Canary Message => Windows Event Log 
 
 builder.Services.AddReaderServices(); //註冊檔案讀取器;
 
+// 註冊Policy
+// builder.Services.AddAuthorization(options =>
+// {
+//     foreach (var meta in AppPermissions.All)
+//     {
+//         options.AddPolicy(meta.Code, policy => policy.RequireClaim("Permission", meta.Code));
+//     }
+// });
 
 var app = builder.Build();
+app.UseStaticFiles(); // 啟用 wwwroot 中的靜態檔案 (如 css, js)
+await app.UseAdGroupAutoSyncAsync(); // 啟動時自動同步 AD 群組到 SQLite
+app.UseRouting();
 
-// 2. 套用 CORS 政策 (必須在 MapControllers 之前)
-app.UseCors("AllowAll");
+app.UseCors("AllowAll"); // 套用 CORS 政策 (必須在 MapControllers 之前)
 
-app.UseStaticFiles(); // <-- 加入這行來啟用 wwwroot 中的靜態檔案 (如 css, js)
+//驗證與授權
+app.UseAuthentication();
+app.UseAuthorization();
 
-// 預設路徑 自動轉向 ForecastDataSummary 總覽頁面
-app.MapGet("/", () => Results.Redirect("/api/WindFarm/ForecastDataSummary"));
+
+
+
+
+app.MapGet("/", () => Results.Redirect("/Auth/Login")); // 預設路徑 自動轉向 ForecastDataSummary 總覽頁面
 
 app.MapControllers();
 
