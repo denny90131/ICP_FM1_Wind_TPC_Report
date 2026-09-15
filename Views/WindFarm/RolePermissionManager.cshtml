@@ -236,11 +236,21 @@
                     return;
                 }
 
-                // 直接使用後端給的 hasPermissions
-                allRoles = roles.map(role => ({
-                    ...role,
-                    hasPermission: role.hasPermissions
-                }));
+                // 關鍵修正：相容 hasPermissions 與 HasPermissions，避免大小寫不一致造成 undefined
+                allRoles = roles.map(role => {
+                    const hasPerm = Boolean(role.hasPermissions ?? role.HasPermissions ?? (role.permissionCount > 0) ?? (role.PermissionCount > 0));
+                    const rId = role.roleId || role.RoleId || role.id || role.Id;
+                    const rName = role.roleName || role.RoleName || role.name || role.Name;
+                    const adName = role.adGroupName || role.AdGroupName;
+
+                    return {
+                        ...role,
+                        roleId: rId,
+                        roleName: rName,
+                        adGroupName: adName,
+                        hasPermission: hasPerm
+                    };
+                });
 
                 // 1. 更新按鈕上「已存在 (N)」與「不存在 (N)」數字
                 updateFilterBadges();
