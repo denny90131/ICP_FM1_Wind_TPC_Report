@@ -31,6 +31,7 @@
         <!-- 左側：AD 角色群組清單 -->
         <div class="col-lg-4 col-md-5">
             <div class="card p-4 h-100">
+                <!-- AD群組選單抬頭 -->
                 <div class="panel-head">
                     <h5 class="panel-title">
                         <span class="idx">01</span>
@@ -39,6 +40,25 @@
                     <span class="badge-outline" id="roleCountBadge">0 ROLES</span>
                 </div>
 
+                <!-- 狀態分類篩選選單 -->
+                <div class="role-filter-nav mb-3">
+                    <button type="button" 
+                            class="role-filter-btn active" 
+                            id="btnFilterConfigured" 
+                            onclick="setRoleFilter('configured')">
+                        <i class="bi bi-check-circle me-1"></i>已存在 (已配置)
+                        <span class="filter-count-badge" id="configuredCountBadge">0</span>
+                    </button>
+                    <button type="button" 
+                            class="role-filter-btn" 
+                            id="btnFilterUnconfigured" 
+                            onclick="setRoleFilter('unconfigured')">
+                        <i class="bi bi-dash-circle me-1"></i>不存在 (未配置)
+                        <span class="filter-count-badge" id="unconfiguredCountBadge">0</span>
+                    </button>
+                </div>
+
+                <!-- AD群組選單 -->
                 <div class="role-list-scroll" id="roleListContainer" style="max-height: 600px; overflow-y: auto;">
                     <div class="text-center py-5 text-muted empty-state">
                         <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
@@ -46,6 +66,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- 右側：按模組分類的權限矩陣配置 -->
@@ -81,6 +102,48 @@
 </div>
 
 <style>
+    * 篩選標籤選單樣式 */
+    .role-filter-nav {
+        display: flex;
+        gap: 0.5rem;
+        background: var(--bg-body, #14171f);
+        padding: 4px;
+        border-radius: var(--radius-md, 8px);
+        border: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
+    }
+    .role-filter-btn {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--text-2, #8b949e);
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.45rem 0.5rem;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .role-filter-btn:hover {
+        color: var(--text-1, #f0f6fc);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .role-filter-btn.active {
+        background: var(--bg-panel-raised, #21262d);
+        color: var(--accent-cyan, #3fd0c9);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    .filter-count-badge {
+        font-size: 0.7rem;
+        padding: 1px 6px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        color: inherit;
+    }
+
     /* 專用清單項目樣式：完美呼應 design token 與 site.css */
     .role-picker-item {
         background: var(--bg-panel-raised);
@@ -148,6 +211,8 @@
 
 @section Scripts {
     <script>
+        let allRoles = [];                     // 所有角色列表
+        let currentFilter = 'configured';      // 'configured' (已存在) | 'unconfigured' (不存在)
         let groupedPermissions = [];
         let currentSelectedRoleId = null;
 
@@ -155,7 +220,7 @@
             await Promise.all([loadRoles(), loadGroupedPermissions()]);
         });
 
-        // 1. 載入 AD 角色清單
+        // 載入 AD 角色清單
         async function loadRoles() {
             const container = document.getElementById('roleListContainer');
             const badge = document.getElementById('roleCountBadge');
@@ -171,26 +236,76 @@
                     return;
                 }
 
-                container.innerHTML = roles.map(role => `
-                    <div class="role-picker-item" id="role-item-${role.roleId}" onclick="selectRole('${role.roleId}')">
-                        <div class="text-truncate me-2">
-                            <div class="fw-bold role-name text-truncate" style="font-size: 0.9rem; color: var(--text-1);">${role.roleName || role.adGroupName}</div>
-                            <div class="text-truncate font-mono" style="font-size: 0.72rem; color: var(--text-3);">${role.adGroupName}</div>
-                        </div>
-                        <i class="bi bi-chevron-right" style="color: var(--text-3); font-size: 0.8rem;"></i>
-                    </div>
-                `).join('');
+                // 寫入全域變數 allRoles，並標記是否已有權限 (支援後端常見欄位如 assignedPermissionIds 或 count)
+                allRoles = roles.map(role => ({
+                    ...role,
+                    hasPermission: (role.assignedPermissionIds && role.assignedPermissionIds.length > 0) ||
+                                (role.permissionCount && role.permissionCount > 0) ||
+                                !!role.hasPermissions
+                }));
 
-                // 預設選取第一個角色
-                if (roles.length > 0) {
-                    selectRole(roles[0].roleId);
-                }
+                // 更新按鈕上的計數 (0 -> 實際數量)
+                updateFilterBadges();
+
+                // 依目前選取的頁籤 (已存在/不存在) 渲染左側清單
+                renderFilteredRoleList();
             } catch (err) {
                 container.innerHTML = `<div class="p-3 text-center empty-state text-danger">載入失敗: ${err.message}</div>`;
             }
         }
+        
+        // 切換過濾模式 (已存在 / 不存在)
+        function setRoleFilter(filterType) {
+            currentFilter = filterType;
 
-        // 2. 載入按模組分類的權限結構
+            document.getElementById('btnFilterConfigured').classList.toggle('active', filterType === 'configured');
+            document.getElementById('btnFilterUnconfigured').classList.toggle('active', filterType === 'unconfigured');
+
+            renderFilteredRoleList();
+        }
+
+        // 更新各分類數量徽章
+        function updateFilterBadges() {
+            const configuredCount = allRoles.filter(r => r.hasPermission).length;
+            const unconfiguredCount = allRoles.filter(r => !r.hasPermission).length;
+
+            document.getElementById('configuredCountBadge').innerText = configuredCount;
+            document.getElementById('unconfiguredCountBadge').innerText = unconfiguredCount;
+        }
+
+        // 渲染過濾後的 AD 角色清單
+        function renderFilteredRoleList() {
+            const container = document.getElementById('roleListContainer');
+            const filtered = allRoles.filter(r => currentFilter === 'configured' ? r.hasPermission : !r.hasPermission);
+
+            if (filtered.length === 0) {
+                const emptyMsg = currentFilter === 'configured' 
+                    ? '尚無任何已配置權限的群組。' 
+                    : '目前所有群組皆已完成權限配置。';
+                container.innerHTML = `<div class="text-center py-4 empty-state text-muted">${emptyMsg}</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(role => `
+                <div class="role-picker-item ${currentSelectedRoleId === role.roleId ? 'active' : ''}" 
+                     id="role-item-${role.roleId}" 
+                     onclick="selectRole('${role.roleId}')">
+                    <div class="text-truncate me-2">
+                        <div class="fw-bold role-name text-truncate" style="font-size: 0.9rem; color: var(--text-1);">${role.roleName || role.adGroupName}</div>
+                        <div class="text-truncate font-mono" style="font-size: 0.72rem; color: var(--text-3);">${role.adGroupName}</div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color: var(--text-3); font-size: 0.8rem;"></i>
+                </div>
+            `).join('');
+
+            // 若目前選中的角色不在當前過濾清單中，預設選取當前分類的第一筆
+            const hasCurrentSelected = filtered.some(r => r.roleId === currentSelectedRoleId);
+            if (!hasCurrentSelected && filtered.length > 0) {
+                selectRole(filtered[0].roleId);
+            }
+        }
+
+        // 載入按模組分類的權限結構
         async function loadGroupedPermissions() {
             try {
                 const res = await fetch('/api/RoleManagement/permissions');
@@ -202,7 +317,7 @@
             }
         }
 
-        // 3. 渲染權限模組清單 DOM
+        // 渲染權限模組清單 DOM
         function renderPermissionTemplate() {
             const container = document.getElementById('moduleGroupsContainer');
             container.innerHTML = groupedPermissions.map(group => `
@@ -237,7 +352,7 @@
             `).join('');
         }
 
-        // 4. 切換選取角色並透過 RoleDetailDto 載入已勾選項目
+        // 切換選取角色並透過 RoleDetailDto 載入已勾選項目
         async function selectRole(roleId) {
             currentSelectedRoleId = roleId;
 
@@ -254,6 +369,14 @@
                 if (!res.ok) throw new Error('取得角色資訊失敗');
                 
                 const roleDetail = await res.json();
+
+                // 更新全域陣列裡的 hasPermission，並同步按鈕數字
+                const hasAssigned = roleDetail.assignedPermissionIds && roleDetail.assignedPermissionIds.length > 0;
+                const targetRole = allRoles.find(r => r.roleId === roleId);
+                if (targetRole && targetRole.hasPermission !== hasAssigned) {
+                    targetRole.hasPermission = hasAssigned;
+                    updateFilterBadges();
+                }
 
                 // 更新標題與標籤
                 document.getElementById('selectedRoleTitle').innerText = roleDetail.roleName || roleDetail.adGroupName;
@@ -284,7 +407,7 @@
             checkboxes.forEach(cb => cb.checked = !isAllChecked);
         }
 
-        // 5. 儲存角色權限配置
+        // 儲存角色權限配置
         async function savePermissions() {
             if (!currentSelectedRoleId) return;
 
@@ -308,7 +431,16 @@
                 const result = await res.json();
                 if (res.ok) {
                     alert(result.message || '權限配置更新成功！');
-                } else {
+
+                    // 根據是否有勾選項目更新狀態
+                    const targetRole = allRoles.find(r => r.roleId === currentSelectedRoleId);
+                    if (targetRole) {
+                        targetRole.hasPermission = permissionIds.length > 0;
+                        updateFilterBadges();        // 重新計算按鈕數字
+                        renderFilteredRoleList();    // 重新渲染清單（若狀態改變會自動移至另一分類）
+                    }
+                }
+                else {
                     alert('儲存失敗：' + (result.message || res.statusText));
                 }
             } catch (err) {
@@ -319,7 +451,7 @@
             }
         }
 
-        // 6. 重新同步 AD 群組
+        // 重新同步 AD 群組
         async function syncAdGroups() {
             const btn = document.getElementById('btnSyncAd');
             const lamp = document.getElementById('syncStatusLamp');
