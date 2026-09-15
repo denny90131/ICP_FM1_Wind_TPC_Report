@@ -3,19 +3,6 @@
 }
 
 <div class="container-fluid mb-5">
-    <!-- 頁首 Masthead -->
-    <div class="page-masthead">
-        <div>
-            <span class="eyebrow">Access Control</span>
-            <h1 class="page-title">AD 角色與權限管理</h1>
-            <p class="page-desc">設定 Active Directory 群組對應之系統模組操作權限 (RBAC)，即時同步並賦予功能存取權限。</p>
-        </div>
-        <div class="page-meta">
-            LDAP 網域：<b>@(ViewBag.LdapDomain ?? "fm1.local")</b><br>
-            權限模型：<b>Role-Based Access Control</b>
-        </div>
-    </div>
-
     <!-- 頂部操作與狀態列 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-2">
@@ -30,31 +17,38 @@
     <div class="row g-4">
         <!-- 左側：AD 角色群組清單 -->
         <div class="col-lg-4 col-md-5">
-            <div class="card p-4 h-100">
+            <div class="card p-3 h-100">
                 <!-- AD群組選單抬頭 -->
-                <div class="panel-head">
-                    <h5 class="panel-title">
-                        <span class="idx">01</span>
-                        <i class="bi bi-diagram-3"></i> AD 角色群組
-                    </h5>
-                    <span class="badge-outline" id="roleCountBadge">0 ROLES</span>
+                <div class="panel-head-group mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="panel-title mb-0">
+                            <span class="idx">01</span>
+                            <i class="bi bi-diagram-3"></i> AD 角色群組
+                        </h5>
+                        <span class="badge-outline" id="roleCountBadge">0 ROLES</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2" style="font-size: 0.72rem;">
+                        <span class="text-muted"><i class="bi bi-hdd-network me-1"></i>@(ViewBag.LdapDomain ?? "fm1.local")</span>
+                        <span class="text-muted">·</span>
+                        <span class="text-muted"><i class="bi bi-shield-check me-1"></i>RBAC</span>
+                    </div>
                 </div>
 
-                <!-- 狀態分類篩選選單 -->
-                <div class="role-filter-nav mb-3">
+                <!-- 狀態分類篩選選單 (Tab 風格) -->
+                <div class="role-tab-nav mb-3">
                     <button type="button" 
-                            class="role-filter-btn active" 
+                            class="role-tab-btn active" 
                             id="btnFilterConfigured" 
                             onclick="setRoleFilter('configured')">
-                        <i class="bi bi-check-circle me-1"></i>已存在 (已配置)
-                        <span class="filter-count-badge" id="configuredCountBadge">0</span>
+                        <span>已配置</span>
+                        <span class="role-tab-badge" id="configuredCountBadge">0</span>
                     </button>
                     <button type="button" 
-                            class="role-filter-btn" 
+                            class="role-tab-btn" 
                             id="btnFilterUnconfigured" 
                             onclick="setRoleFilter('unconfigured')">
-                        <i class="bi bi-dash-circle me-1"></i>不存在 (未配置)
-                        <span class="filter-count-badge" id="unconfiguredCountBadge">0</span>
+                        <span>未配置</span>
+                        <span class="role-tab-badge" id="unconfiguredCountBadge">0</span>
                     </button>
                 </div>
 
@@ -102,49 +96,67 @@
 </div>
 
 <style>
-    * 篩選標籤選單樣式 */
-    .role-filter-nav {
+    /* 篩選標籤選單樣式 */
+    /* Tab 容器：水平並排、底線風格 */
+    .role-tab-nav {
         display: flex;
-        gap: 0.5rem;
-        background: var(--bg-body, #14171f);
-        padding: 4px;
-        border-radius: var(--radius-md, 8px);
-        border: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
+        border-bottom: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
+        gap: 0.25rem;
     }
-    .role-filter-btn {
+
+    /* Tab 按鈕：各佔 50%、底部發光指示條 */
+    .role-tab-btn {
         flex: 1;
-        background: transparent;
-        border: none;
-        color: var(--text-2, #8b949e);
-        font-size: 0.8rem;
-        font-weight: 500;
-        padding: 0.45rem 0.5rem;
-        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
+        gap: 0.4rem;
+        padding: 0.55rem 0.5rem;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--text-2, #8b949e);
+        font-size: 0.8rem;
+        font-weight: 500;
         cursor: pointer;
-        transition: all 0.2s ease;
+        margin-bottom: -1px; /* 貼齊底線 */
+        transition: all 0.15s ease;
+        white-space: nowrap;
     }
-    .role-filter-btn:hover {
+
+    .role-tab-btn:hover {
         color: var(--text-1, #f0f6fc);
-        background: rgba(255, 255, 255, 0.04);
     }
-    .role-filter-btn.active {
-        background: var(--bg-panel-raised, #21262d);
+
+    /* Active 狀態：亮色青底與底部高亮線 */
+    .role-tab-btn.active {
         color: var(--accent-cyan, #3fd0c9);
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        border-bottom-color: var(--accent-cyan, #3fd0c9);
     }
-    .filter-count-badge {
+
+    /* 數字標籤 */
+    .role-tab-badge {
         font-size: 0.7rem;
-        padding: 1px 6px;
-        border-radius: 10px;
+        padding: 0 6px;
+        height: 18px;
+        line-height: 18px;
+        border-radius: 9px;
         background: rgba(255, 255, 255, 0.08);
-        color: inherit;
+        color: var(--text-2, #8b949e);
+    }
+
+    .role-tab-btn.active .role-tab-badge {
+        background: rgba(63, 208, 201, 0.15);
+        color: var(--accent-cyan, #3fd0c9);
     }
 
     /* 專用清單項目樣式：完美呼應 design token 與 site.css */
+    /* AD群組類別外框 */
+    .role-list-scroll {
+        overflow-x: hidden;
+        padding-right: 4px; /* 預留 3px 位移量，避免貼邊 */
+    }
+    /* AD群組類別卡片 */
     .role-picker-item {
         background: var(--bg-panel-raised);
         border: 1px solid var(--hairline);
@@ -236,21 +248,10 @@
                     return;
                 }
 
-                // 關鍵修正：相容 hasPermissions 與 HasPermissions，避免大小寫不一致造成 undefined
-                allRoles = roles.map(role => {
-                    const hasPerm = Boolean(role.hasPermissions ?? role.HasPermissions ?? (role.permissionCount > 0) ?? (role.PermissionCount > 0));
-                    const rId = role.roleId || role.RoleId || role.id || role.Id;
-                    const rName = role.roleName || role.RoleName || role.name || role.Name;
-                    const adName = role.adGroupName || role.AdGroupName;
-
-                    return {
-                        ...role,
-                        roleId: rId,
-                        roleName: rName,
-                        adGroupName: adName,
-                        hasPermission: hasPerm
-                    };
-                });
+                allRoles = roles.map(role => ({
+                    ...role,
+                    hasPermission: role.hasPermissions
+                }));
 
                 // 1. 更新按鈕上「已存在 (N)」與「不存在 (N)」數字
                 updateFilterBadges();

@@ -45,13 +45,10 @@ builder.Services.AddReaderServices(); //註冊檔案讀取器;
 var app = builder.Build();
 app.UseStaticFiles(); // 啟用 wwwroot 中的靜態檔案 (如 css, js)
 await app.UseAdGroupAutoSyncAsync(); // 啟動時自動同步 AD 群組到 SQLite
-app.UseRouting();
-
-app.UseCors("AllowAll"); // 套用 CORS 政策 (必須在 MapControllers 之前)
-
-//驗證與授權
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseRouting(); // 解析路由
+app.UseCors("AllowAll"); // 套用 CORS 政策處理跨網域
+app.UseAuthentication(); // 解析 Cookie / Token 確認身分
+app.UseAuthorization();  // 根據身分比對權限 Policy
 
 
 

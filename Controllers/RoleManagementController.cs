@@ -21,11 +21,13 @@ public class RoleManagementController : ControllerBase
     {
         var roles = await _db.Roles
             .OrderBy(r => r.Name)
-            .Select(r => new 
+            .Select(r => new RoleListItemDto
             { 
                 RoleId = r.Id, 
                 RoleName = r.Name, 
-                r.AdGroupName 
+                AdGroupName = r.AdGroupName,
+                PermissionCount = r.RolePermissions.Count(),
+                HasPermissions = r.RolePermissions.Any()
             })
             .ToListAsync();
 
