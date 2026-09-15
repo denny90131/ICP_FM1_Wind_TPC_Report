@@ -3,7 +3,7 @@
 }
 
 <div class="container-fluid mb-5">
-    <!-- 頂部操作與狀態列 -->
+    <!-- AD 同步提示 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-2">
             <span id="syncStatusLamp" class="status-lamp is-idle"></span>
@@ -97,66 +97,70 @@
 
 <style>
     /* 篩選標籤選單樣式 */
-    /* Tab 容器：水平並排、底線風格 */
+
+    /* Tab 容器 */
     .role-tab-nav {
         display: flex;
         border-bottom: 1px solid var(--hairline, rgba(255, 255, 255, 0.08));
         gap: 0.25rem;
     }
 
-    /* Tab 按鈕：各佔 50%、底部發光指示條 */
+    /* Tab 按鈕 */
     .role-tab-btn {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        padding: 0.55rem 0.5rem;
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid transparent;
-        color: var(--text-2, #8b949e);
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
+        flex: 1;       /* 均分父容器剩餘寬度（兩個按鈕即各佔 50%） */
+        display: flex; /* 啟用彈性盒佈局，方便內部文字與 badge 排版 */
+        align-items: center; /* 字體垂直置中 */
+        justify-content: center; /* 字體水平置中 */
+        gap: 0.4rem; /* 文字間間隔 */
+        padding: 0.55rem 0.5rem; 
+        background: transparent; /* 移除背景 */
+        border: none; /* 移除框線 */
+        border-bottom: 2px solid transparent; /* 預留底部邊框位置 */
+        color: var(--text-2, #8b949e); /* 文字顏色 */
+        font-size: 0.8rem; /* 字體大小 */
+        font-weight: 500; /* 字體粗細 */
+        cursor: pointer; /* 移入時，改變手指指針 */
         margin-bottom: -1px; /* 貼齊底線 */
-        transition: all 0.15s ease;
-        white-space: nowrap;
+        transition: all 0.15s ease; /* 狀態切換時套用 0.15 秒平滑過渡動畫 */
+        white-space: nowrap; /* 強制單行顯示，禁止按鈕內文字折行 */
     }
-
+    /* Tab 移入時變換文字顏色 */
     .role-tab-btn:hover {
         color: var(--text-1, #f0f6fc);
     }
 
-    /* Active 狀態：亮色青底與底部高亮線 */
+    /* Tab - Active 狀態 - 變換文字顏色及底線顏色 */
     .role-tab-btn.active {
         color: var(--accent-cyan, #3fd0c9);
         border-bottom-color: var(--accent-cyan, #3fd0c9);
     }
 
-    /* 數字標籤 */
+    /* Tab內 數字標籤 */
     .role-tab-badge {
         font-size: 0.7rem;
         padding: 0 6px;
-        height: 18px;
-        line-height: 18px;
-        border-radius: 9px;
-        background: rgba(255, 255, 255, 0.08);
+        height: 18px;       /* 固定標籤高度為 18px */
+        line-height: 18px;  /* 行高設定與高度相同，使單行數字完美垂直置中 */
+        border-radius: 9px; /* 圓角設為高度的一半 (18px / 2)，形成完整膠囊橢圓形狀 */
+        background: rgba(255, 255, 255, 0.08);  /* 預設半透明白色底色（低彩度、不搶視覺） */
         color: var(--text-2, #8b949e);
     }
 
+    /* Tab內 數字標籤 - Active 狀態 - 變換文字顏色及底線顏色 */
     .role-tab-btn.active .role-tab-badge {
         background: rgba(63, 208, 201, 0.15);
         color: var(--accent-cyan, #3fd0c9);
     }
 
     /* 專用清單項目樣式：完美呼應 design token 與 site.css */
+
     /* AD群組類別外框 */
     .role-list-scroll {
         overflow-x: hidden;
-        padding-right: 4px; /* 預留 3px 位移量，避免貼邊 */
+        padding-right: 4px;     /* 右側預留空間，防止item-hover效果超出版面 */
     }
-    /* AD群組類別卡片 */
+
+    /* AD群組-獨立卡片 */
     .role-picker-item {
         background: var(--bg-panel-raised);
         border: 1px solid var(--hairline);
@@ -169,24 +173,31 @@
         align-items: center;
         justify-content: space-between;
     }
+    /* AD群組-獨立卡片 - 鼠標指向 */
     .role-picker-item:hover {
         border-color: var(--accent-cyan);
         transform: translateX(3px);
         background: rgba(63, 208, 201, 0.05);
     }
+    /* AD群組-獨立卡片 - active */
     .role-picker-item.active {
         background: var(--sidebar-active-bg, rgba(63, 208, 201, 0.12));
         border-color: var(--accent-cyan);
         box-shadow: 0 0 12px rgba(63, 208, 201, 0.15);
     }
+    /* AD群組-獨立卡片 - active - 群組名稱 變色 */
     .role-picker-item.active .role-name {
         color: var(--accent-cyan) !important;
     }
+
+    /* AD群組-獨立卡片 - active - 右側箭頭icon變色 */
     .role-picker-item.active .bi-chevron-right {
         color: var(--accent-cyan) !important;
     }
 
     /* 權限模組卡片樣式 */
+    
+    /* 主體 */
     .module-card {
         background: var(--bg-panel-raised);
         border: 1px solid var(--hairline);
@@ -194,6 +205,7 @@
         margin-bottom: 1rem;
         overflow: hidden;
     }
+    /* 抬頭 */
     .module-card-head {
         background: rgba(255, 255, 255, 0.015);
         border-bottom: 1px solid var(--hairline-soft);
@@ -202,20 +214,25 @@
         justify-content: space-between;
         align-items: center;
     }
+    /* 內容 */
     .module-card-body {
         padding: 1rem;
     }
 
-    /* 自訂 Checkbox 外觀符合暗色調 */
+    /* Checkbox 依照 site.css 改為自訂色彩  */
+
+    /* Checkbox 主體  */
     .form-check-input {
         background-color: var(--bg-input);
         border-color: var(--hairline);
         cursor: pointer;
     }
+    /* Checkbox 勾選時方塊變色  */
     .form-check-input:checked {
         background-color: var(--accent-cyan);
         border-color: var(--accent-cyan);
     }
+    /* Checkbox 游標停滯時提示效果  */
     .form-check-input:focus {
         box-shadow: 0 0 0 0.2rem rgba(63, 208, 201, 0.16);
     }
@@ -224,72 +241,91 @@
 @section Scripts {
     <script>
         let allRoles = [];                     // 所有角色列表
-        let currentFilter = 'configured';      // 'configured' (已存在) | 'unconfigured' (不存在)
-        let groupedPermissions = [];
-        let currentSelectedRoleId = null;
+        let currentFilter = 'configured';      // Tab選取狀態
+        let groupedPermissions = [];           // 取得各AD群組之內部權限表單
+        let currentSelectedRoleId = null;      // 目前選取的RoleID - AD 群組
 
+        // 頁面初始載入
         document.addEventListener('DOMContentLoaded', async () => {
             await Promise.all([loadRoles(), loadGroupedPermissions()]);
         });
 
-        // 載入 AD 角色清單
+        // 更新已分配與未分配數量標籤 - Tab
+        function updateFilterBadges() {
+            // 已分配權限之AD數量
+            const configuredCount = allRoles.filter(r => r.hasPermission).length;
+            // 未分配權限之AD數量
+            const unconfiguredCount = allRoles.filter(r => !r.hasPermission).length;
+
+            //數值更新到 已分配權限之AD標籤
+            document.getElementById('configuredCountBadge').innerText = configuredCount;
+            //數值更新到 未分配權限之AD標籤
+            document.getElementById('unconfiguredCountBadge').innerText = unconfiguredCount;
+        }
+
+        // 載入 AD 角色清單 - 初始版面
         async function loadRoles() {
+            // AD 群組清單
             const container = document.getElementById('roleListContainer');
+            // 整體 AD 群組標籤
             const badge = document.getElementById('roleCountBadge');
+
             try {
+                // 呼叫API 取得 各 AD 群組
                 const res = await fetch('/api/RoleManagement/roles');
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 
                 const roles = await res.json();
+                // 取得AD群組數量並帶到群組標籤
                 badge.innerText = `${roles.length} ROLES`;
 
+                // 無任何AD群組之提示字
                 if (roles.length === 0) {
                     container.innerHTML = '<div class="text-center py-4 empty-state">目前無任何角色，請點選上方同步。</div>';
                     return;
                 }
 
+                // 複製一新物件副本，避免修改原物件
                 allRoles = roles.map(role => ({
                     ...role,
                     hasPermission: role.hasPermissions
                 }));
 
-                // 1. 更新按鈕上「已存在 (N)」與「不存在 (N)」數字
+                // Tab按鈕上「已分配 (N)」與「未分配 (N)」標籤
                 updateFilterBadges();
 
-                // 2. 初始選單導向：如果「已存在」有群組就預設看已存在，否則切到不存在
+                // 初始選單導向：如果「已存在」有群組就預設看已存在，否則切到不存在
                 const hasConfigured = allRoles.some(r => r.hasPermission);
                 setRoleFilter(hasConfigured ? 'configured' : 'unconfigured');
             } 
             catch (err) 
             {
+                //若發生錯誤，則提示
                 container.innerHTML = `<div class="p-3 text-center empty-state text-danger">載入失敗: ${err.message}</div>`;
             }
         }
         
-        // 切換過濾模式 (已存在 / 不存在)
+        // 切換群組選擇模式 - 按下按鈕後執行函式
         function setRoleFilter(filterType) {
             currentFilter = filterType;
-
+            
+            // 依照篩選變換 Tab選取效果
             document.getElementById('btnFilterConfigured').classList.toggle('active', filterType === 'configured');
             document.getElementById('btnFilterUnconfigured').classList.toggle('active', filterType === 'unconfigured');
-
+            
+            //重新渲染AD群組名單 (含篩選)
             renderFilteredRoleList();
-        }
-
-        // 更新各分類數量徽章
-        function updateFilterBadges() {
-            const configuredCount = allRoles.filter(r => r.hasPermission).length;
-            const unconfiguredCount = allRoles.filter(r => !r.hasPermission).length;
-
-            document.getElementById('configuredCountBadge').innerText = configuredCount;
-            document.getElementById('unconfiguredCountBadge').innerText = unconfiguredCount;
         }
 
         // 渲染過濾後的 AD 角色清單
         function renderFilteredRoleList() {
+            
+            // 取得AD群組清單物件
             const container = document.getElementById('roleListContainer');
+            // 判斷現在分類條件為何? 依照currentFilter判斷
             const filtered = allRoles.filter(r => currentFilter === 'configured' ? r.hasPermission : !r.hasPermission);
 
+            // 如果篩選結果 = 0 則須出現提示，並依照是否分配決策提示為何
             if (filtered.length === 0) {
                 const emptyMsg = currentFilter === 'configured' 
                     ? '尚無任何已配置權限的群組。' 
@@ -298,6 +334,7 @@
                 return;
             }
 
+            // 依照篩選之AD清單帶入 AD清單
             container.innerHTML = filtered.map(role => `
                 <div class="role-picker-item ${currentSelectedRoleId === role.roleId ? 'active' : ''}" 
                      id="role-item-${role.roleId}" 
@@ -317,7 +354,7 @@
             }
         }
 
-        // 載入按模組分類的權限結構
+        // 載入內部權限結構 - 初始化
         async function loadGroupedPermissions() {
             try {
                 const res = await fetch('/api/RoleManagement/permissions');
@@ -329,7 +366,7 @@
             }
         }
 
-        // 渲染權限模組清單 DOM
+        // 依照內部權限結構 進行checkbox繪製
         function renderPermissionTemplate() {
             const container = document.getElementById('moduleGroupsContainer');
             container.innerHTML = groupedPermissions.map(group => `
@@ -366,25 +403,29 @@
 
         // 切換選取角色並透過 RoleDetailDto 載入已勾選項目
         async function selectRole(roleId) {
+            // 傳入選取之AD ID
             currentSelectedRoleId = roleId;
 
-            // 切換 Active 樣式
+            // 切換 Active 樣式 (先移除所有，在獨立加上active，確保唯一)
             document.querySelectorAll('.role-picker-item').forEach(el => el.classList.remove('active'));
             const activeEl = document.getElementById(`role-item-${roleId}`);
             if (activeEl) activeEl.classList.add('active');
 
-            // 重設勾選狀態
+            // 將內部權限checkbox 全清空
             document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = false);
 
             try {
+                //取得該AD群組之內部權限
                 const res = await fetch(`/api/RoleManagement/roles/${roleId}`);
                 if (!res.ok) throw new Error('取得角色資訊失敗');
                 
                 const roleDetail = await res.json();
 
-                // 更新全域陣列裡的 hasPermission，並同步按鈕數字
+                // 判斷回傳之陣列常讀是否 > 0
                 const hasAssigned = roleDetail.assignedPermissionIds && roleDetail.assignedPermissionIds.length > 0;
+                // 找到目標的AD群組權限表單
                 const targetRole = allRoles.find(r => r.roleId === roleId);
+                //若本機快取與後端狀態不符，則進行資料更新 (含更新TAB標籤數量)
                 if (targetRole && targetRole.hasPermission !== hasAssigned) {
                     targetRole.hasPermission = hasAssigned;
                     updateFilterBadges();
@@ -396,8 +437,11 @@
                 badge.innerText = roleDetail.adGroupName;
                 badge.classList.remove('d-none');
 
+                // 把「請在左側點選要設定的 AD 角色群組」的提示文字加上 d-none（display: none）隱藏起來
                 document.getElementById('noRoleSelectedPrompt').classList.add('d-none');
+                // 權限配置清單 顯示於畫面
                 document.getElementById('moduleGroupsContainer').classList.remove('d-none');
+                // 存儲權限按鈕設置可用
                 document.getElementById('btnSavePermissions').disabled = false;
 
                 // 勾選已擁有的權限
@@ -421,16 +465,22 @@
 
         // 儲存角色權限配置
         async function savePermissions() {
+            //如果目前選取的AD權限不存在則跳過
             if (!currentSelectedRoleId) return;
 
+            //取得存儲按鈕物件
             const btn = document.getElementById('btnSavePermissions');
+            //按下時之轉場
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 儲存中...';
 
+            // 取得所有被按下時checkbox 物件
             const checkedBoxes = document.querySelectorAll('.perm-checkbox:checked');
+            // 轉成js並取出 value值
             const permissionIds = Array.from(checkedBoxes).map(cb => cb.value);
 
             try {
+                // 呼叫 更新權限 API
                 const res = await fetch('/api/RoleManagement/update-permissions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -442,22 +492,27 @@
 
                 const result = await res.json();
                 if (res.ok) {
+                    //彈出視窗
                     alert(result.message || '權限配置更新成功！');
 
                     // 根據是否有勾選項目更新狀態
                     const targetRole = allRoles.find(r => r.roleId === currentSelectedRoleId);
+                    //重新渲染畫面
                     if (targetRole) {
-                        targetRole.hasPermission = permissionIds.length > 0;
-                        updateFilterBadges();        // 重新計算按鈕數字
-                        renderFilteredRoleList();    // 重新渲染清單（若狀態改變會自動移至另一分類）
+                        targetRole.hasPermission = permissionIds.length > 0; //如果更新權限後重新判斷
+                        updateFilterBadges();                                // 重新計算Tab上統計數值
+                        renderFilteredRoleList();                            // 重新渲染清單（若狀態改變會自動移至另一分類）
                     }
                 }
                 else {
+                    //彈出視窗
                     alert('儲存失敗：' + (result.message || res.statusText));
                 }
             } catch (err) {
+                //彈出視窗
                 alert('連線失敗：' + err.message);
             } finally {
+                //轉場呼叫結束
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> 儲存變更';
             }
@@ -465,30 +520,44 @@
 
         // 重新同步 AD 群組
         async function syncAdGroups() {
+            // 同步 AD 按鈕
             const btn = document.getElementById('btnSyncAd');
+            // 同步狀態燈號
             const lamp = document.getElementById('syncStatusLamp');
+            // 同步狀態文字
             const statusText = document.getElementById('syncStatusText');
 
+            // 按下同步按鈕時，暫時關閉按鈕 (執行轉場 - 燈號變化 文字變化 按鈕鎖定)
             btn.disabled = true;
+            // 將文字轉換為同步中
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 同步中...';
+            // 將燈號狀態轉為執行中
             lamp.className = 'status-lamp is-busy';
+            // 將狀態文字顯示同步AD中
             statusText.innerText = 'SYNCING AD';
 
             try {
+                // 呼叫 API 取得 同步AD
                 const res = await fetch('/api/RoleManagement/sync-ad', { method: 'POST' });
                 const result = await res.json();
-
+            
+                //同步失敗 - 燈號變換 & 文字變換
                 lamp.className = 'status-lamp is-live';
                 statusText.innerText = 'SYNCED';
+                //彈出視窗 - 同步成功
                 alert(result.message || 'AD 群組與系統權限已重新同步！');
 
                 await loadRoles();
             } catch (err) {
+                //同步失敗 - 燈號變換 & 文字變換
                 lamp.className = 'status-lamp is-error';
                 statusText.innerText = 'SYNC ERROR';
+                //彈出視窗 - 同步失敗
                 alert('同步失敗：' + err.message);
             } finally {
+                // 不論如何 按鈕皆須回復
                 btn.disabled = false;
+                // 按鈕文字更改為原預設文字
                 btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 立即同步 AD 群組';
             }
         }
