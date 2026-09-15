@@ -236,20 +236,21 @@
                     return;
                 }
 
-                // 寫入全域變數 allRoles，並標記是否已有權限 (支援後端常見欄位如 assignedPermissionIds 或 count)
+                // 直接使用後端給的 hasPermissions
                 allRoles = roles.map(role => ({
                     ...role,
-                    hasPermission: (role.assignedPermissionIds && role.assignedPermissionIds.length > 0) ||
-                                (role.permissionCount && role.permissionCount > 0) ||
-                                !!role.hasPermissions
+                    hasPermission: role.hasPermissions
                 }));
 
-                // 更新按鈕上的計數 (0 -> 實際數量)
+                // 1. 更新按鈕上「已存在 (N)」與「不存在 (N)」數字
                 updateFilterBadges();
 
-                // 依目前選取的頁籤 (已存在/不存在) 渲染左側清單
-                renderFilteredRoleList();
-            } catch (err) {
+                // 2. 初始選單導向：如果「已存在」有群組就預設看已存在，否則切到不存在
+                const hasConfigured = allRoles.some(r => r.hasPermission);
+                setRoleFilter(hasConfigured ? 'configured' : 'unconfigured');
+            } 
+            catch (err) 
+            {
                 container.innerHTML = `<div class="p-3 text-center empty-state text-danger">載入失敗: ${err.message}</div>`;
             }
         }
