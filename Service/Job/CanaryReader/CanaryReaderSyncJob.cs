@@ -75,7 +75,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 _logger.LogInformation("[Point] {InternalName}: {Value}", item.Key, item.Value ?? "null");
             }
             _logger.LogInformation("=========================================");
-            
+
             sw.Stop();
             _logger.LogInformation("Canary 數據轉換完成，共解析 {Count} 個內部點位，耗時: {Elapsed} ms", 
                 turbineValues.Count, sw.ElapsedMilliseconds);
@@ -146,9 +146,9 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
         >= 9 and <= 12  => "WTG_StrC",
         >= 13 and <= 16 => "WTG_StrD",
         >= 17 and <= 20 => "WTG_StrE",
-        >= 21 and <= 24 => "WTG_StrF",
-        >= 25 and <= 28 => "WTG_StrG",
-        >= 29 and <= 33 => "WTG_StrH", // 假設最後一條跑 5 台
+        >= 21 and <= 25 => "WTG_StrF",
+        >= 26 and <= 29 => "WTG_StrG",
+        >= 30 and <= 33 => "WTG_StrH", // 假設最後一條跑 5 台
         _ => "WTG_StrA"
     };
 
