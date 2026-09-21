@@ -131,7 +131,9 @@ public static class ServiceExtensions
         services.TryAddSingleton<IBackgroundTaskStatusService, BackgroundTaskStatusService>();
 
         // 註冊 Job 邏輯 (建議使用 Scoped，利於使用 DbContext 或 HttpClient)
-        services.AddScoped<IWindFarmSyncJob, WindFarmSyncJob>();
+        // services.AddScoped<IWindFarmSyncJob, WindFarmSyncJob>();
+
+        services.AddScoped<ICanaryReaderSyncJob, CanaryReaderSyncJob>();
 
         // 註冊真正的背景排程服務
         services.AddHostedService<WindFarmSyncBackground>();
