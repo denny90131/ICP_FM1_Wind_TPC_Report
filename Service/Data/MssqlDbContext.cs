@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class MssqlDbContext : DbContext
 {
-    public MssqlDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public MssqlDbContext(DbContextOptions<MssqlDbContext> options) : base(options)
     {
     }
 
