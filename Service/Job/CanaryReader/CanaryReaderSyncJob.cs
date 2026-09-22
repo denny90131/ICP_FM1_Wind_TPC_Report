@@ -45,10 +45,10 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 string wtgCode = parts[0];  // "WTG01"
                 string propName = parts[1]; // "ActivePower" 或是 "SystemStatus"
 
-                // 如果還沒有這台風機的容器，就建立一個
-                if (!combinedResult.ContainsKey(wtgCode))
+                if (!combinedResult.TryGetValue(wtgCode, out var propsDict))
                 {
-                    combinedResult[wtgCode] = new Dictionary<string, object?>();
+                    propsDict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+                    combinedResult[wtgCode] = propsDict;
                 }
                 
                 // 把屬性與數值塞進去
