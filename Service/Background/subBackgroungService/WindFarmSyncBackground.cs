@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 public class WindFarmSyncBackground : MainBackground
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger _logger;
 
     public WindFarmSyncBackground(
         IServiceProvider serviceProvider, 
@@ -12,6 +13,7 @@ public class WindFarmSyncBackground : MainBackground
         : base(TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(7), logger, statusService) // 將狀態服務傳給基底類別
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     protected override async Task ExecuteTaskAsync(CancellationToken stoppingToken)
@@ -39,6 +41,11 @@ public class WindFarmSyncBackground : MainBackground
         // 採樣 線上風機數量
         int? OnlineCount =  Canary_TurbineData.Values.CountByOperationalState(WtgOperationalState.Avail);
         
+        // [使用方式 1]：寫入 Log 紀錄當下狀態
+        _logger.LogInformation("採樣完成 => 線上風機數量: {OnlineCount} 台, 全風場平均功率: {AvgPower} kW", 
+                                OnlineCount, 
+                                AvgPower_ALL?.ToString("F2") ?? "N/A");
+
         // 將注入數值轉換Csv進行保存
         await WritterCsvJob.WriteTurbineDataToCsvAsync(Canary_TurbineData);
     }
