@@ -23,8 +23,23 @@ public class WindFarmSyncBackground : MainBackground
 
         // 建立 DI Scope 取得 Transient/Scoped 的 Job 服務
         using var scope = _serviceProvider.CreateScope();
+        // 取得服務 - Canary 數值採集
         var ReaderJob = scope.ServiceProvider.GetRequiredService<ICanaryReaderSyncJob>();
+        // 取得服務 - Canary 數值寫入csv
         var WritterCsvJob = scope.ServiceProvider.GetRequiredService<ICsvWritterSyncJob>();
-        await WritterCsvJob.WriteTurbineDataToCsvAsync(await ReaderJob.SyncCombinedTurbineDataAsync());
+        
+        // 工作流程
+
+        // 採樣 各 WTG 相關數值
+        Dictionary<string, TurbineData_Detail> Canary_TurbineData = await ReaderJob.SyncCombinedTurbineDataAsync();
+
+        // 採樣 全風場5分鐘平均功率
+        double? AvgPower_ALL = Canary_TurbineData.CalculateAveragePower();
+
+        // 採樣 線上風機數量
+        int? OnlineCount =  Canary_TurbineData.Values.CountByOperationalState(WtgOperationalState.Avail);
+        
+        // 將注入數值轉換Csv進行保存
+        await WritterCsvJob.WriteTurbineDataToCsvAsync(Canary_TurbineData);
     }
 }

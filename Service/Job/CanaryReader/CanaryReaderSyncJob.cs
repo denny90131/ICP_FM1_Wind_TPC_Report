@@ -19,7 +19,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
 
 
     /// <summary>
-    /// 終極聚合主程式：同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
+    /// 同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
     /// </summary>
     /// <returns>回傳格式：["WTG01"] = { ["ActivePower"] = 2.42, ["SystemStatus"] = 1 }</returns>
     public async Task<Dictionary<string, TurbineData_Detail>> SyncCombinedTurbineDataAsync()
@@ -80,7 +80,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
     }
 
     /// <summary>
-    /// 底層共用方法：負責打 API 並解析出 [內部名稱 -> (數值, 時間)]
+    /// 負責打 API 並解析出 [內部名稱 -> (數值, 時間)]
     /// </summary>
     private async Task<Dictionary<string, (object? Value, DateTime? Time)>> FetchCanaryDataAsync(bool isAverage)
     {

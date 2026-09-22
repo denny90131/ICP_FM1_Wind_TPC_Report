@@ -104,3 +104,62 @@ public sealed class TurbineData_Detail
         return int.TryParse(val.ToString(), out var result) ? result : null;
     }
 }
+// Turbine 整合換算類別
+public static class TurbineDataDetailExtensions
+{
+    // ==========================================
+    // 集合層級擴充 (支援 List、Array、Where 過濾結果)
+    // ==========================================
+
+    public static double? CalculateAveragePower(this IEnumerable<TurbineData_Detail>? turbines)
+    {
+        if (turbines == null) return null;
+
+        var validPowers = turbines
+            .Where(t => t.ActivePower.HasValue)
+            .Select(t => t.ActivePower!.Value)
+            .ToList();
+
+        return validPowers.Count > 0 ? validPowers.Average() : null;
+    }
+
+    public static double CalculateTotalPower(this IEnumerable<TurbineData_Detail>? turbines)
+    {
+        if (turbines == null) return 0;
+
+        return turbines
+            .Where(t => t.ActivePower.HasValue)
+            .Sum(t => t.ActivePower!.Value);
+    }
+
+    public static double? CalculateAverageWindSpeed(this IEnumerable<TurbineData_Detail>? turbines)
+    {
+        if (turbines == null) return null;
+
+        var validSpeeds = turbines
+            .Where(t => t.WindSpeed.HasValue)
+            .Select(t => t.WindSpeed!.Value)
+            .ToList();
+
+        return validSpeeds.Count > 0 ? validSpeeds.Average() : null;
+    }
+
+    public static int CountByOperationalState(this IEnumerable<TurbineData_Detail>? turbines, WtgOperationalState state)
+    {
+        if (turbines == null) return 0;
+        return turbines.Count(t => t.WindTurbine == state);
+    }
+
+    // ==========================================
+    // 字典層級擴充 (支援直接在 Dictionary 上點出方法)
+    // ==========================================
+
+    public static double? CalculateAveragePower(this IDictionary<string, TurbineData_Detail>? data)
+        => data?.Values.CalculateAveragePower();
+
+    public static double CalculateTotalPower(this IDictionary<string, TurbineData_Detail>? data)
+        => data?.Values.CalculateTotalPower() ?? 0;
+
+    public static double? CalculateAverageWindSpeed(this IDictionary<string, TurbineData_Detail>? data)
+        => data?.Values.CalculateAverageWindSpeed();
+}
