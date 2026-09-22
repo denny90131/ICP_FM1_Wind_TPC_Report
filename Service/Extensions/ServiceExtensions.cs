@@ -219,8 +219,8 @@ public static class ServiceExtensions
     public static IServiceCollection AddMssqlServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<MssqlDbContext>(options =>
-            options.UseSqlite(config.GetConnectionString("MssqlIS&R_Connection")));
-            
+            options.UseSqlServer(config.GetConnectionString("MssqlIS&R_Connection")));
+
         // 註冊泛型倉儲 (重要：泛型註冊方式不同於一般型別)
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         return services;
