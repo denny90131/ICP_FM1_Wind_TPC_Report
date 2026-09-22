@@ -44,6 +44,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
         // 2. 定義一個內部輔助函式，把平坦的字典轉換成分組字典
         void MergeToCombinedResult(Dictionary<string, (object? Value, DateTime? Time)> dataMap)
         {
+            string farmId = _configuration["FarmId"] ?? _configuration["WindFarm:FarmId"] ?? "FM1";
             foreach (var item in dataMap)
             {
                 // item.Key 長相為 "WTG01_ActivePower"
@@ -58,6 +59,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 {
                     turbine = new TurbineData_Detail
                     {
+                        FarmId = farmId,
                         TurbineId = wtgCode
                     };
                     combinedResult[wtgCode] = turbine;

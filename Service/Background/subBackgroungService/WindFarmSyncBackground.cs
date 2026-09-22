@@ -5,18 +5,15 @@ public class WindFarmSyncBackground : MainBackground
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
-    private readonly IRepository<WindTurbineMetric> _mssql_WindTurbineMetric;
 
     public WindFarmSyncBackground(
         IServiceProvider serviceProvider, 
         ILogger<WindFarmSyncBackground> logger,
-        IRepository<WindTurbineMetric> mssql_WindTurbineMetric,
         IBackgroundTaskStatusService statusService) // 注入狀態服務
         : base(TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(7), logger, statusService) // 將狀態服務傳給基底類別
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _mssql_WindTurbineMetric = mssql_WindTurbineMetric;
     }
 
     protected override async Task ExecuteTaskAsync(CancellationToken stoppingToken)
@@ -32,24 +29,30 @@ public class WindFarmSyncBackground : MainBackground
         var ReaderJob = scope.ServiceProvider.GetRequiredService<ICanaryReaderSyncJob>();
         // 取得服務 - Canary 數值寫入csv
         var WritterCsvJob = scope.ServiceProvider.GetRequiredService<ICsvWritterSyncJob>();
+        // 取得服務 - 取得mssql資料庫 Repository
+        var mssql_WindTurbineMetric_Repository = scope.ServiceProvider.GetRequiredService<IRepository<WindTurbineMetric>>();
         
         // 工作流程
 
         // 採樣 各 WTG 相關數值
         Dictionary<string, TurbineData_Detail> Canary_TurbineData = await ReaderJob.SyncCombinedTurbineDataAsync();
 
+        // --- 統計數值 ---
         // 採樣 全風場5分鐘平均功率
         double? AvgPower_ALL = Canary_TurbineData.CalculateAveragePower();
 
         // 採樣 線上風機數量
         int? OnlineCount =  Canary_TurbineData.Values.CountByOperationalState(WtgOperationalState.Avail);
-        
-        // [使用方式 1]：寫入 Log 紀錄當下狀態
-        _logger.LogInformation("採樣完成 => 線上風機數量: {OnlineCount} 台, 全風場平均功率: {AvgPower} kW", 
-                                OnlineCount, 
-                                AvgPower_ALL?.ToString("F2") ?? "N/A");
 
-        // 將注入數值轉換Csv進行保存
+
+        // 將數據轉為 MSSQL 資料格式
+        List<WindTurbineMetric> metrics = Canary_TurbineData.ToWindTurbineMetrics();
+
+        // --- 資料注入 ---
+        // 寫入 MSSQL-WindTurbineMetric 資料庫
+        await mssql_WindTurbineMetric_Repository.AddRangeAsync(metrics);
+
+        // 寫入Csv進行保存 - csv為設定檔指定路徑
         await WritterCsvJob.WriteTurbineDataToCsvAsync(Canary_TurbineData);
     }
 }

@@ -1,7 +1,7 @@
 public sealed class TurbineData_Detail
 {
     // 風機編號
-    public string FramId { get; set; } = string.Empty;
+    public string FarmId { get; set; } = string.Empty;
     // 風機編號
     public string TurbineId { get; set; } = string.Empty;
     // 時間戳記
@@ -13,7 +13,7 @@ public sealed class TurbineData_Detail
     // [即時值] 絕對方位 - 來自風機提供之方位
     public double? AbsoluteWindDirection { get; set; }
     // (來源尚未定義) 風機HSL
-    public double? WTG_HSL {get; set;} = 0;
+    public int? WTG_HSL {get; set;} = 0;
     // [即時值] 運轉字 - 來自風機運轉狀態
     public int? OperatorState { get; set; }
     // [即時值] 服務字 - 來自風機服務狀態
@@ -155,8 +155,7 @@ public static class TurbineDataDetailExtensions
     /// 將 Canary 的字典資料轉換為 MSSQL-WindTurbineMetric 資料集合
     /// </summary>
     public static List<WindTurbineMetric> ToWindTurbineMetrics(
-        this Dictionary<string, TurbineData_Detail> canaryData, 
-        string farmId = "FM1") // 可預設風場編號
+        this Dictionary<string, TurbineData_Detail> canaryData) // 可預設風場編號
     {
         if (canaryData == null || !canaryData.Any()) return new List<WindTurbineMetric>();
 
@@ -164,16 +163,16 @@ public static class TurbineDataDetailExtensions
 
         return canaryData.Select(kvp => new WindTurbineMetric
         {
-            FarmId = farmId,
+            FarmId = kvp.Value.FarmId,
             WTG_Id = kvp.Key.Replace("wtg", "", StringComparison.OrdinalIgnoreCase).TrimStart('0'),           // 字典的 Key 就是風機編號 (例: WTG01)
             DateTime = now,                               // 記錄時間
             WTG_State = (int?)kvp.Value.WindTurbine,      // Enum 轉 int
-            WTG_HSL = (int?)kvp.Value.WTG_HSL,
+            WTG_HSL = kvp.Value.WTG_HSL,
             
-            // 注意：您的資料庫設計是 decimal，若原本記憶體中是 double，需要轉型 (decimal?)
-            Avg_Active_Power = (decimal?)kvp.Value.ActivePower,
-            Avg_WindSpeed = (decimal?)kvp.Value.WindSpeed,
-            Wind_Direction = (decimal?)kvp.Value.AbsoluteWindDirection // 假設您有這個屬性
+            // 5. double? 安全轉 decimal? (避免 NaN / 無限大導致 OverflowException)
+            Avg_Active_Power = SafeToDecimal(kvp.Value.ActivePower),
+            Avg_WindSpeed = SafeToDecimal(kvp.Value.WindSpeed),
+            Wind_Direction = SafeToDecimal(kvp.Value.AbsoluteWindDirection)
         }).ToList();
     }
 
@@ -189,4 +188,14 @@ public static class TurbineDataDetailExtensions
 
     public static double? CalculateAverageWindSpeed(this IDictionary<string, TurbineData_Detail>? data)
         => data?.Values.CalculateAverageWindSpeed();
+
+
+    // 輔助函式：安全將 double? 轉為 decimal? (避免Nan跟無限大)
+    private static decimal? SafeToDecimal(double? value)
+    {
+        if (!value.HasValue || double.IsNaN(value.Value) || double.IsInfinity(value.Value))
+            return null;
+
+        return (decimal)value.Value;
+    }
 }
