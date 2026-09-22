@@ -17,122 +17,164 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
         _configuration = configuration;
     }
 
+
     /// <summary>
-    /// 執行主程序邏輯：抓取 33 台風機最新數據並轉換為 [內部名稱, 數值]
+    /// 終極聚合主程式：同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
     /// </summary>
-    /// <returns>回傳 Dictionary<內部名稱, 數值>，例如 ["WTG01_ActivePower"] = 1250.4</returns>
-    public async Task<Dictionary<string, object?>> SyncTurbineDataAsync()
+    /// <returns>回傳格式：["WTG01"] = { ["ActivePower"] = 2.42, ["SystemStatus"] = 1 }</returns>
+    public async Task<Dictionary<string, Dictionary<string, object?>>> SyncCombinedTurbineDataAsync()
     {
         var sw = Stopwatch.StartNew();
-        var turbineValues = new Dictionary<string, object?>();
-        _logger.LogInformation("Canary Reader Sync Job 開始執行...");
+        _logger.LogInformation("Canary Reader Sync Job 開始執行 (混合數據聚合模式)...");
 
-        try
+        var combinedResult = new Dictionary<string, Dictionary<string, object?>>();
+
+        // 1. 分別取得 AVG(平均) 與 REAL(當前) 的數據包 (裡面包含數值與時間)
+        var avgData = await FetchCanaryDataAsync(isAverage: true);
+        var realData = await FetchCanaryDataAsync(isAverage: false);
+
+        // 2. 定義一個內部輔助函式，把平坦的字典轉換成分組字典
+        void MergeToCombinedResult(Dictionary<string, (object? Value, DateTime? Time)> dataMap)
         {
-            // 動態建立 Tag 對照表：Key 為 Canary SCADA Tag，Value 為內部自訂名稱
-            // 例: ["FM1...WTG01.Grid.mea.ActivePower.P"] = "WTG01_ActivePower"
-            Dictionary<string, string> tagToInternalKeyMap = GenerateTurbineTagMapping();
-            // 設定檔查無任何點為，回傳空字典
-            if (tagToInternalKeyMap.Count == 0)
+            foreach (var item in dataMap)
             {
-                _logger.LogWarning("CanaryTagMapping 查無任何 Tag 設定，作業中止。");
-                return turbineValues;
-            }
+                // item.Key 長相為 "WTG01_ActivePower"
+                var parts = item.Key.Split('_', 2);
+                if (parts.Length != 2) continue;
 
-            // 2. 呼叫 Canary GetData2參數設定
-            var request = new GetTagData2RequestDto
-            {
-                Tags = tagToInternalKeyMap.Keys.ToList(),
-                IncludeQuality = true,
-                UseTimeExtension = true
-            };
+                string wtgCode = parts[0];  // "WTG01"
+                string propName = parts[1]; // "ActivePower" 或是 "SystemStatus"
 
-            var response = await _canaryService.GetTagData2Async(request);
-
-            if (!response.IsSuccess || response.Data?.Data == null)
-            {
-                _logger.LogError("Canary API 呼叫失敗: StatusCode={StatusCode}, Errors={Errors}", 
-                    response.StatusCode, response.Errors);
-                return turbineValues;
-            }
-
-            // 3. 轉換成 [內部系統名稱, 數值]
-            foreach (var (canaryTag, points) in response.Data.Data)
-            {
-                // 從對照表反查內部名稱
-                if (tagToInternalKeyMap.TryGetValue(canaryTag, out var internalName))
+                // 如果還沒有這台風機的容器，就建立一個
+                if (!combinedResult.ContainsKey(wtgCode))
                 {
-                    var latestPoint = points?.LastOrDefault();
-                    // 取出數值 (latestPoint.V)
-                    turbineValues[internalName] = latestPoint?.V;
+                    combinedResult[wtgCode] = new Dictionary<string, object?>();
                 }
+                
+                // 把屬性與數值塞進去
+                combinedResult[wtgCode][propName] = item.Value.Value;
             }
-
-            // --- 4. 在此印出結果 ---
-            _logger.LogInformation("=== 風機數據同步明細 (共 {Count} 筆) ===", turbineValues.Count);
-            foreach (var item in turbineValues)
-            {
-                _logger.LogInformation("[Point] {InternalName}: {Value}", item.Key, item.Value ?? "null");
-            }
-            _logger.LogInformation("=========================================");
-
-            sw.Stop();
-            _logger.LogInformation("Canary 數據轉換完成，共解析 {Count} 個內部點位，耗時: {Elapsed} ms", 
-                turbineValues.Count, sw.ElapsedMilliseconds);
-
-            return turbineValues;
         }
-        catch (Exception ex)
+
+        // 將兩包資料倒進聚合容器裡
+        MergeToCombinedResult(avgData);
+        MergeToCombinedResult(realData);
+
+        // 3. 輸出漂亮的 Log (包含 WTG01 A:XXX B:XXX 格式)
+        _logger.LogInformation("=== 風機混合數據同步明細 (共 {Count} 台) ===", combinedResult.Count);
+        foreach (var wtg in combinedResult.OrderBy(x => x.Key))
         {
-            _logger.LogError(ex, "Canary Reader Sync Job 執行時發生未預期錯誤。");
-            return turbineValues;
+            // 將該台風機底下的所有屬性組合成字串，例如 "ActivePower: 2.42, SystemStatus: 1"
+            string propsString = string.Join(", ", wtg.Value.Select(p => $"{p.Key}: {p.Value ?? "null"}"));
+            _logger.LogInformation("[{WTG}] {Props}", wtg.Key, propsString);
         }
+        _logger.LogInformation("=========================================");
+
+        sw.Stop();
+        _logger.LogInformation("Canary 混合數據聚合完成，總耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
+
+        return combinedResult;
     }
 
+    /// <summary>
+    /// 底層共用方法：負責打 API 並解析出 [內部名稱 -> (數值, 時間)]
+    /// </summary>
+    private async Task<Dictionary<string, (object? Value, DateTime? Time)>> FetchCanaryDataAsync(bool isAverage)
+    {
+        var result = new Dictionary<string, (object? Value, DateTime? Time)>();
+        
+        // 根據 isAverage 決定去讀 appsettings.json 裡面的 AVG 還是 REAL 區塊
+        var tagMap = GenerateTurbineTagMapping(isAverage);
+        if (tagMap.Count == 0) return result;
+
+        var request = new GetTagData2RequestDto
+        {
+            Tags = tagMap.Keys.ToList(),
+            IncludeQuality = true
+        };
+
+        // 依照類別設定 API 專屬參數
+        if (isAverage)
+        {
+            request.AggregateName = "TimeAverage2";
+            request.AggregateInterval = "00:05:00";
+        }
+        else
+        {
+            request.UseTimeExtension = true; // 當前值專用
+        }
+
+        var response = await _canaryService.GetTagData2Async(request);
+
+        if (!response.IsSuccess || response.Data?.Data == null)
+        {
+            _logger.LogError("Canary API [{Mode}] 呼叫失敗: {Errors}", isAverage ? "AVG" : "REAL", response.Errors);
+            return result;
+        }
+
+        // 轉換成 [內部系統名稱, (數值, 時間)]
+        foreach (var (canaryTag, points) in response.Data.Data)
+        {
+            if (tagMap.TryGetValue(canaryTag, out var internalName))
+            {
+                var latestPoint = points?.LastOrDefault();
+                
+                // 時間處理：如果是平均值，將起始時間 + 5 分鐘轉為結算時間
+                DateTime? recordTime = null;
+                if (latestPoint?.T != null)
+                {
+                    recordTime = isAverage 
+                        ? DateTime.Parse(latestPoint.T.ToString()).AddMinutes(5) 
+                        : DateTime.Parse(latestPoint.T.ToString());
+                }
+
+                result[internalName] = (latestPoint?.V, recordTime ?? DateTime.Now);
+            }
+        }
+
+        return result;
+    }
 
     /// <summary>
-    /// 解析 appsettings 中的 CanaryTagMapping，
-    /// 產生 [Canary SCADA Tag -> 內部系統名稱] 的對應字典
+    /// 解析 appsettings 中的 CanaryTagMapping:AVG 或 CanaryTagMapping:REAL
     /// </summary>
-    private Dictionary<string, string> GenerateTurbineTagMapping()
+    private Dictionary<string, string> GenerateTurbineTagMapping(bool isAverage)
     {
         var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var mappingSection = _configuration.GetSection("CanaryTagMapping").GetChildren();
+        
+        // 【關鍵】動態決定要抓哪個 JSON 節點
+        string targetSection = isAverage ? "CanaryTagMapping:AVG" : "CanaryTagMapping:REAL";
+        var mappingSection = _configuration.GetSection(targetSection).GetChildren();
 
         foreach (var item in mappingSection)
         {
-            string propertyName = item.Key;   // 例如: "ActivePower"
-            string? template = item.Value;     // 樣板字串
+            // 因為 JSON 已經分層，這裡抓到的 Key 就是乾淨的 "ActivePower" 或 "SystemStatus"
+            string propertyName = item.Key;   
+            string? template = item.Value;    
 
             if (string.IsNullOrWhiteSpace(template)) continue;
 
             for (int i = 1; i <= 33; i++)
             {
                 string wtgCode = $"WTG{i:D2}";         // WTG01 ~ WTG33
-                string strCode = GetStringByWtgIndex(i); // 依編號算出對應的 WTG_StrA, WTG_StrB...
+                string strCode = GetStringByWtgIndex(i); // WTG_StrA ~ H
 
-                // 解析 SCADA Tag (同時替換 String 與 WTG)
                 string resolvedCanaryTag = template;
 
-                // 替換 String
                 if (resolvedCanaryTag.Contains("{STR}"))
                     resolvedCanaryTag = resolvedCanaryTag.Replace("{STR}", strCode);
                 else
                     resolvedCanaryTag = resolvedCanaryTag.Replace("WTG_StrA", strCode);
 
-                // 替換 WTG
                 if (resolvedCanaryTag.Contains("{WTG}"))
                     resolvedCanaryTag = resolvedCanaryTag.Replace("{WTG}", wtgCode);
                 else
                     resolvedCanaryTag = resolvedCanaryTag.Replace("WTG01", wtgCode);
 
-                // 產生內部名稱，例如 "WTG01_ActivePower"
                 string internalName = $"{wtgCode}_{propertyName}";
-
                 map[resolvedCanaryTag] = internalName;
             }
         }
-
         return map;
     }
 

@@ -47,8 +47,15 @@ public class CanaryService : ICanaryService
             var fullUrl = new Uri(_httpClient.BaseAddress, relativeUrl);
             _logger.LogInformation("Calling external Canary API: {Url} with payload: {Payload}", fullUrl, jsonPayload);
 
+            // --- 加上計時器 ---
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            _logger.LogInformation("[診斷] 開始執行 PostAsync...");
+
             var response = await _httpClient.PostAsync(relativeUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
+            
+            sw.Stop();
+            _logger.LogInformation("[診斷] PostAsync 執行完畢，耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
 
             if (response.IsSuccessStatusCode)
             {

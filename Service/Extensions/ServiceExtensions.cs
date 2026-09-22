@@ -134,6 +134,7 @@ public static class ServiceExtensions
         // services.AddScoped<IWindFarmSyncJob, WindFarmSyncJob>();
 
         services.AddScoped<ICanaryReaderSyncJob, CanaryReaderSyncJob>();
+        services.AddScoped<ICsvWritterSyncJob, CsvWritterSyncJob>();
 
         // 註冊真正的背景排程服務
         services.AddHostedService<WindFarmSyncBackground>();
@@ -172,6 +173,7 @@ public static class ServiceExtensions
         })
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
+            UseProxy = false,
             // 略過 SSL 憑證檢查（解決憑證名稱不符或自簽證憑證的錯誤）
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
         });

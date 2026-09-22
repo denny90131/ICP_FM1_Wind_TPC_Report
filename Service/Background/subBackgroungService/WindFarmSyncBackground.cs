@@ -23,7 +23,8 @@ public class WindFarmSyncBackground : MainBackground
 
         // 建立 DI Scope 取得 Transient/Scoped 的 Job 服務
         using var scope = _serviceProvider.CreateScope();
-        var job = scope.ServiceProvider.GetRequiredService<ICanaryReaderSyncJob>();
-        await job.SyncTurbineDataAsync();
+        var ReaderJob = scope.ServiceProvider.GetRequiredService<ICanaryReaderSyncJob>();
+        var WritterCsvJob = scope.ServiceProvider.GetRequiredService<ICsvWritterSyncJob>();
+        await WritterCsvJob.WriteTurbineDataToCsvAsync(await ReaderJob.SyncCombinedTurbineDataAsync());
     }
 }
