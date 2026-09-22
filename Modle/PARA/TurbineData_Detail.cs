@@ -1,6 +1,8 @@
 public sealed class TurbineData_Detail
 {
     // 風機編號
+    public string FramId { get; set; } = string.Empty;
+    // 風機編號
     public string TurbineId { get; set; } = string.Empty;
     // 時間戳記
     public DateTime? Timestamp { get; set; }
@@ -22,7 +24,7 @@ public sealed class TurbineData_Detail
     {
         get
         {
-            //如為運
+            //如維運
             if (!OperatorState.HasValue || !ServiceState.HasValue)return null;
             return ServiceState.Value switch
             {
@@ -148,6 +150,31 @@ public static class TurbineDataDetailExtensions
     {
         if (turbines == null) return 0;
         return turbines.Count(t => t.WindTurbine == state);
+    }
+    /// <summary>
+    /// 將 Canary 的字典資料轉換為 MSSQL-WindTurbineMetric 資料集合
+    /// </summary>
+    public static List<WindTurbineMetric> ToWindTurbineMetrics(
+        this Dictionary<string, TurbineData_Detail> canaryData, 
+        string farmId = "FM1") // 可預設風場編號
+    {
+        if (canaryData == null || !canaryData.Any()) return new List<WindTurbineMetric>();
+
+        DateTime now = DateTime.Now;
+
+        return canaryData.Select(kvp => new WindTurbineMetric
+        {
+            FarmId = farmId,
+            WTG_Id = kvp.Key.Replace("wtg", "", StringComparison.OrdinalIgnoreCase).TrimStart('0'),           // 字典的 Key 就是風機編號 (例: WTG01)
+            DateTime = now,                               // 記錄時間
+            WTG_State = (int?)kvp.Value.WindTurbine,      // Enum 轉 int
+            WTG_HSL = (int?)kvp.Value.WTG_HSL,
+            
+            // 注意：您的資料庫設計是 decimal，若原本記憶體中是 double，需要轉型 (decimal?)
+            Avg_Active_Power = (decimal?)kvp.Value.ActivePower,
+            Avg_WindSpeed = (decimal?)kvp.Value.WindSpeed,
+            Wind_Direction = (decimal?)kvp.Value.AbsoluteWindDirection // 假設您有這個屬性
+        }).ToList();
     }
 
     // ==========================================

@@ -5,15 +5,18 @@ public class WindFarmSyncBackground : MainBackground
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
+    private readonly IRepository<WindTurbineMetric> _mssql_WindTurbineMetric;
 
     public WindFarmSyncBackground(
         IServiceProvider serviceProvider, 
         ILogger<WindFarmSyncBackground> logger,
+        IRepository<WindTurbineMetric> mssql_WindTurbineMetric,
         IBackgroundTaskStatusService statusService) // 注入狀態服務
         : base(TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(7), logger, statusService) // 將狀態服務傳給基底類別
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _mssql_WindTurbineMetric = mssql_WindTurbineMetric;
     }
 
     protected override async Task ExecuteTaskAsync(CancellationToken stoppingToken)
