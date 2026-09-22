@@ -51,6 +51,7 @@ public class WindFarmSyncBackground : MainBackground
         // --- 資料注入 ---
         // 寫入 MSSQL-WindTurbineMetric 資料庫
         await mssql_WindTurbineMetric_Repository.AddRangeAsync(metrics);
+        await mssql_WindTurbineMetric_Repository.SaveChangesAsync();
 
         // 寫入Csv進行保存 - csv為設定檔指定路徑
         await WritterCsvJob.WriteTurbineDataToCsvAsync(Canary_TurbineData);
