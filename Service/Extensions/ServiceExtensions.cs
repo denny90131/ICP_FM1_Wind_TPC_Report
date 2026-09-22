@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using tai_wind_integration.Modle.SFTP;
 using tai_wind_integration.Modle.Canary;
+using tai_wind_integration.Modle.PARA;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -104,6 +105,24 @@ public static class ServiceExtensions
     }
 
     /// <summary>
+    /// 註冊 CanaryReader 排程任務服務 (讀取風機即時數據 Job)
+    /// </summary>
+    public static IServiceCollection AddCanaryReaderSyncJob(this IServiceCollection services, IConfiguration config)
+    {
+        // 1. 將 appsettings 中的 CanaryTagMapping 區段綁定至 CanaryPARA.Tags
+        services.Configure<CanaryPARA>(options =>
+        {
+            options.CanaryTagMapping = config.GetSection("CanaryTagMapping").Get<Dictionary<string, string>>() 
+                                        ?? new Dictionary<string, string>();
+        });
+
+        // 2. 註冊 Job 介面與實作（通常使用 Scoped 或 Transient）
+        services.AddScoped<ICanaryReaderSyncJob, CanaryReaderSyncJob>();
+
+        return services;
+    }
+
+    /// <summary>
     /// 註冊背景服務（Background / Hosted Services）
     /// </summary>
     public static IServiceCollection AddWindFarmSyncBackgroundervices(this IServiceCollection services)
@@ -112,7 +131,10 @@ public static class ServiceExtensions
         services.TryAddSingleton<IBackgroundTaskStatusService, BackgroundTaskStatusService>();
 
         // 註冊 Job 邏輯 (建議使用 Scoped，利於使用 DbContext 或 HttpClient)
-        services.AddScoped<IWindFarmSyncJob, WindFarmSyncJob>();
+        // services.AddScoped<IWindFarmSyncJob, WindFarmSyncJob>();
+
+        services.AddScoped<ICanaryReaderSyncJob, CanaryReaderSyncJob>();
+        services.AddScoped<ICsvWritterSyncJob, CsvWritterSyncJob>();
 
         // 註冊真正的背景排程服務
         services.AddHostedService<WindFarmSyncBackground>();
@@ -151,6 +173,7 @@ public static class ServiceExtensions
         })
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
+            UseProxy = false,
             // 略過 SSL 憑證檢查（解決憑證名稱不符或自簽證憑證的錯誤）
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
         });

@@ -9,17 +9,22 @@ public class WindFarmSyncBackground : MainBackground
         IServiceProvider serviceProvider, 
         ILogger<WindFarmSyncBackground> logger,
         IBackgroundTaskStatusService statusService) // 注入狀態服務
-        : base(TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(7), logger, statusService) // 將狀態服務傳給基底類別
+        : base(TimeSpan.FromMinutes(1), TimeSpan.FromSeconds(7), logger, statusService) // 將狀態服務傳給基底類別
     {
         _serviceProvider = serviceProvider;
     }
 
     protected override async Task ExecuteTaskAsync(CancellationToken stoppingToken)
     {
+        // // 建立 DI Scope 取得 Transient/Scoped 的 Job 服務
+        // using var scope = _serviceProvider.CreateScope();
+        // var job = scope.ServiceProvider.GetRequiredService<IWindFarmSyncJob>();
+        // await job.WindFarmRealTime_RequestAsync();
+
         // 建立 DI Scope 取得 Transient/Scoped 的 Job 服務
         using var scope = _serviceProvider.CreateScope();
-        var job = scope.ServiceProvider.GetRequiredService<IWindFarmSyncJob>();
-        
-        await job.WindFarmRealTime_RequestAsync();
+        var ReaderJob = scope.ServiceProvider.GetRequiredService<ICanaryReaderSyncJob>();
+        var WritterCsvJob = scope.ServiceProvider.GetRequiredService<ICsvWritterSyncJob>();
+        await WritterCsvJob.WriteTurbineDataToCsvAsync(await ReaderJob.SyncCombinedTurbineDataAsync());
     }
 }

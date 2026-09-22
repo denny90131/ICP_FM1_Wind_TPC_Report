@@ -28,8 +28,17 @@ public class CanaryService : ICanaryService
         {
             tokenRequest.ApiToken = _canarySettings.API_Token;
         }
+        // 如果請求是 GetTagData2RequestDto, 自動填入 API Tolken
+        else if (requestPayload is GetTagData2RequestDto tagDataRequest && string.IsNullOrEmpty(tagDataRequest.ApiToken))
+        {
+            tagDataRequest.ApiToken = _canarySettings.API_Token;
+        }
+        // 避免因為null 回傳錯誤
+        var jsonPayload = JsonSerializer.Serialize(requestPayload, new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
 
-        var jsonPayload = JsonSerializer.Serialize(requestPayload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
         try
@@ -38,8 +47,15 @@ public class CanaryService : ICanaryService
             var fullUrl = new Uri(_httpClient.BaseAddress, relativeUrl);
             _logger.LogInformation("Calling external Canary API: {Url} with payload: {Payload}", fullUrl, jsonPayload);
 
+            // --- 加上計時器 ---
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            _logger.LogInformation("[診斷] 開始執行 PostAsync...");
+
             var response = await _httpClient.PostAsync(relativeUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
+            
+            sw.Stop();
+            _logger.LogInformation("[診斷] PostAsync 執行完畢，耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
 
             if (response.IsSuccessStatusCode)
             {
@@ -97,6 +113,14 @@ public class CanaryService : ICanaryService
     public async Task<CanaryApiResponse<GetLiveDataResponseDto>> GetLiveDataAsync(GetLiveDataRequestDto request)
     {
         return await SendCanaryApiRequestAsync<GetLiveDataRequestDto, GetLiveDataResponseDto>("v2/getLiveData", request);
+    }
+
+    /// <summary>
+    /// 取得歷史/原始或統計後的 Tag 數據 (v2/getTagData2)
+    /// </summary>
+    public async Task<CanaryApiResponse<GetTagData2ResponseDto>> GetTagData2Async(GetTagData2RequestDto request)
+    {
+        return await SendCanaryApiRequestAsync<GetTagData2RequestDto, GetTagData2ResponseDto>("v2/getTagData2", request);
     }
 
     // This method is for the "Test Tag Storage Only" functionality, which doesn't call an external API.
