@@ -22,12 +22,13 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
     /// 終極聚合主程式：同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
     /// </summary>
     /// <returns>回傳格式：["WTG01"] = { ["ActivePower"] = 2.42, ["SystemStatus"] = 1 }</returns>
-    public async Task<Dictionary<string, Dictionary<string, object?>>> SyncCombinedTurbineDataAsync()
+    public async Task<Dictionary<string, TurbineData_Detail>> SyncCombinedTurbineDataAsync()
     {
         var sw = Stopwatch.StartNew();
         _logger.LogInformation("Canary Reader Sync Job 開始執行 (混合數據聚合模式)...");
 
-        var combinedResult = new Dictionary<string, Dictionary<string, object?>>();
+        //StringComparer.OrdinalIgnoreCase => 忽略大小寫鍵值比對
+        var combinedResult = new Dictionary<string, TurbineData_Detail>(StringComparer.OrdinalIgnoreCase);
 
         // 建立 AVG(平均) 與 REAL(當前) 的 緒 (裡面包含數值與時間)
         var avgTask= FetchCanaryDataAsync(isAverage: true);
@@ -53,31 +54,25 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 string propName = parts[1]; // "ActivePower" 或是 "SystemStatus"
 
                 //優化字典索引效能問題，改為TryGetValue 單次Lookup ，解決原ContainKey + 索引 多次尋找問題
-                if (!combinedResult.TryGetValue(wtgCode, out var propsDict))
+                if (!combinedResult.TryGetValue(wtgCode, out var turbine))
                 {
-                    propsDict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
-                    combinedResult[wtgCode] = propsDict;
+                    turbine = new TurbineData_Detail
+                    {
+                        TurbineId = wtgCode
+                    };
+                    combinedResult[wtgCode] = turbine;
                 }
                 
-                // 把屬性與數值塞進去
-                combinedResult[wtgCode][propName] = item.Value.Value;
+                // 呼叫實體的 SetProperty，自動處理轉型、時間戳更新與兜底欄位
+                turbine.SetProperty(propName, item.Value.Value, item.Value.Time);
             }
         }
 
         // 將兩包資料倒進聚合容器裡
         MergeToCombinedResult(avgData);
         MergeToCombinedResult(realData);
-
-        // 3. 輸出漂亮的 Log (包含 WTG01 A:XXX B:XXX 格式)
-        _logger.LogInformation("=== 風機混合數據同步明細 (共 {Count} 台) ===", combinedResult.Count);
-        foreach (var wtg in combinedResult.OrderBy(x => x.Key))
-        {
-            // 將該台風機底下的所有屬性組合成字串，例如 "ActivePower: 2.42, SystemStatus: 1"
-            string propsString = string.Join(", ", wtg.Value.Select(p => $"{p.Key}: {p.Value ?? "null"}"));
-            _logger.LogInformation("[{WTG}] {Props}", wtg.Key, propsString);
-        }
-        _logger.LogInformation("=========================================");
-
+        
+        //計時終止，結算花費時間
         sw.Stop();
         _logger.LogInformation("Canary 混合數據聚合完成，總耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
 

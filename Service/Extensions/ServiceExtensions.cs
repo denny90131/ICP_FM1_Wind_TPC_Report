@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using tai_wind_integration.Modle.SFTP;
 using tai_wind_integration.Modle.Canary;
-using tai_wind_integration.Modle.PARA;
+using tai_wind_integration.Modle.SystemConfig;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
