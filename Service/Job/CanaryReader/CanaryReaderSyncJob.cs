@@ -29,9 +29,16 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
 
         var combinedResult = new Dictionary<string, Dictionary<string, object?>>();
 
-        // 1. 分別取得 AVG(平均) 與 REAL(當前) 的數據包 (裡面包含數值與時間)
-        var avgData = await FetchCanaryDataAsync(isAverage: true);
-        var realData = await FetchCanaryDataAsync(isAverage: false);
+        // 建立 AVG(平均) 與 REAL(當前) 的 緒 (裡面包含數值與時間)
+        var avgTask= FetchCanaryDataAsync(isAverage: true);
+        var realTask = FetchCanaryDataAsync(isAverage: false);
+
+        // 同時呼叫上述兩者緒
+        await Task.WhenAll(avgTask, realTask);
+
+        // 待多核完成進行資料取樣供後續處理
+        var avgData = await avgTask;
+        var realData = await realTask;
 
         // 2. 定義一個內部輔助函式，把平坦的字典轉換成分組字典
         void MergeToCombinedResult(Dictionary<string, (object? Value, DateTime? Time)> dataMap)
@@ -45,6 +52,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 string wtgCode = parts[0];  // "WTG01"
                 string propName = parts[1]; // "ActivePower" 或是 "SystemStatus"
 
+                //優化字典索引效能問題，改為TryGetValue 單次Lookup ，解決原ContainKey + 索引 多次尋找問題
                 if (!combinedResult.TryGetValue(wtgCode, out var propsDict))
                 {
                     propsDict = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
