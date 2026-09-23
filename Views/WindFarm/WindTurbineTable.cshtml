@@ -124,6 +124,7 @@
         });
     });
 
+    //載入所有可用的 appsetting 模組
     async function fetchModules() {
         const moduleSelector = document.getElementById('moduleSelector');
         try {
@@ -143,6 +144,7 @@
         }
     }
 
+    //載入appsetting 指定模組區塊旗下資料夾所有檔案將其列出
     async function fetchFiles(moduleId, path = '') {
         const fileListContainer = document.getElementById('fileListContainer');
         fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">載入檔案中...</div>';
@@ -199,25 +201,28 @@
         const pathNavigator = document.getElementById('pathNavigator');
         let html = '';
 
-        if (currentPath && currentPath !== '/') {
-            let parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            if (parentPath === '') parentPath = '/';
+        // 只有在不是根目錄時才顯示「返回」按鈕
+        if (currentPath && currentPath !== '/' && currentPath !== '') {
+            let parentPath = '';
+            
+            // 如果當前路徑有子層級（包含 /）
+            if (currentPath.includes('/')) {
+                parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            } else {
+                // 沒有斜線代表目前就在根目錄的第一層子資料夾，返回上一層就是根目錄（空字串）
+                parentPath = '';
+            }
 
             html += `<a href="#" onclick="event.preventDefault(); fetchFiles('${moduleId}', '${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
                         <i class="bi bi-arrow-left-circle"></i> 返回
-                     </a> | `;
+                    </a> | `;
         }
 
-        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${currentPath}</strong>`;
+        const displayPath = (!currentPath || currentPath === '') ? '/' : currentPath;
+        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${displayPath}</strong>`;
         pathNavigator.innerHTML = html;
     }
-
-    function resetFileSelector() {
-        const fileListContainer = document.getElementById('fileListContainer');
-        document.getElementById('pathNavigator').innerHTML = '';
-        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">請先選擇子系統</div>';
-    }
-
+    //雙擊後處理資料表單
     async function processFile(filePath) {
         const moduleId = document.getElementById('moduleSelector').value;
         const resultMessage = document.getElementById('resultMessage');
@@ -255,7 +260,7 @@
             console.error(error);
         }
     }
-
+    //重新渲染資料表單
     function renderTable(data) {
         const tableContainer = document.getElementById('dataTableContainer');
         if (!data || data.length === 0) {

@@ -20,11 +20,11 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
     /// 將風機數據寫入當天的 CSV 檔案 (一天一張表，採累加追加模式)
     /// </summary>
     public async Task<string?> WriteTurbineDataToCsvAsync(
-        Dictionary<string, Dictionary<string, object?>> data, 
+        Dictionary<string, TurbineData_Detail> data, 
         string? customFileName = null)
     {
         var sw = Stopwatch.StartNew();
-        _logger.LogInformation("開始執行 CSV 追加寫入作業...");
+        _logger.LogInformation("開始執行 CSV 追加寫入作業 (強型別模式)...");
 
         if (data == null || data.Count == 0)
         {
@@ -47,7 +47,7 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
                 Directory.CreateDirectory(targetFolder);
             }
 
-            // 2. 決定按天命名的檔名（例如：WTG_Table_20260921.csv）
+            // 2. 決定按天命名的檔名（例如：WTG_Table_20260922.csv）
             string fileName = string.IsNullOrWhiteSpace(customFileName)
                 ? $"WTG_Table_{DateTime.Now:yyyyMMdd}.csv"
                 : customFileName;
@@ -60,48 +60,68 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
             string fullFilePath = Path.Combine(targetFolder, fileName);
             bool isFileExists = File.Exists(fullFilePath);
 
-            // 3. 收集所有欄位名稱 (Header 欄位固定順序)
-            // 將 "DateTime" 優先排在最前面，其他屬性依字母排序
-            var propertyNames = data.Values
-                .SelectMany(d => d.Keys)
-                .Where(k => !k.Equals("DateTime", StringComparison.OrdinalIgnoreCase))
-                .Distinct()
-                .OrderBy(name => name)
+            // 3. 收集 DynamicAttributes 兜底屬性欄位 (若有未定義點位)
+            var dynamicKeys = data.Values
+                .SelectMany(d => d.DynamicAttributes.Keys)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(k => k)
                 .ToList();
 
             var csvBuilder = new StringBuilder();
 
-            // 4. 若當天檔案「不存在」，才需要產生表頭 (Header)
+            // 4. 若當天檔案「不存在」，寫入 Header
             if (!isFileExists)
             {
-                var headers = new List<string> { "DateTime", "WTG" };
-                headers.AddRange(propertyNames);
+                var headers = new List<string>
+                {
+                    "DateTime",
+                    "TurbineId",
+                    "ActivePower",
+                    "WindSpeed",
+                    "AbsoluteWindDirection",
+                    "WTG_HSL",
+                    "OperatorState",
+                    "ServiceState",
+                    "WindTurbine" // 運轉狀態字判斷結果 (Enum)
+                };
+
+                // 若有擴充點位，追加在後端
+                headers.AddRange(dynamicKeys);
+
                 csvBuilder.AppendLine(string.Join(",", headers.Select(EscapeCsvField)));
             }
 
             // 5. 逐列組裝風機數據 (WTG01 ~ WTG33)
-            foreach (var wtg in data.OrderBy(x => x.Key))
+            foreach (var item in data.OrderBy(x => x.Key))
             {
-                // 取出該風機的時間戳記，如果沒有則預設補當下時間
-                string timeStr = wtg.Value.TryGetValue("DateTime", out var tVal) && tVal != null
-                    ? tVal.ToString()!
+                var turbine = item.Value;
+                string wtgId = !string.IsNullOrWhiteSpace(turbine.TurbineId) ? turbine.TurbineId : item.Key;
+
+                // 時間戳記：若該風機沒有取到時間點，則以當下時間遞補
+                string timeStr = turbine.Timestamp.HasValue
+                    ? turbine.Timestamp.Value.ToString("yyyy-MM-dd HH:mm:ss")
                     : DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
                 var rowValues = new List<string>
                 {
                     EscapeCsvField(timeStr),
-                    EscapeCsvField(wtg.Key)
+                    EscapeCsvField(wtgId),
+                    EscapeCsvField(turbine.ActivePower?.ToString("F2")),
+                    EscapeCsvField(turbine.WindSpeed?.ToString("F2")),
+                    EscapeCsvField(turbine.AbsoluteWindDirection?.ToString("F2")),
+                    EscapeCsvField(turbine.WTG_HSL?.ToString("F2")),
+                    EscapeCsvField(turbine.OperatorState?.ToString()),
+                    EscapeCsvField(turbine.ServiceState?.ToString()),
+                    EscapeCsvField(turbine.WindTurbine?.ToString())
                 };
 
-                foreach (var prop in propertyNames)
+                // 填入 DynamicAttributes 的數值
+                foreach (var dynKey in dynamicKeys)
                 {
-                    string fieldText = "";
-                    if (wtg.Value.TryGetValue(prop, out var val) && val != null)
-                    {
-                        fieldText = val.ToString() ?? "";
-                    }
-
-                    rowValues.Add(EscapeCsvField(fieldText));
+                    string dynVal = turbine.DynamicAttributes.TryGetValue(dynKey, out var val) && val != null
+                        ? val.ToString() ?? ""
+                        : "";
+                    rowValues.Add(EscapeCsvField(dynVal));
                 }
 
                 csvBuilder.AppendLine(string.Join(",", rowValues));

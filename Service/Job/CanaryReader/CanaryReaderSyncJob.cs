@@ -19,23 +19,32 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
 
 
     /// <summary>
-    /// 終極聚合主程式：同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
+    /// 同時抓取平均數據與當前數據，並將它們依照風機 (WTG01~33) 聚合在一起
     /// </summary>
     /// <returns>回傳格式：["WTG01"] = { ["ActivePower"] = 2.42, ["SystemStatus"] = 1 }</returns>
-    public async Task<Dictionary<string, Dictionary<string, object?>>> SyncCombinedTurbineDataAsync()
+    public async Task<Dictionary<string, TurbineData_Detail>> SyncCombinedTurbineDataAsync()
     {
         var sw = Stopwatch.StartNew();
         _logger.LogInformation("Canary Reader Sync Job 開始執行 (混合數據聚合模式)...");
 
-        var combinedResult = new Dictionary<string, Dictionary<string, object?>>();
+        //StringComparer.OrdinalIgnoreCase => 忽略大小寫鍵值比對
+        var combinedResult = new Dictionary<string, TurbineData_Detail>(StringComparer.OrdinalIgnoreCase);
 
-        // 1. 分別取得 AVG(平均) 與 REAL(當前) 的數據包 (裡面包含數值與時間)
-        var avgData = await FetchCanaryDataAsync(isAverage: true);
-        var realData = await FetchCanaryDataAsync(isAverage: false);
+        // 建立 AVG(平均) 與 REAL(當前) 的 緒 (裡面包含數值與時間)
+        var avgTask= FetchCanaryDataAsync(isAverage: true);
+        var realTask = FetchCanaryDataAsync(isAverage: false);
+
+        // 同時呼叫上述兩者緒
+        await Task.WhenAll(avgTask, realTask);
+
+        // 待多核完成進行資料取樣供後續處理
+        var avgData = await avgTask;
+        var realData = await realTask;
 
         // 2. 定義一個內部輔助函式，把平坦的字典轉換成分組字典
         void MergeToCombinedResult(Dictionary<string, (object? Value, DateTime? Time)> dataMap)
         {
+            string farmId = _configuration["FarmId"] ?? _configuration["WindFarm:FarmId"] ?? "FM1";
             foreach (var item in dataMap)
             {
                 // item.Key 長相為 "WTG01_ActivePower"
@@ -45,31 +54,27 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
                 string wtgCode = parts[0];  // "WTG01"
                 string propName = parts[1]; // "ActivePower" 或是 "SystemStatus"
 
-                // 如果還沒有這台風機的容器，就建立一個
-                if (!combinedResult.ContainsKey(wtgCode))
+                //優化字典索引效能問題，改為TryGetValue 單次Lookup ，解決原ContainKey + 索引 多次尋找問題
+                if (!combinedResult.TryGetValue(wtgCode, out var turbine))
                 {
-                    combinedResult[wtgCode] = new Dictionary<string, object?>();
+                    turbine = new TurbineData_Detail
+                    {
+                        FarmId = farmId,
+                        TurbineId = wtgCode
+                    };
+                    combinedResult[wtgCode] = turbine;
                 }
                 
-                // 把屬性與數值塞進去
-                combinedResult[wtgCode][propName] = item.Value.Value;
+                // 呼叫實體的 SetProperty，自動處理轉型、時間戳更新與兜底欄位
+                turbine.SetProperty(propName, item.Value.Value, item.Value.Time);
             }
         }
 
         // 將兩包資料倒進聚合容器裡
         MergeToCombinedResult(avgData);
         MergeToCombinedResult(realData);
-
-        // 3. 輸出漂亮的 Log (包含 WTG01 A:XXX B:XXX 格式)
-        _logger.LogInformation("=== 風機混合數據同步明細 (共 {Count} 台) ===", combinedResult.Count);
-        foreach (var wtg in combinedResult.OrderBy(x => x.Key))
-        {
-            // 將該台風機底下的所有屬性組合成字串，例如 "ActivePower: 2.42, SystemStatus: 1"
-            string propsString = string.Join(", ", wtg.Value.Select(p => $"{p.Key}: {p.Value ?? "null"}"));
-            _logger.LogInformation("[{WTG}] {Props}", wtg.Key, propsString);
-        }
-        _logger.LogInformation("=========================================");
-
+        
+        //計時終止，結算花費時間
         sw.Stop();
         _logger.LogInformation("Canary 混合數據聚合完成，總耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
 
@@ -77,7 +82,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
     }
 
     /// <summary>
-    /// 底層共用方法：負責打 API 並解析出 [內部名稱 -> (數值, 時間)]
+    /// 負責打 API 並解析出 [內部名稱 -> (數值, 時間)]
     /// </summary>
     private async Task<Dictionary<string, (object? Value, DateTime? Time)>> FetchCanaryDataAsync(bool isAverage)
     {

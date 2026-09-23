@@ -1,0 +1,14 @@
+2026-10-06 11:33:13.558 +08:00 [INF] 權限同步成功：新增 8 個系統權限至 SQLite。
+2026-10-06 11:33:21.044 +08:00 [ERR] 讀取 AD 群組失敗，LDAP 路徑: LDAP://fm1.local
+System.Runtime.InteropServices.COMException (0x8007203A): 無法操作伺服器。
+   at System.DirectoryServices.DirectoryEntry.Bind(Boolean throwIfFail)
+   at System.DirectoryServices.DirectoryEntry.Bind()
+   at System.DirectoryServices.DirectoryEntry.get_AdsObject()
+   at System.DirectoryServices.DirectorySearcher.FindAll(Boolean findMoreThanOne)
+   at System.DirectoryServices.DirectorySearcher.FindAll()
+   at GroupPermissionSyncService.SyncAdGroupsToDatabaseAsync() in C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration\Service\LDAP\GroupPermissionSyn.cs\GroupPermissionSynService.cs:line 106
+2026-10-06 11:33:21.606 +08:00 [INF] Now listening on: http://localhost:5122
+2026-10-06 11:33:21.607 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-10-06 11:33:21.608 +08:00 [INF] Hosting environment: Development
+2026-10-06 11:33:21.609 +08:00 [INF] Content root path: C:\Users\denny.chuang\OneDrive - Intelligent Cloud Plus Corp\桌面\TPC_Report\tai_wind_integration
+2026-10-06 11:33:22.753 +08:00 [INF] Application is shutting down...

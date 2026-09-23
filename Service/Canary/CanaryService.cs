@@ -45,17 +45,17 @@ public class CanaryService : ICanaryService
         {
             // 組合完整的 URL 以便於日誌記錄
             var fullUrl = new Uri(_httpClient.BaseAddress, relativeUrl);
-            _logger.LogInformation("Calling external Canary API: {Url} with payload: {Payload}", fullUrl, jsonPayload);
+            // _logger.LogInformation("Calling external Canary API: {Url} with payload: {Payload}", fullUrl, jsonPayload);
 
             // --- 加上計時器 ---
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            _logger.LogInformation("[診斷] 開始執行 PostAsync...");
+            // var sw = System.Diagnostics.Stopwatch.StartNew();
+            // _logger.LogInformation("[診斷] 開始執行 PostAsync...");
 
             var response = await _httpClient.PostAsync(relativeUrl, content);
             var responseString = await response.Content.ReadAsStringAsync();
             
-            sw.Stop();
-            _logger.LogInformation("[診斷] PostAsync 執行完畢，耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
+            // sw.Stop();
+            // _logger.LogInformation("[診斷] PostAsync 執行完畢，耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
 
             if (response.IsSuccessStatusCode)
             {

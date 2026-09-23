@@ -23,6 +23,7 @@ builder.Services.AddSingleton<ITokenManager, TokenManager>();
 builder.Services.AddSftpServices(builder.Configuration); // SFTP 註冊
 builder.Services.AddCanaryServices(builder.Configuration); // Canary API 服務註冊
 builder.Services.AddWindApiServices(builder.Configuration); //註冊風場 API 服務
+builder.Services.AddMssqlServices(builder.Configuration);  //註冊Mssql服務
 builder.Services.AddSqliteServices(builder.Configuration);  //註冊Sqlite服務
 builder.Services.AddAuthenticationServices();// 註冊服務
 builder.Services.AddActiveDirectoryAuthServices();// 註冊 AD 驗證服務
