@@ -169,7 +169,7 @@ public static class TurbineDataDetailExtensions
             WTG_State = (int?)kvp.Value.WindTurbine,      // Enum 轉 int
             WTG_HSL = kvp.Value.WTG_HSL,
             
-            // 5. double? 安全轉 decimal? (避免 NaN / 無限大導致 OverflowException)
+            // double? 安全轉 decimal? (避免 NaN / 無限大導致 OverflowException) 查看MSSQL存儲是否允許為null? 亦或是存儲0?
             Avg_Active_Power = SafeToDecimal(kvp.Value.ActivePower),
             Avg_WindSpeed = SafeToDecimal(kvp.Value.WindSpeed),
             Wind_Direction = SafeToDecimal(kvp.Value.AbsoluteWindDirection)
