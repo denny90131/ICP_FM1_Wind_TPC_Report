@@ -1,4 +1,4 @@
-namespace tai_wind_integration.Modle.PARA
+namespace tai_wind_integration.Modle.SystemConfig
 {
     public class CanaryPARA
     {
