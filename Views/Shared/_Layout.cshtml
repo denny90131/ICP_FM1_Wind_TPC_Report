@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - 風場預報系統</title>
+    <title>@ViewData["Title"] - Wind Farm Forecasting System</title>
 
     <!-- 立即執行主題設定，防止畫面載入閃爍 -->
     <script>
@@ -139,7 +139,7 @@
                         {
                             <li>
                                 <a class="dropdown-item d-flex align-items-center gap-2" href="/api/WindFarm/Setting">
-                                    <i class="bi bi-sliders"></i> 選項
+                                    <i class="bi bi-sliders"></i> Settings
                                 </a>
                             </li>
                         }
@@ -147,14 +147,14 @@
                         {
                             <li>
                                 <a class="dropdown-item d-flex align-items-center gap-2" href="/api/WindFarm/RolePermissionManager">
-                                    <i class="bi bi-shield-lock"></i> 權限
+                                    <i class="bi bi-shield-lock"></i> Permissions
                                 </a>
                             </li>
                         }
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="/Auth/Logout">
-                                <i class="bi bi-box-arrow-right"></i> 登出
+                                <i class="bi bi-box-arrow-right"></i> Logout
                             </a>
                         </li>
                     </ul>

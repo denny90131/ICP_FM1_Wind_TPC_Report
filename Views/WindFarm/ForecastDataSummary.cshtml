@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "風場預測資料管理";
+    ViewData["Title"] = "Wind Farm Forecast Data Management";
     var now = DateTime.Now;
     var totalMinutes = now.Hour * 60 + now.Minute;
     var roundedTotalMinutes = (int)Math.Round((double)totalMinutes / 5) * 5;
@@ -11,23 +11,23 @@
     <form id="forecastForm">
         <!-- 核心參數設定卡片 -->
         <div class="card shadow-sm p-4 mb-4">
-            <h5 class="fw-bold mb-3"><i class="bi bi-sliders me-2 text-info"></i>1. 填寫基礎參數</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-sliders me-2 text-info"></i>1. Fill in Basic Parameters</h5>
             
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label for="farmId" class="form-label small fw-bold">風場編號 <span class="text-muted">(farmId)</span></label>
+                    <label for="farmId" class="form-label small fw-bold">Wind Farm ID <span class="text-muted">(farmId)</span></label>
                     <input type="number" class="form-control shadow-none font-mono" id="farmId" value="50000001">
                 </div>
                 <div class="col-md-4">
-                    <label for="status" class="form-label small fw-bold">風場狀態 <span class="text-muted">(status)</span></label>
+                    <label for="status" class="form-label small fw-bold">Wind Farm Status <span class="text-muted">(status)</span></label>
                     <select class="form-select shadow-none font-mono" id="status">
-                        <option value="0">0: Avail (正常)</option>
-                        <option value="1">1: Out (全場機組停檢修)</option>
-                        <option value="2">2: Test (全場機組測試)</option>
+                        <option value="0">0: Avail (Normal)</option>
+                        <option value="1">1: Out (All units stopped for maintenance)</option>
+                        <option value="2">2: Test (All units testing)</option>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="dataTime" class="form-label small fw-bold">起始日期時間 <span class="text-muted">(dataTime)</span></label>
+                    <label for="dataTime" class="form-label small fw-bold">Start Date Time <span class="text-muted">(dataTime)</span></label>
                     <input type="datetime-local" class="form-control shadow-none font-mono" id="dataTime" value="@defaultDataTime">
                 </div>
             </div>
@@ -36,19 +36,19 @@
 
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label for="maxPower" class="form-label small fw-bold">最大出力 <span class="text-muted">(MW)</span></label>
+                    <label for="maxPower" class="form-label small fw-bold">Max Power <span class="text-muted">(MW)</span></label>
                     <input type="number" step="0.01" class="form-control shadow-none font-mono" id="maxPower" value="192.39">
                 </div>
                 <div class="col-md-3">
-                    <label for="windSpeed" class="form-label small fw-bold">平均風速 <span class="text-muted">(m/s)</span></label>
+                    <label for="windSpeed" class="form-label small fw-bold">Average Wind Speed <span class="text-muted">(m/s)</span></label>
                     <input type="number" step="0.01" class="form-control shadow-none font-mono" id="windSpeed" value="18.43">
                 </div>
                 <div class="col-md-3">
-                    <label for="avgPower" class="form-label small fw-bold">總發電 <span class="text-muted">(MW)</span></label>
+                    <label for="avgPower" class="form-label small fw-bold">Total Power Generation <span class="text-muted">(MW)</span></label>
                     <input type="number" step="0.01" class="form-control shadow-none font-mono" id="avgPower" value="192.39">
                 </div>
                 <div class="col-md-3">
-                    <label for="activeFansCount" class="form-label small fw-bold">線上風機數量 <span class="text-muted">(activeFansCount)</span></label>
+                    <label for="activeFansCount" class="form-label small fw-bold">Active Fans Count <span class="text-muted">(activeFansCount)</span></label>
                     <input type="number" class="form-control shadow-none font-mono" id="activeFansCount" value="1">
                 </div>
             </div>
@@ -56,22 +56,22 @@
 
         <!-- 執行動作卡片 -->
         <div class="card shadow-sm p-4 mb-4">
-            <h5 class="fw-bold mb-3"><i class="bi bi-play-circle me-2 text-warning"></i>2. 執行產生與送出</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-play-circle me-2 text-warning"></i>2. Execute Generation and Submission</h5>
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-primary fw-bold px-4 py-2 shadow-sm" onclick="submitSingleData()">
-                    <i class="bi bi-send me-1"></i> 送出單筆資料
+                    <i class="bi bi-send me-1"></i> Submit Single Data
                 </button>
                 <button type="button" class="btn btn-outline-secondary py-2" onclick="generateBatchData(12)">
-                    未來 1 小時 <span class="badge badge-outline ms-1">12筆</span>
+                    Next 1 Hour <span class="badge badge-outline ms-1">12 records</span>
                 </button>
                 <button type="button" class="btn btn-outline-secondary py-2" onclick="generateBatchData(288)">
-                    未來 1 天 <span class="badge badge-outline ms-1">288筆</span>
+                    Next 1 Day <span class="badge badge-outline ms-1">288 records</span>
                 </button>
                 <button type="button" class="btn btn-outline-secondary py-2" onclick="generateBatchData(864)">
-                    未來 3 天 <span class="badge badge-outline ms-1">864筆</span>
+                    Next 3 Days <span class="badge badge-outline ms-1">864 records</span>
                 </button>
                 <button type="button" class="btn btn-outline-secondary py-2" onclick="generateBatchData(2016)">
-                    未來 7 天 <span class="badge badge-outline ms-1">2016筆</span>
+                    Next 7 Days <span class="badge badge-outline ms-1">2016 records</span>
                 </button>
             </div>
         </div>
@@ -80,15 +80,15 @@
     <!-- 回傳結果顯示區 -->
     <div class="card shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0"><i class="bi bi-code-square me-2 text-success"></i>API 回傳與 Payload 預覽</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-code-square me-2 text-success"></i>API Response and Payload Preview</h5>
             <span class="badge badge-outline">JSON Output</span>
         </div>
 
         <div class="data-readout">
-            <pre id="apiResult">尚未執行...</pre>
+            <pre id="apiResult">Not executed yet...</pre>
         </div>
     </div>
-    <p class="text-muted mt-4 mb-0">可透過上方設定快速產生並預覽風場預測資料的 JSON Payload 結構。</p>
+    <p class="text-muted mt-4 mb-0">Use the settings above to quickly generate and preview the JSON Payload structure of wind farm forecast data.</p>
 </div>
 
 @section Scripts {
@@ -107,8 +107,8 @@
         function validateForm() {
             const farmId = document.getElementById('farmId').value;
             const dataTimeInput = document.getElementById('dataTime').value;
-            if (!farmId || isNaN(parseInt(farmId))) { alert('請輸入有效的風場編號。'); return false; }
-            if (!dataTimeInput) { alert('請輸入有效的日期時間。'); return false; }
+            if (!farmId || isNaN(parseInt(farmId))) { alert('Please enter a valid wind farm ID.'); return false; }
+            if (!dataTimeInput) { alert('Please enter a valid date time.'); return false; }
             return true;
         }
 
@@ -147,14 +147,14 @@
             try {
                 const tokenResponse = await fetch('/api/SystemConfig/token');
                 if (!tokenResponse.ok) {
-                    throw new Error('無法取得 Token 設置');
+                    throw new Error('Failed to get Token settings');
                 }
                 
                 const configData = await tokenResponse.json();
                 const currentToken = configData.token;
 
                 if (!currentToken) {
-                    throw new Error('目前的 Token 設置為空');
+                    throw new Error('Current Token setting is empty');
                 }
 
                 const apiRes = await fetch('/api/Extensions/Forecast', {
@@ -177,7 +177,7 @@
                 }
 
                 document.getElementById('apiResult').innerText = JSON.stringify({
-                    "note": `成功發送 ${payload.length} 筆資料至 API`,
+                    "note": `Successfully sent ${payload.length} records to API`,
                     "responseFromServer": apiResultData,
                     "usedToken": currentToken,
                     "samplePayload": payload.slice(0, 3)

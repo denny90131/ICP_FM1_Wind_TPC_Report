@@ -1,38 +1,38 @@
 @{
-    ViewData["Title"] = "風場報表事件紀錄";
+    ViewData["Title"] = "Wind Farm Report Event Log";
 }
 
 <div class="container mb-5">
     <!-- 篩選器卡片 -->
     <div class="card shadow-sm p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-funnel me-2 text-primary"></i>日誌篩選</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-funnel me-2 text-primary"></i>Log Filter</h5>
         <div class="row g-3 align-items-end">
             <div class="col-lg-4 col-md-6">
-                <label for="logSearchTerm" class="form-label small fw-bold">關鍵字搜尋</label>
+                <label for="logSearchTerm" class="form-label small fw-bold">Keyword Search</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control shadow-none" id="logSearchTerm" placeholder="輸入關鍵字...">
+                    <input type="text" class="form-control shadow-none" id="logSearchTerm" placeholder="Enter keyword...">
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
-                <label for="logLevelFilter" class="form-label small fw-bold">日誌層級</label>
+                <label for="logLevelFilter" class="form-label small fw-bold">Log Level</label>
                 <select class="form-select shadow-none" id="logLevelFilter">
-                    <option value="">所有層級</option>
-                    <option value="INF">資訊 (INF)</option>
-                    <option value="WRN">警告 (WRN)</option>
-                    <option value="ERR">錯誤 (ERR)</option>
-                    <option value="DBG">除錯 (DBG)</option>
-                    <option value="FTL">嚴重 (FTL)</option>
-                    <option value="TRC">追蹤 (TRC)</option>
+                    <option value="">All Levels</option>
+                    <option value="INF">Info (INF)</option>
+                    <option value="WRN">Warning (WRN)</option>
+                    <option value="ERR">Error (ERR)</option>
+                    <option value="DBG">Debug (DBG)</option>
+                    <option value="FTL">Fatal (FTL)</option>
+                    <option value="TRC">Trace (TRC)</option>
                 </select>
             </div>
             <div class="col-lg-3 col-md-6">
-                <label for="logDateFilter" class="form-label small fw-bold">指定日期</label>
+                <label for="logDateFilter" class="form-label small fw-bold">Specific Date</label>
                 <input type="date" class="form-control shadow-none" id="logDateFilter" value="@DateTime.Today.ToString("yyyy-MM-dd")">
             </div>
             <div class="col-lg-2 col-md-6">
                 <button type="button" class="btn btn-primary w-100 fw-bold shadow-sm py-2" onclick="fetchLogs()">
-                    <i class="bi bi-arrow-repeat me-1"></i> 篩選日誌
+                    <i class="bi bi-arrow-repeat me-1"></i> Filter Logs
                 </button>
             </div>
         </div>
@@ -41,16 +41,16 @@
     <!-- 日誌內容輸出卡片 -->
     <div class="card shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0"><i class="bi bi-terminal me-2 text-success"></i>日誌內容輸出</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-terminal me-2 text-success"></i>Log Content Output</h5>
             <span class="badge badge-outline" id="logStatusBadge">Ready</span>
         </div>
 
         <div class="data-readout">
-            <pre id="logContent" style="min-height: 350px; max-height: 550px;">載入中...</pre>
+            <pre id="logContent" style="min-height: 350px; max-height: 550px;">Loading...</pre>
         </div>
     </div>
 
-    <p class="text-muted mt-4 mb-0">即時檢視應用程式日誌，可透過關鍵字、日誌層級和日期進行精準篩選。</p>
+    <p class="text-muted mt-4 mb-0">View application logs in real-time, filter precisely by keyword, log level, and date.</p>
 </div>
 
 @section Scripts {
@@ -76,7 +76,7 @@
             const logContentElement = document.getElementById('logContent');
             const statusBadge = document.getElementById('logStatusBadge');
             
-            logContentElement.innerText = '載入中...';
+            logContentElement.innerText = 'Loading...';
             statusBadge.className = 'badge bg-warning text-dark font-monospace';
             statusBadge.innerText = 'Loading...';
 
@@ -84,14 +84,14 @@
                 const response = await fetch(url);
                 if (!response.ok) {
                     const errorText = await response.text();
-                    logContentElement.innerText = `錯誤: ${response.status} - ${errorText}`;
+                    logContentElement.innerText = `Error: ${response.status} - ${errorText}`;
                     statusBadge.className = 'badge bg-danger font-monospace';
                     statusBadge.innerText = 'Error';
                     return;
                 }
                 const logs = await response.json();
                 if (logs.length === 0) {
-                    logContentElement.innerText = '沒有找到符合條件的日誌。';
+                    logContentElement.innerText = 'No logs found matching the criteria.';
                     statusBadge.className = 'badge bg-info text-dark font-monospace';
                     statusBadge.innerText = '0 Results';
                 } else {
@@ -100,7 +100,7 @@
                     statusBadge.innerText = `${logs.length} entries`;
                 }
             } catch (error) {
-                logContentElement.innerText = `載入日誌失敗: ${error.message}`;
+                logContentElement.innerText = `Failed to load logs: ${error.message}`;
                 statusBadge.className = 'badge bg-danger font-monospace';
                 statusBadge.innerText = 'Failed';
                 console.error('Error fetching logs:', error);

@@ -1,19 +1,19 @@
 @{
-    ViewData["Title"] = "背景任務管理";
+    ViewData["Title"] = "Background Task Management";
 }
 <div class="container-fluid mb-5">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>任務狀態列表</h5>
+        <h5 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>Task Status List</h5>
         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fetchTaskStatuses()">
-            <i class="bi bi-arrow-clockwise me-1"></i> 手動刷新
+            <i class="bi bi-arrow-clockwise me-1"></i> Manual Refresh
         </button>
     </div>
 
     <div id="task-status-container" class="row g-4">
         <!-- 狀態卡片將會動態插入到這裡 -->
         <div class="col-12">
-            <p class="text-info font-mono">正在載入任務狀態...</p>
+            <p class="text-info font-mono">Loading task status...</p>
         </div>
     </div>
 </div>
@@ -71,7 +71,7 @@
         try {
             const response = await fetch('/api/SystemConfig/backgroundTaskStatus');
             if (!response.ok) {
-                throw new Error(`API 請求失敗: ${response.status}`);
+                throw new Error(`API request failed: ${response.status}`);
             }
 
             const statuses = await response.json();
@@ -79,7 +79,7 @@
 
         } catch (error) {
             console.error('無法獲取任務狀態:', error);
-            container.innerHTML = `<div class="col-12"><p class="text-danger font-mono">無法載入任務狀態: ${error.message}</p></div>`;
+            container.innerHTML = `<div class="col-12"><p class="text-danger font-mono">Failed to load task status: ${error.message}</p></div>`;
         }
     }
 
@@ -88,7 +88,7 @@
         container.innerHTML = '';
 
         if (Object.keys(statuses).length === 0) {
-            container.innerHTML = `<div class="col-12"><p class="text-muted font-mono">目前沒有正在監控的背景任務。</p></div>`;
+            container.innerHTML = `<div class="col-12"><p class="text-muted font-mono">No background tasks are currently being monitored.</p></div>`;
             return;
         }
 
@@ -110,35 +110,35 @@
             case 'success':
                 statusClass = 'success';
                 statusBadgeClass = 'bg-success text-light';
-                statusText = '成功';
+                statusText = 'Success';
                 break;
             case 'running':
                 statusClass = 'primary';
                 statusBadgeClass = 'bg-primary text-dark';
-                statusText = '執行中';
+                statusText = 'Running';
                 break;
             case 'failed':
                 statusClass = 'danger';
                 statusBadgeClass = 'bg-danger text-light';
-                statusText = '失敗';
+                statusText = 'Failed';
                 break;
             case 'skipped':
                 statusClass = 'warning';
                 statusBadgeClass = 'bg-warning text-dark';
-                statusText = '已跳過';
+                statusText = 'Skipped';
                 break;
             case 'pending':
                 statusClass = 'warning';
                 statusBadgeClass = 'bg-warning text-dark';
-                statusText = '待命中';
+                statusText = 'Pending';
                 break;
         }
 
-        const lastRun = lastExecutionTime ? new Date(lastExecutionTime).toLocaleString() : '尚未執行';
-        const nextRun = nextScheduledTime ? new Date(nextScheduledTime).toLocaleString() : '未排程';
+        const lastRun = lastExecutionTime ? new Date(lastExecutionTime).toLocaleString() : 'Not executed yet';
+        const nextRun = nextScheduledTime ? new Date(nextScheduledTime).toLocaleString() : 'Not scheduled';
         const errorHtml = lastErrorMessage ?
             `<div class="mt-3">
-                <strong class="text-danger small">最後錯誤訊息:</strong>
+                <strong class="text-danger small">Last error message:</strong>
                 <pre class="error-message mt-1">${lastErrorMessage}</pre>
             </div>` : '';
 
@@ -150,8 +150,8 @@
                         <span class="badge ${statusBadgeClass} status-badge rounded-pill">${statusText}</span>
                     </div>
                     <hr class="dropdown-divider my-2">
-                    <p class="small text-muted mb-1 font-mono"><strong>上次執行:</strong> <span style="color: var(--text-1);">${lastRun}</span></p>
-                    <p class="small text-muted mb-0 font-mono"><strong>下次預計:</strong> <span style="color: var(--text-1);">${nextRun}</span></p>
+                    <p class="small text-muted mb-1 font-mono"><strong>Last Run:</strong> <span style="color: var(--text-1);">${lastRun}</span></p>
+                    <p class="small text-muted mb-0 font-mono"><strong>Next Scheduled:</strong> <span style="color: var(--text-1);">${nextRun}</span></p>
                     ${errorHtml}
                 </div>
             </div>
