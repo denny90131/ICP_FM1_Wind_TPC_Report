@@ -35,11 +35,27 @@
         <!-- 右側：資料預覽區 -->
         <div class="col-lg-9 h-100" style="min-height: 0;">
             <div class="card shadow-sm p-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
-                <h5 class="fw-bold mb-3 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
+                <!-- 頂部：標題、結果訊息與搜尋篩選框 -->
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-3 flex-shrink-0">
+                    <h5 class="fw-bold mb-0 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
 
-                <!-- 執行結果訊息 -->
-                <div id="resultMessage" class="entry-card mb-3 p-3 rounded-3 flex-shrink-0 font-mono" style="display: none;">
-                    <span class="text-muted">等待執行...</span>
+                    <!-- 執行結果訊息 -->
+                    <div id="resultMessage" class="entry-card p-2 px-3 rounded-3 flex-grow-1 font-mono" style="display: none;">
+                        <span class="text-muted">等待執行...</span>
+                    </div>
+
+                    <!-- 資料篩選框 (預設隱藏，載入資料後顯示) -->
+                    <div id="filterContainer" class="ms-auto flex-shrink-0" style="display: none; min-width: 240px;">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="tableFilterInput" class="form-control border-start-0 shadow-none font-mono" placeholder="搜尋表格內容..." />
+                            <button class="btn btn-outline-secondary" type="button" id="clearFilterBtn" title="清除搜尋">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 資料表格 -->
@@ -63,12 +79,12 @@
         padding: 0.45rem 0.75rem;
         cursor: pointer;
         font-size: 0.85rem;
-        line-height: 1.4;              /* 1. 明確指定正常行高，防止字體被垂直擠壓 */
-        display: flex;                  /* 2. 改為彈性盒子排版 */
-        align-items: center;            /* 3. 圖示與文字垂直居中對齊 */
-        white-space: nowrap;            /* 4. 單行不換行 */
-        flex-shrink: 0;                 /* 5. 防止 flex 容器把每一列壓扁 */
-        font-family: inherit;           /* 6. 若被 font-mono 破壞，強制使用預設字體 */
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        flex-shrink: 0;
+        font-family: inherit;
         transition: all 0.15s ease;
     }
     #fileListContainer .list-group-item:hover {
@@ -106,14 +122,47 @@
     .table-theme-custom tbody tr:hover td {
         background-color: var(--sidebar-hover-bg, var(--sidebar-hover-bg-fallback));
     }
+
+    /* 搜尋框整體樣式適配主題 */
+    #filterContainer .input-group-text,
+    #filterContainer input,
+    #filterContainer #clearFilterBtn {
+        border-color: var(--hairline, #dee2e6);
+        color: var(--text-1);
+        background-color: var(--bg-panel-raised, transparent);
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    /* 移除 input 預設各自為政的 focus 陰影與邊框變色 */
+    #filterContainer input:focus {
+        box-shadow: none;
+    }
+
+    /* 當 group 內的任何元件（input）處於 focus 狀態時，全體周圍邊框一起變色 */
+    #filterContainer .input-group:focus-within .input-group-text,
+    #filterContainer .input-group:focus-within input,
+    #filterContainer .input-group:focus-within #clearFilterBtn {
+        border-color: var(--accent-cyan, #0d6efd);
+    }
+
+    /* （可選）為整組輸入框加上一體化的外發光/陰影效果 */
+    #filterContainer .input-group:focus-within {
+        border-radius: var(--bs-border-radius-sm, 0.25rem);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15); /* 若有 --accent-cyan-rgb 變數亦可替換 */
+    }
 </style>
 
 <script>
+    // 全域變數：暫存當前開啟檔案的完整資料
+    let currentRawData = [];
+
     document.addEventListener('DOMContentLoaded', function() {
         const moduleSelector = document.getElementById('moduleSelector');
+        const filterInput = document.getElementById('tableFilterInput');
+        const clearBtn = document.getElementById('clearFilterBtn');
         
         fetchModules();
-
+        
         moduleSelector.addEventListener('change', function() {
             const selectedModuleId = this.value;
             if (selectedModuleId) {
@@ -121,6 +170,18 @@
             } else {
                 resetFileSelector();
             }
+        });
+
+        // 監聽篩選輸入（即時比對）
+        filterInput.addEventListener('input', function() {
+            applyDataFilter(this.value);
+        });
+
+        // 清除搜尋按鈕
+        clearBtn.addEventListener('click', function() {
+            filterInput.value = '';
+            applyDataFilter('');
+            filterInput.focus();
         });
     });
 
@@ -199,29 +260,30 @@
         const pathNavigator = document.getElementById('pathNavigator');
         let html = '';
 
-        if (currentPath && currentPath !== '/') {
-            let parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-            if (parentPath === '') parentPath = '/';
+        if (currentPath && currentPath !== '/' && currentPath !== '') {
+            let parentPath = '';
+            if (currentPath.includes('/')) {
+                parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
+            } else {
+                parentPath = '';
+            }
 
             html += `<a href="#" onclick="event.preventDefault(); fetchFiles('${moduleId}', '${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
                         <i class="bi bi-arrow-left-circle"></i> 返回
-                     </a> | `;
+                    </a> | `;
         }
 
-        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${currentPath}</strong>`;
+        const displayPath = (!currentPath || currentPath === '') ? '/' : currentPath;
+        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${displayPath}</strong>`;
         pathNavigator.innerHTML = html;
     }
-
-    function resetFileSelector() {
-        const fileListContainer = document.getElementById('fileListContainer');
-        document.getElementById('pathNavigator').innerHTML = '';
-        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">請先選擇子系統</div>';
-    }
-
+    
     async function processFile(filePath) {
         const moduleId = document.getElementById('moduleSelector').value;
         const resultMessage = document.getElementById('resultMessage');
         const tableContainer = document.getElementById('dataTableContainer');
+        const filterContainer = document.getElementById('filterContainer');
+        const filterInput = document.getElementById('tableFilterInput');
 
         if (!moduleId || !filePath) {
             alert('請先選擇子系統和檔案！');
@@ -231,6 +293,8 @@
         resultMessage.style.display = 'block';
         resultMessage.innerHTML = '<span class="text-info">處理中，請稍候...</span>';
         tableContainer.innerHTML = '<p class="text-info">正在等待後端回傳資料...</p>';
+        filterContainer.style.display = 'none';
+        filterInput.value = '';
 
         try {
             const response = await fetch('/api/excelreader/execute-by-file', {
@@ -244,26 +308,52 @@
             resultMessage.innerHTML = `<span class="${messageClass}">${result.message}</span>`;
 
             if (result.isSuccess && result.data && result.data.length > 0) {
-                renderTable(result.data);
+                currentRawData = result.data; // 快取原始資料供篩選
+                filterContainer.style.display = 'block';
+                renderTable(currentRawData);
             } else {
+                currentRawData = [];
                 tableContainer.innerHTML = '<p class="text-muted">無資料可供顯示。</p>';
             }
 
         } catch (error) {
+            currentRawData = [];
             resultMessage.innerHTML = `<span class="text-danger">請求失敗: ${error.message}</span>`;
             tableContainer.innerHTML = `<p class="text-danger">無法載入資料: ${error.message}</p>`;
             console.error(error);
         }
     }
 
-    function renderTable(data) {
-        const tableContainer = document.getElementById('dataTableContainer');
-        if (!data || data.length === 0) {
-            tableContainer.innerHTML = '<p class="text-muted">回傳資料為空。</p>';
+    // 依關鍵字過濾資料
+    function applyDataFilter(keyword) {
+        if (!currentRawData || currentRawData.length === 0) return;
+
+        const term = keyword.trim().toLowerCase();
+        if (!term) {
+            renderTable(currentRawData);
             return;
         }
 
-        const headers = Object.keys(data[0]);
+        const filtered = currentRawData.filter(row => {
+            return Object.values(row).some(val => 
+                val !== null && val !== undefined && String(val).toLowerCase().includes(term)
+            );
+        });
+
+        renderTable(filtered, true);
+    }
+    
+    function renderTable(data, isFiltered = false) {
+        const tableContainer = document.getElementById('dataTableContainer');
+        if (!data || data.length === 0) {
+            tableContainer.innerHTML = isFiltered 
+                ? '<p class="text-muted"><i class="bi bi-search me-1"></i>找不到符合篩選條件的資料。</p>'
+                : '<p class="text-muted">回傳資料為空。</p>';
+            return;
+        }
+
+        // 以原始資料的 keys 為基準（避免篩選後的物件有缺欄位）
+        const headers = Object.keys(currentRawData[0] || data[0]);
         let tableHtml = '<table class="table table-theme-custom table-bordered">';
         
         tableHtml += '<thead><tr>';
@@ -273,7 +363,7 @@
         tableHtml += '<tbody>';
         data.forEach(row => {
             tableHtml += '<tr>';
-            headers.forEach(header => tableHtml += `<td>${row[header] || ''}</td>`);
+            headers.forEach(header => tableHtml += `<td>${row[header] !== undefined && row[header] !== null ? row[header] : ''}</td>`);
             tableHtml += '</tr>';
         });
         tableHtml += '</tbody></table>';

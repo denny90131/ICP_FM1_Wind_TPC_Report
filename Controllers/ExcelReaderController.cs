@@ -58,6 +58,7 @@ public class ExcelReaderController : ControllerBase
     }
 
     // ================= 新增：根據 ModuleId 取得對應的檔案清單 =================
+    // 若傳入之資料夾路徑沒有在appsetting設定檔中，則視為無權限，將被阻擋(無法瀏覽)
     [HttpGet("files/{moduleId}")]
     public IActionResult GetFilesForModule(string moduleId, [FromQuery] string? path = null)
     {
@@ -120,7 +121,7 @@ public class ExcelReaderController : ControllerBase
     [HttpPost("execute-by-file")]
     public async Task<IActionResult> ExecuteByFile([FromBody] FilePathRequest request)
     {
-        // 呼叫你在 Orchestrator 新增的 RunModuleByAbsolutePathAsync
+        // 呼叫你在 Orchestrator 新增的 RunModuleByAbsolutePathAsync - 取得資料夾內所有檔案路徑
         var result = await _orchestrator.RunModuleByAbsolutePathAsync(request.ModuleId, request.FilePath);
         
         if (!result.IsSuccess) return BadRequest(result);
@@ -129,8 +130,16 @@ public class ExcelReaderController : ControllerBase
         var data = await _orchestrator.ReadCsvDataAsync(request.FilePath);
         result.Data = data; // 將資料塞回 result 物件
 
+        int recordCount = 0;
+        if(data is System.Collections.ICollection collection) recordCount = collection.Count;
+        else if(data is System.Collections.IEnumerable enumerable) recordCount = enumerable.Cast<object>().Count();
+
+        string fileName = Path.GetFileName(request.FilePath);
+        result.Message = $"檔案 [{fileName}] 讀取完成，共{recordCount}筆資料";
+
         return Ok(result);
     }
+
 }
 
 // 用於方式 B 的請求資料模型 (此處未使用，但保留)

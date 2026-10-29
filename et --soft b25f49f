@@ -1,0 +1,57 @@
+[33mb9634f8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mOptimiz/WindTurbineTable_Page[m[33m)[m HEAD@{0}: commit (amend): Optimize: 風機表單頁面新增篩選框
+[33m485b8d2[m HEAD@{1}: commit (amend): Optimize: 風機表單頁面新增篩選框，
+[33mb25f49f[m[33m ([m[1;31morigin/Optimiz/WindTurbineTable_Page[m[33m)[m HEAD@{2}: commit (amend): Debug: 修正讀取csv Table時上方message 顯示異常問題 & 資料夾導覽異常錯誤
+[33ma861202[m[33m ([m[1;33mtag: [m[1;33mv2.0.0[m[33m, [m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{3}: checkout: moving from master to Optimiz/WindTurbineTable_Page
+[33ma861202[m[33m ([m[1;33mtag: [m[1;33mv2.0.0[m[33m, [m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{4}: merge feature/WriteDataToMSSQL: Merge made by the 'ort' strategy.
+[33mf1f629b[m[33m ([m[1;33mtag: [m[1;33mv1.2.0[m[33m)[m HEAD@{5}: checkout: moving from feature/WriteDataToMSSQL to master
+[33m863aa29[m[33m ([m[1;31morigin/feature/WriteDataToMSSQL[m[33m, [m[1;32mfeature/WriteDataToMSSQL[m[33m)[m HEAD@{6}: commit (amend): Optimiz: 關閉Canary API 請求 Log記錄
+[33md956d6a[m HEAD@{7}: pull origin feature/WriteDataToMSSQL --rebase (finish): returning to refs/heads/feature/WriteDataToMSSQL
+[33md956d6a[m HEAD@{8}: pull origin feature/WriteDataToMSSQL --rebase (start): checkout d956d6a979e664e156f3eab8b7e1ec28bd828729
+[33me90618d[m HEAD@{9}: commit (amend): Optimiz: 關閉Canary API 請求 Log紀錄
+[33md956d6a[m HEAD@{10}: commit: 關閉Canary API 請求 Log紀錄
+[33mfc9990c[m HEAD@{11}: checkout: moving from feature/WriteDataToMSSQL to feature/WriteDataToMSSQL
+[33mfc9990c[m HEAD@{12}: commit: Debug: 修正 ServiceExtensions.cs 誤用 SQLite 註冊 MSSQL 服務的問題
+[33m0c0ad07[m HEAD@{13}: commit: Debug WindFarmSyncBackground.cs 補上EF Core 資料表存檔指令
+[33mef5cdae[m HEAD@{14}: commit: Debug 修正EF Core資料表需要指派鍵值之異常
+[33mf09b957[m HEAD@{15}: commit: Debug 修正MssqlDbContext傳入非指定之參數
+[33mca51b7a[m HEAD@{16}: commit: optimiz - TurbineData_Detail 新增函式 - 將資料模型轉為MSSQL-WindTurbineMetrics資料格式| 將取樣資料注入MSSQL
+[33m6ab4c36[m HEAD@{17}: commit: optimiz - 安裝MSSQL套件及注入MSSQL服務
+[33m54f809e[m[33m ([m[1;31morigin/feature/TPC_DataTransformer_Format_SFTP[m[33m, [m[1;32mfeature/TPC_DataTransformer_Format_SFTP[m[33m)[m HEAD@{18}: checkout: moving from feature/TPC_DataTransformer_Format_SFTP to feature/WriteDataToMSSQL
+[33m54f809e[m[33m ([m[1;31morigin/feature/TPC_DataTransformer_Format_SFTP[m[33m, [m[1;32mfeature/TPC_DataTransformer_Format_SFTP[m[33m)[m HEAD@{19}: Branch: renamed refs/heads/feature/TPC_DataTransformer to refs/heads/feature/TPC_DataTransformer_Format_SFTP
+[33m54f809e[m[33m ([m[1;31morigin/feature/TPC_DataTransformer_Format_SFTP[m[33m, [m[1;32mfeature/TPC_DataTransformer_Format_SFTP[m[33m)[m HEAD@{21}: commit: optimiz - WindFarmSyncBackground.cs 注入 _logger 呈現以便呈現換算數值
+[33m1b700ba[m HEAD@{22}: commit: optimiz - TurbineData_Detail.cs 新增 Model物件中統計值計算 擴充方法
+[33m539f7b8[m HEAD@{23}: commit: optimiz - CanaryReaderSyncJob| 完成SyncCombinedTurbineDataAsync 強型別函式修改，不再使用若型別拋轉資料，並於類別中新增綜合計算數值，供後續使用
+[33md7ecb0e[m HEAD@{24}: commit: optimiz - CanaryReaderSyncJob| 優化呼叫API取樣函式方式，由原本非同步呼叫改為同步呼叫
+[33m6386a4f[m HEAD@{25}: commit: optimiz - CanaryReaderSyncJob| 優化字典索引效能問題，改為TryGetValue 單次Lookup，解決原ContainKey + 索引 多次尋找問題
+[33mf1f629b[m[33m ([m[1;33mtag: [m[1;33mv1.2.0[m[33m)[m HEAD@{26}: checkout: moving from master to feature/TPC_DataTransformer
+[33mf1f629b[m[33m ([m[1;33mtag: [m[1;33mv1.2.0[m[33m)[m HEAD@{27}: merge CanaryObjectTransfer: Merge made by the 'ort' strategy.
+[33m575fdcd[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m HEAD@{28}: checkout: moving from master to master
+[33m575fdcd[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m HEAD@{29}: checkout: moving from master to master
+[33m575fdcd[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m HEAD@{30}: checkout: moving from CanaryObjectTransfer to master
+[33m14f8c34[m[33m ([m[1;31morigin/feature/CanaryObjectTransfer[m[33m, [m[1;32mfeature/CanaryObjectTransfer[m[33m)[m HEAD@{31}: commit: 新增 Job - WriterCsv 物件撰寫，其物件將連動Xlsx顯示類別進行畫面顯示
+[33mf08f974[m HEAD@{32}: commit: 修正GetStringByWtgIndex 內String與WTG映射錯誤 - GetData2(Canary API)邏輯 -- 單元測試
+[33mbae1a0b[m HEAD@{33}: commit: 修正CanaryReader尚未註冊異常 - GetData2(Canary API)邏輯 -- 單元測試
+[33mad51c8d[m HEAD@{34}: commit: 新增CanaryReader- GetData2(Canary API)邏輯 -- 單元測試
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{35}: checkout: moving from master to CanaryObjectTransfer
+[33m575fdcd[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m HEAD@{36}: commit (amend): Release v1.1.0: 新增LDAP群組Tab分類
+[33m1513fbf[m HEAD@{37}: merge LDAP_Permission_Page: Merge made by the 'ort' strategy.
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{38}: reset: moving to 650316ee
+[33m68a3b72[m HEAD@{39}: reset: moving to HEAD
+[33m68a3b72[m HEAD@{40}: reset: moving to origin/master
+[33m68a3b72[m HEAD@{41}: merge LDAP_Permission_Page: updating HEAD
+[33m68a3b72[m HEAD@{42}: reset: moving to HEAD^
+[33m6bf5036[m[33m ([m[1;31morigin/feature/LDAP_Permission_Page[m[33m, [m[1;32mfeature/LDAP_Permission_Page[m[33m)[m HEAD@{43}: merge LDAP_Permission_Page: Fast-forward
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{44}: checkout: moving from LDAP_Permission_Page to master
+[33m6bf5036[m[33m ([m[1;31morigin/feature/LDAP_Permission_Page[m[33m, [m[1;32mfeature/LDAP_Permission_Page[m[33m)[m HEAD@{45}: reset: moving to 6bf5036c
+[33m6bf5036[m[33m ([m[1;31morigin/feature/LDAP_Permission_Page[m[33m, [m[1;32mfeature/LDAP_Permission_Page[m[33m)[m HEAD@{46}: commit: 將 RolePermissionManager 補充註解
+[33m68a3b72[m HEAD@{47}: checkout: moving from LDAP_Permission_Page to LDAP_Permission_Page
+[33m68a3b72[m HEAD@{48}: checkout: moving from CanaryObjectTransfer to LDAP_Permission_Page
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{49}: checkout: moving from LDAP_Permission_Page to CanaryObjectTransfer
+[33m68a3b72[m HEAD@{50}: commit: 修正RoleManagementController.cs未存檔，造成群組權限分類異常之問題，並且針對AD權限頁面進行UI調整(鼠標移過去出現異常滾輪||群組選單以Tab方式呈現||刪除上方多餘抬頭||將網域提示字縮小擺放以節省空間)
+[33me7c51df[m HEAD@{51}: commit: 相容 hasPermissions 與 HasPermissions，避免大小寫不一致造成 undefined
+[33m4821b9c[m HEAD@{52}: commit: 修正 AD 角色頁面載入時未正確初始化群組權限分類的問題
+[33mc735968[m HEAD@{53}: commit: 新增LDAP權限控管頁面，AD群組分類功能，依照是否已配置權限進行群組區分
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{54}: checkout: moving from CanaryObjectTransfer to LDAP_Permission_Page
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{55}: checkout: moving from master to CanaryObjectTransfer
+[33m650316e[m[33m ([m[1;33mtag: [m[1;33mv1.0.1[m[33m)[m HEAD@{56}: commit: 改善 Auth Login 中 請求與回覆 物件無強制型別並新增說明註解，原系統權限註冊Policy 封裝至 ServiceExtensions 中
+[33m26a34b8[m[33m ([m[1;33mtag: [m[1;33mv1.0.0[m[33m)[m HEAD@{57}: commit (initial): Initial commit
