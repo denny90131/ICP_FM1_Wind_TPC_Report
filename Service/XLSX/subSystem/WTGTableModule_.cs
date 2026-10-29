@@ -18,7 +18,7 @@ public class WtgTableModule_ : ISubsystemModule
                 return new ExecutionResult 
                 { 
                     IsSuccess = true, 
-                    Message = "沒有找到符合條件的檔案可供處理。" 
+                    Message = "No matching files found to process." 
                 };
             }
 
@@ -29,7 +29,7 @@ public class WtgTableModule_ : ISubsystemModule
                 
                 // 模擬讀取或處理檔案的邏輯
                 // 這裡你可以使用你專案中的 tai_wind_integration.Modle.Xlsx 相關工具來讀取 Excel / CSV
-                Console.WriteLine($"正在處理檔案: {fileName}");
+                Console.WriteLine($"Processing file: {fileName}");
                 
                 // 假設需要非同步模擬
                 await Task.Delay(100); 
@@ -38,14 +38,14 @@ public class WtgTableModule_ : ISubsystemModule
             return new ExecutionResult 
             { 
                 IsSuccess = true, 
-                Message = $"成功完成處理，共處理了 {files.Count} 個檔案。" 
+                Message = $"Successfully processed {files.Count} file(s)." 
             };
         }
 
         return new ExecutionResult 
         { 
             IsSuccess = false, 
-            Message = "未收到有效的檔案清單參數 (Filtered_Files)。" 
+            Message = "Invalid or missing file list parameter (Filtered_Files)." 
         };
     }
 }
