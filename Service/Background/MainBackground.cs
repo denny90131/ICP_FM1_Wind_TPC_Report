@@ -47,7 +47,7 @@ public abstract class MainBackground : BackgroundService
 
                 if (DateTime.Now > targetTime.Add(_expirationThreshold))
                 {
-                    _logger.LogWarning("【{ServiceName}】檢測到時間過期，跳過本輪，準備對齊下個刻度", GetType().Name);
+                    _logger.LogWarning("[{ServiceName}] Expiration detected. Skipping current cycle to align with next interval.", GetType().Name);
                     // 更新狀態為 "已跳過"
                     _statusService.UpdateStatus(GetType().Name, s => {
                         s.Status = "Skipped";
@@ -76,7 +76,7 @@ public abstract class MainBackground : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "【{ServiceName}】執行任務時發生例外錯誤", GetType().Name);
+                _logger.LogError(ex, "[{ServiceName}] An unexpected error occurred while executing the task.", GetType().Name);
                 // 發生錯誤時，更新狀態
                 _statusService.UpdateStatus(GetType().Name, s => {
                     s.Status = "Failed";
