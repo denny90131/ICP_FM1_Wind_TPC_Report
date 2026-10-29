@@ -6,7 +6,7 @@ public class WtgTableModule : ISubsystemModule
     public string ModuleId => "WTG_Table";
 
     // 子系統的顯示名稱
-    public string ModuleName => "風機數據表處理模組";
+    public string ModuleName => "WindTurbine_Table";
 
     public async Task<ExecutionResult> ExecuteAsync(Dictionary<string, object> parameters)
     {
