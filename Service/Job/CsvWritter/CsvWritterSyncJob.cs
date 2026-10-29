@@ -24,11 +24,11 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
         string? customFileName = null)
     {
         var sw = Stopwatch.StartNew();
-        _logger.LogInformation("開始執行 CSV 追加寫入作業 (強型別模式)...");
+        _logger.LogInformation("Starting CSV append operation (strongly typed mode)...");
 
         if (data == null || data.Count == 0)
         {
-            _logger.LogWarning("傳入的風機數據為空，中止寫入。");
+            _logger.LogWarning("The incoming turbine data is empty. Aborting write operation.");
             return null;
         }
 
@@ -38,7 +38,7 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
             string? targetFolder = GetWtgTableFolderPath();
             if (string.IsNullOrWhiteSpace(targetFolder))
             {
-                _logger.LogError("找不到 conf_review:Modules 中第一個模組的 Folder_Path 設定。");
+                _logger.LogError("Cannot find Folder_Path setting for the first module in conf_review:Modules.");
                 return null;
             }
 
@@ -132,14 +132,14 @@ public class CsvWritterSyncJob : ICsvWritterSyncJob
             await File.AppendAllTextAsync(fullFilePath, csvBuilder.ToString(), encoding);
 
             sw.Stop();
-            _logger.LogInformation("CSV 寫入成功！檔案路徑: {Path}，共寫入 {Count} 台風機記錄，耗時: {Elapsed} ms", 
+            _logger.LogInformation("CSV write successful! File path: {Path}, wrote {Count} turbine records, elapsed time: {Elapsed} ms", 
                 fullFilePath, data.Count, sw.ElapsedMilliseconds);
 
             return fullFilePath;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "寫入 CSV 檔案時發生未預期錯誤。");
+            _logger.LogError(ex, "An unexpected error occurred while writing to the CSV file.");
             return null;
         }
     }

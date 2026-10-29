@@ -33,17 +33,17 @@ public class TokenManager : ITokenManager
 
     public string? GetToken()
     {
-        _logger.LogInformation("【TokenManager】Loading Token...");
+        _logger.LogInformation("[TokenManager] Loading Token...");
         _lock.EnterReadLock();
         
         try
         {
-            _logger.LogInformation("【TokenManager】Recived Token");
+            _logger.LogInformation("[TokenManager] Token retrieved successfully.");
             return _token;
         }
         catch(Exception ex)
         {
-            _logger.LogError($"【TokenManager】failed Fetch {ex.Message}");
+            _logger.LogError($"[TokenManager] Failed to fetch token: {ex.Message}");
             return null;
         }
         finally
@@ -54,7 +54,7 @@ public class TokenManager : ITokenManager
 
     public void SetToken(string newToken)
     {
-        _logger.LogInformation("【TokenManager】Configuration Token...");
+        _logger.LogInformation("[TokenManager] Configuring Token...");
         _lock.EnterWriteLock();
         try
         {
@@ -62,7 +62,7 @@ public class TokenManager : ITokenManager
 
             // 同步寫入檔案，確保重啟後讀得到
             File.WriteAllText(_tokenFilePath, newToken);
-            _logger.LogInformation("【TokenManager】Token Configurate Complete...");
+            _logger.LogInformation("[TokenManager] Token configuration completed.");
         }
         finally
         {
