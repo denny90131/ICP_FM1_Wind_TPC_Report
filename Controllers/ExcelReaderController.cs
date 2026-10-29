@@ -34,7 +34,7 @@ public class ExcelReaderController : ControllerBase
 
         if (moduleConfig == null)
         {
-            return NotFound("在 appsettings.json 中找不到 WTG_Table 的設定。");
+            return NotFound("Configuration for WTG_Table was not found in appsettings.json.");
         }
 
         var parameters = new Dictionary<string, object>
@@ -135,7 +135,7 @@ public class ExcelReaderController : ControllerBase
         else if(data is System.Collections.IEnumerable enumerable) recordCount = enumerable.Cast<object>().Count();
 
         string fileName = Path.GetFileName(request.FilePath);
-        result.Message = $"檔案 [{fileName}] 讀取完成，共{recordCount}筆資料";
+        result.Message = $"File [{fileName}] successfully loaded. Total records: {recordCount}";
 
         return Ok(result);
     }

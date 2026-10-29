@@ -158,7 +158,6 @@ public class SftpService : ISftpService
                 "SendTo",
                 "Templates",
                 "Cookies",
-                "「開始」功能表",
                 "Start Menu"
             };
 

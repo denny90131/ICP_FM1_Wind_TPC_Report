@@ -42,7 +42,7 @@ public class RoleManagementController : ControllerBase
             .Include(r => r.RolePermissions)
             .FirstOrDefaultAsync(r => r.Id == roleId);
 
-        if (role == null) return NotFound("找不到該角色。");
+        if (role == null) return NotFound("Role not found.");
 
         var dto = new RoleDetailDto
         {
@@ -88,7 +88,7 @@ public class RoleManagementController : ControllerBase
             .Include(r => r.RolePermissions)
             .FirstOrDefaultAsync(r => r.Id == req.RoleId);
 
-        if (role == null) return NotFound("找不到該角色。");
+        if (role == null) return NotFound("Role not found.");
 
         _db.RolePermissions.RemoveRange(role.RolePermissions);
 
@@ -102,7 +102,7 @@ public class RoleManagementController : ControllerBase
         }
 
         await _db.SaveChangesAsync();
-        return Ok(new { Message = "權限配置更新成功！" });
+        return Ok(new { Message = "Role permissions updated successfully!" });
     }
 
     // 同步 AD 群組
@@ -110,6 +110,6 @@ public class RoleManagementController : ControllerBase
     public async Task<IActionResult> ForceSyncAd()
     {
         await _syncService.InitializeAsync();
-        return Ok(new { Message = "AD 群組與系統權限已重新同步！" });
+        return Ok(new { Message = "AD groups and system permissions have been resynchronized!" });
     }
 }

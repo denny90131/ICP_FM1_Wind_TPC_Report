@@ -44,7 +44,7 @@ public class AuthController : Controller
 
         if (string.IsNullOrWhiteSpace(loginRequest.Username) || string.IsNullOrWhiteSpace(loginRequest.Password))
         {
-            ViewBag.ErrorMessage = "請輸入帳號與密碼。";
+            ViewBag.ErrorMessage = "Please enter both username and password.";
             ViewBag.Username = loginRequest.Username;
             return View(loginRequest);
         }
@@ -60,7 +60,7 @@ public class AuthController : Controller
             if (!Login_response.LoginStatus)
             {
                 //返還錯誤信息及使用者帳號
-                ViewBag.ErrorMessage = string.IsNullOrEmpty(Login_response.ErrorMessage) ? "帳號或密碼錯誤，請重新確認。" : Login_response.ErrorMessage;
+                ViewBag.ErrorMessage = string.IsNullOrEmpty(Login_response.ErrorMessage) ? "Invalid username or password. Please try again." : Login_response.ErrorMessage;
                 ViewBag.Username = loginRequest.Username;
                 return View(loginRequest);
             }
@@ -71,15 +71,15 @@ public class AuthController : Controller
         }
         catch (PrincipalServerDownException ex)
         {
-            _logger.LogError(ex, "LDAP/AD 伺服器無法連線 (Login)");
-            ViewBag.ErrorMessage = "LDAP/AD 網域驗證伺服器連線失敗，請聯繫系統管理員。";
+            _logger.LogError(ex, "LDAP/AD server is unavailable (Login)");
+            ViewBag.ErrorMessage = "Unable to connect to LDAP/AD domain authentication server. Please contact your system administrator.";
             ViewBag.Username = loginRequest.Username;
             return View(loginRequest);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "登入過程發生未預期的錯誤 (Login)");
-            ViewBag.ErrorMessage = "登入服務暫時無法使用，請稍後再試。";
+            _logger.LogError(ex, "An unexpected error occurred during login (Login)");
+            ViewBag.ErrorMessage = "Authentication service is temporarily unavailable. Please try again later.";
             ViewBag.Username = loginRequest.Username;
             return View(loginRequest);
         }
@@ -108,7 +108,7 @@ public class AuthController : Controller
             // 帳號有效性防禦檢查
             if (string.IsNullOrEmpty(cleanUsername))
             {
-                ViewBag.ErrorMessage = "無法從網域取得 Windows 登入身分。";
+                ViewBag.ErrorMessage = "Unable to retrieve Windows identity from the domain.";
                 return View("Login", new LoginRequest { returnUrl = returnUrl });
             }
 
@@ -121,14 +121,14 @@ public class AuthController : Controller
         }
         catch (PrincipalServerDownException ex)
         {
-            _logger.LogError(ex, "LDAP/AD 伺服器無法連線 (WindowsSso)");
-            ViewBag.ErrorMessage = "SSO 驗證失敗：無法連線至網域控制站 (LDAP Server Unavailable)。請聯繫網管人員。";
+            _logger.LogError(ex, "LDAP/AD server is unavailable (WindowsSso)");
+            ViewBag.ErrorMessage = "SSO authentication failed: Unable to connect to domain controller (LDAP Server Unavailable). Please contact network administrator.";
             return View("Login", new LoginRequest { returnUrl = returnUrl });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SSO 驗證過程發生未預期的錯誤");
-            ViewBag.ErrorMessage = $"SSO 登入發生錯誤：{ex.Message}";
+            _logger.LogError(ex, "An unexpected error occurred during Windows SSO authentication");
+            ViewBag.ErrorMessage = $"Error during SSO login: {ex.Message}";
             return View("Login", new LoginRequest { returnUrl = returnUrl });
         }
     }
@@ -150,7 +150,7 @@ public class AuthController : Controller
     [AllowAnonymous]
     public IActionResult AccessDenied()
     {
-        return Content("403 Forbidden: 您已通過身分驗證，但無權限存取此功能。請聯繫系統管理員指派對應 AD 群組。");
+        return Content("403 Forbidden: You are authenticated, but not authorized to access this resource. Please contact your system administrator to assign the required AD group.");
     }
 
     // 建立 Cookie 登入工作階段

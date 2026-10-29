@@ -15,7 +15,7 @@ public class SftpController : ControllerBase
     public async Task<IActionResult> Upload(IFormFile file, [FromForm] string remotePath)
     {
         if (file == null || file.Length == 0)
-            return BadRequest(new { message = "未提供上傳檔案。" });
+            return BadRequest(new { message = "No file provided for upload." });
 
         if (string.IsNullOrWhiteSpace(remotePath))
             remotePath = file.FileName;
@@ -34,7 +34,7 @@ public class SftpController : ControllerBase
             _sftpService.UploadFile(localPath, remotePath);
 
             // 統一屬性名稱為 message
-            return Ok(new { message = $"檔案 '{file.FileName}' 已成功上傳至 '{remotePath}'。" });
+            return Ok(new { message = $"File '{file.FileName}' successfully uploaded to '{remotePath}'." });
         }
         catch (Exception ex)
         {
@@ -57,7 +57,7 @@ public class SftpController : ControllerBase
             // 呼叫 SFTP 服務上傳檔案
             _sftpService.VerifyCommunication();
 
-            return Ok(new { message = $"SFTP通訊驗證成功" });
+            return Ok(new { message = "SFTP communication verified successfully." });
         }
         catch (Exception ex)
         {
@@ -74,7 +74,7 @@ public class SftpController : ControllerBase
 
             return Ok(new 
             { 
-                message = "成功取得 SFTP 結構。", 
+                message = "SFTP structure retrieved successfully.", 
                 data = result 
             });
         }
