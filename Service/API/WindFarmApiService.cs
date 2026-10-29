@@ -36,7 +36,7 @@ public class WindFarmApiService : IWindFarmApiService
     /// <returns></returns>
     public async Task<WindFarmApiResponse> UploadForecastDataAsync(List<ForecastDataRequest> dataList)
     {
-        return await SendWindFarmDataAsync(dataList, "windfarm/forecastData/new", "預測");
+        return await SendWindFarmDataAsync(dataList, "windfarm/forecastData/new", "forecast");
     }
     /// <summary>
     /// 即時資料api，每5分鐘發送一次
@@ -45,7 +45,7 @@ public class WindFarmApiService : IWindFarmApiService
     /// <returns></returns>
     public async Task<WindFarmApiResponse> UploadRealDataAsync(List<RealDataRequest> dataList)
     {
-        return await SendWindFarmDataAsync(dataList, "windfarm/realData/new", "即時");
+        return await SendWindFarmDataAsync(dataList, "windfarm/realData/new", "real-time");
     }
 
     /// <summary>
@@ -57,14 +57,14 @@ public class WindFarmApiService : IWindFarmApiService
         // 1. 防呆檢查：檢查 BaseUrl 或 Token 是否為空
         if (string.IsNullOrEmpty(_baseUrl) || string.IsNullOrEmpty(currentToken))
         {
-            _logger.LogError("【WindFarmApi Service】Configuration Error: Wind API  Domain or Token is None...");
-            return new WindFarmApiResponse { Code = 400, Msg = "Configuration Error: Wind API  Domain or Token is None..." };
+            _logger.LogError("[WindFarmApi Service] Configuration Error: Wind API Domain or Token is missing.");
+            return new WindFarmApiResponse { Code = 400, Msg = "Configuration Error: Wind API Domain or Token is missing." };
         }
 
         // 2. 防呆檢查：檢查傳入的資料清單是否為空或無資料
         if (dataList == null || dataList.Count == 0)
         {
-            _logger.LogError($"【WindFarmApi Service】Failed Upload: The {dataTypeLabel} data list is Empty");
+            _logger.LogError($"[WindFarmApi Service] Upload Failed: The {dataTypeLabel} data list is empty.");
             return new WindFarmApiResponse { Code = 400, Msg = $"Upload failed: The provided {dataTypeLabel} data list cannot be empty." };
         }
 
@@ -82,13 +82,13 @@ public class WindFarmApiService : IWindFarmApiService
 
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation($"【WindFarmApi Service】Upload successful: Please verify that data is transmitted properly.");
+                _logger.LogInformation("[WindFarmApi Service] Upload successful: Please verify that data is transmitted properly.");
                 return JsonSerializer.Deserialize<WindFarmApiResponse>(responseString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                       ?? new WindFarmApiResponse { Code = (int)response.StatusCode, Msg = "反序列化失敗" };
+                       ?? new WindFarmApiResponse { Code = (int)response.StatusCode, Msg = "Deserialization failed." };
             }
             else
             {
-                _logger.LogError($"【WindFarmApi Service】Upload failed: API call failed with {response.ReasonPhrase} - {responseString}");
+                _logger.LogError($"[WindFarmApi Service] Upload failed: API call failed with {response.ReasonPhrase} - {responseString}");
                 return new WindFarmApiResponse
                 {
                     Code = (int)response.StatusCode,
@@ -98,7 +98,7 @@ public class WindFarmApiService : IWindFarmApiService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"【WindFarmApi Service】System exception occurred: {ex.Message}");
+            _logger.LogError(ex, $"[WindFarmApi Service] System exception occurred: {ex.Message}");
             return new WindFarmApiResponse
             {
                 Code = 500,
