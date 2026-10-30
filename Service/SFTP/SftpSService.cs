@@ -21,20 +21,20 @@ public class SftpService : ISftpService
     private void VaildateSettings(conf_SFTP conf)
     {
         _logger.LogInformation("========================================");
-        _logger.LogInformation("【SFTP Service】initial Check and Load Configuration...");
-        _logger.LogInformation($"Host     : {(conf.Host ?? "Non")}");
+        _logger.LogInformation("[SFTP Service] Initial Check and Load Configuration...");
+        _logger.LogInformation($"Host     : {(conf.Host ?? "None")}");
         _logger.LogInformation($"Port     : {conf.Port}");
-        _logger.LogInformation($"UserName : {(conf.Username ?? "Non")}");
+        _logger.LogInformation($"UserName : {(conf.Username ?? "None")}");
         
         if (string.IsNullOrWhiteSpace(conf.Host) || 
             string.IsNullOrWhiteSpace(conf.Username) || 
             string.IsNullOrWhiteSpace(conf.Password))
         {
-            _logger.LogError("【SFTP Service】SFTP Configuration incomplete (Host、Username、Password is Non)");
+            _logger.LogError("[SFTP Service] SFTP configuration incomplete (Host, Username, or Password is missing)");
         }
         else
         {
-            _logger.LogInformation("【SFTP Service】SFTP Configuraion is readly");
+            _logger.LogInformation("[SFTP Service] SFTP configuration is ready");
         }
         _logger.LogInformation("========================================");
     }
@@ -44,7 +44,7 @@ public class SftpService : ISftpService
     /// </summary>
     public void VerifyCommunication()
     {
-        _logger.LogInformation($"【SFTP Service】Communcation Verify...");
+        _logger.LogInformation("[SFTP Service] Verifying communication...");
         try
         {
             using var client = new SftpClient(_settings.Host, _settings.Port, _settings.Username, _settings.Password);
@@ -53,13 +53,13 @@ public class SftpService : ISftpService
             client.Connect();
             
             client.Disconnect();
-            _logger.LogInformation($"【SFTP Service】Communcation Verify Success !!!!");
+            _logger.LogInformation("[SFTP Service] Communication verified successfully!");
         }
         catch (Exception ex)
         {
             // 在 Service 內部進行除錯紀錄或拋出具體錯誤
-            _logger.LogError($"【SFTP Service】Communcation Verify Error ，Expection Error:  {ex.Message}");
-            throw new InvalidOperationException($"SFTP Upload Failed: {ex.Message}", ex);
+            _logger.LogError($"[SFTP Service] Communication verification error. Exception: {ex.Message}");
+            throw new InvalidOperationException($"SFTP verification failed: {ex.Message}", ex);
         }
     }
 
@@ -74,7 +74,7 @@ public class SftpService : ISftpService
             throw new FileNotFoundException($"Local file to upload not found: {localPath}");
         }
 
-        _logger.LogInformation($"【SFTP Service】Local path: {localPath} -> Remote path: {remotePath}");
+        _logger.LogInformation($"[SFTP Service] Local path: {localPath} -> Remote path: {remotePath}");
         try
         {
             using var client = new SftpClient(_settings.Host, _settings.Port, _settings.Username, _settings.Password);
@@ -86,12 +86,12 @@ public class SftpService : ISftpService
             client.UploadFile(fileStream, remotePath);
             
             client.Disconnect();
-            _logger.LogInformation($"【SFTP Service】File successfully transferred: {remotePath}");
+            _logger.LogInformation($"[SFTP Service] File successfully transferred: {remotePath}");
         }
         catch (Exception ex)
         {
             // 在 Service 內部進行除錯紀錄或拋出具體錯誤
-            _logger.LogError($"【SFTP Service】 Error: {ex.Message}");
+            _logger.LogError($"[SFTP Service] Error: {ex.Message}");
             throw new InvalidOperationException($"SFTP upload failed: {ex.Message}", ex);
         }
     }
@@ -101,7 +101,7 @@ public class SftpService : ISftpService
     /// </summary>
     public void DownloadFile(string remotePath, string localPath)
     {
-        _logger.LogInformation($"【SFTP Service】 Remote path: {remotePath} -> Local path: {localPath}");
+        _logger.LogInformation($"[SFTP Service] Remote path: {remotePath} -> Local path: {localPath}");
 
         try
         {
@@ -112,11 +112,11 @@ public class SftpService : ISftpService
             client.DownloadFile(remotePath, fileStream);
 
             client.Disconnect();
-            _logger.LogInformation($"【SFTP Service】Download Succeeded");
+            _logger.LogInformation("[SFTP Service] Download succeeded.");
         }
         catch (Exception ex)
         {
-            _logger.LogError($"【SFTP Service】 Error: {ex.Message}");
+            _logger.LogError($"[SFTP Service] Error: {ex.Message}");
             throw new InvalidOperationException($"SFTP download failed: {ex.Message}", ex);
         }
     }
@@ -126,7 +126,7 @@ public class SftpService : ISftpService
     /// </summary>
     public IEnumerable<SftpItemDto> GetDirectoryStructure(string startPath = "/")
     {
-        _logger.LogInformation($"【SFTP Service】 Loading Remote Path..: {startPath}");
+        _logger.LogInformation($"[SFTP Service] Loading remote path: {startPath}");
 
         try
         {
@@ -158,7 +158,6 @@ public class SftpService : ISftpService
                 "SendTo",
                 "Templates",
                 "Cookies",
-                "「開始」功能表",
                 "Start Menu"
             };
 
@@ -171,7 +170,7 @@ public class SftpService : ISftpService
 
                 if (file.IsDirectory && ignoredFolders.Contains(file.Name))
                 {
-                    _logger.LogTrace($"【SFTP Service】 Skipped system directory: {startPath}/{file.Name}");
+                    _logger.LogTrace($"[SFTP Service] Skipped system directory: {startPath}/{file.Name}");
                     continue;
                 }
 
@@ -186,13 +185,13 @@ public class SftpService : ISftpService
             }
 
             client.Disconnect();
-            _logger.LogInformation("【SFTP Service】 Reading completed successfully");
+            _logger.LogInformation("[SFTP Service] Reading completed successfully");
             return items;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "【SFTP Service】 Failed to read path {Path}: {Message}", startPath, ex.Message);
-            throw new InvalidOperationException($"SFTP 取得目錄結構失敗: {ex.Message}", ex);
+            _logger.LogError(ex, "[SFTP Service] Failed to read path {Path}: {Message}", startPath, ex.Message);
+            throw new InvalidOperationException($"Failed to retrieve SFTP directory structure: {ex.Message}", ex);
         }
     }
 }

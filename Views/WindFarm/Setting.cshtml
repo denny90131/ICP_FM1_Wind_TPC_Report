@@ -1,39 +1,39 @@
 @{
-    ViewData["Title"] = "風場報表系統參數設置";
+    ViewData["Title"] = "Wind Farm Report System Parameter Settings";
 }
 
 <div class="container mb-5">    
     <!-- API 服務設定卡片 -->
     <div class="card shadow-sm p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>1. API 服務設定</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>1. API Service Settings</h5>
         <form id="apiSettingsForm">
             <div class="mb-3">
-                <label for="apiDomain" class="form-label small fw-bold">API 服務網域 <span class="text-muted">(conf_API:Domain)</span></label>
+                <label for="apiDomain" class="form-label small fw-bold">API Service Domain <span class="text-muted">(conf_API:Domain)</span></label>
                 <input type="text" class="form-control shadow-none" id="apiDomain" value="" readonly>
             </div>
             
             <hr class="dropdown-divider my-4">
 
             <!-- API Token 檢視區塊 -->
-            <h5 class="fw-bold mb-3"><i class="bi bi-key me-2 text-warning"></i>API Token 管理</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-key me-2 text-warning"></i>API Token Management</h5>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="small text-muted">目前系統使用的 API Token。</span>
+                <span class="small text-muted">The API Token currently used by the system.</span>
                 <button type="button" class="btn btn-outline-warning btn-sm" onclick="viewToken()">
-                    <i class="bi bi-eye me-1"></i> 查看 Token
+                    <i class="bi bi-eye me-1"></i> View Token
                 </button>
             </div>
             <div class="data-readout">
-                <pre id="apiTokenDisplay">點擊 "查看 Token" 按鈕顯示...</pre>
+                <pre id="apiTokenDisplay">Click 'View Token' button to display...</pre>
             </div>
             
             <hr class="dropdown-divider my-4">
 
             <!-- 更新 API Token 區塊 -->
-            <h5 class="fw-bold mb-3"><i class="bi bi-arrow-clockwise me-2 text-info"></i>更新 API Token</h5>
+            <h5 class="fw-bold mb-3"><i class="bi bi-arrow-clockwise me-2 text-info"></i>Update API Token</h5>
             <div class="input-group mb-3">
-                <input type="text" class="form-control shadow-none" id="newTokenInput" placeholder="輸入新的 API Token...">
+                <input type="text" class="form-control shadow-none" id="newTokenInput" placeholder="Enter new API Token...">
                 <button class="btn btn-info fw-bold px-4 py-2 shadow-sm" type="button" onclick="updateApiToken()">
-                    <i class="bi bi-upload me-1"></i> 更新 Token
+                    <i class="bi bi-upload me-1"></i> Update Token
                 </button>
             </div>
         </form>
@@ -42,26 +42,26 @@
     <!-- SFTP 服務設定卡片 -->
     <div class="card shadow-sm p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0"><i class="bi bi-server me-2 text-primary"></i>2. SFTP 服務設定</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-server me-2 text-primary"></i>2. SFTP Service Settings</h5>
         </div>
         <form id="sftpSettingsForm">
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                    <label for="sftpHost" class="form-label small fw-bold">SFTP 主機 <span class="text-muted">(conf_SFTP:Host)</span></label>
+                    <label for="sftpHost" class="form-label small fw-bold">SFTP Host <span class="text-muted">(conf_SFTP:Host)</span></label>
                     <input type="text" class="form-control shadow-none" id="sftpHost" value="" readonly>
                 </div>
                 <div class="col-md-6">
-                    <label for="sftpPort" class="form-label small fw-bold">SFTP 埠號 <span class="text-muted">(conf_SFTP:Port)</span></label>
+                    <label for="sftpPort" class="form-label small fw-bold">SFTP Port <span class="text-muted">(conf_SFTP:Port)</span></label>
                     <input type="number" class="form-control shadow-none" id="sftpPort" value="" readonly>
                 </div>
             </div>
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                    <label for="sftpUsername" class="form-label small fw-bold">SFTP 使用者名稱 <span class="text-muted">(conf_SFTP:Username)</span></label>
+                    <label for="sftpUsername" class="form-label small fw-bold">SFTP Username <span class="text-muted">(conf_SFTP:Username)</span></label>
                     <input type="text" class="form-control shadow-none" id="sftpUsername" value="" readonly>
                 </div>
                 <div class="col-md-6">
-                    <label for="sftpPassword" class="form-label small fw-bold">SFTP 密碼 <span class="text-muted">(conf_SFTP:Password)</span></label>
+                    <label for="sftpPassword" class="form-label small fw-bold">SFTP Password <span class="text-muted">(conf_SFTP:Password)</span></label>
                     <input type="password" class="form-control shadow-none" id="sftpPassword" value="" readonly>
                 </div>
             </div>
@@ -71,20 +71,20 @@
 
     <!-- 外觀主題設定卡片 -->
     <div class="card shadow-sm p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-palette-fill me-2 text-warning"></i>外觀主題設定</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-palette-fill me-2 text-warning"></i>Appearance Theme Settings</h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="themeSelect" class="form-label small fw-bold">介面色彩風格</label>
+                <label for="themeSelect" class="form-label small fw-bold">Interface Color Style</label>
                 <select id="themeSelect" class="form-select shadow-none" onchange="changeAppTheme(this.value)">
-                    <option value="dark">🌙 深色模式 (預設)</option>
-                    <option value="light">☀️ 淺色模式</option>
+                    <option value="dark">🌙 Dark Mode (Default)</option>
+                    <option value="light">☀️ Light Mode</option>
                 </select>
-                <span class="small text-muted d-block mt-2">切換後系統將自動套用色彩並儲存至瀏覽器。</span>
+                <span class="small text-muted d-block mt-2">After switching, the system will automatically apply the color and save it to the browser.</span>
             </div>
         </div>
     </div>
 
-    <p class="text-muted mt-4 mb-0">請注意，API Token 應妥善保管，避免洩露。</p>
+    <p class="text-muted mt-4 mb-0">Please note that the API Token should be kept safe to avoid leakage.</p>
 </div>
 
 @section Scripts {
@@ -117,14 +117,14 @@
                 const response = await fetch('/api/SystemConfig/apiSettings');
                 if (!response.ok) {
                     console.error('Failed to load API settings:', response.status, await response.text());
-                    document.getElementById('apiDomain').value = '載入失敗';
+                    document.getElementById('apiDomain').value = 'Load failed';
                     return;
                 }
                 const data = await response.json();
                 document.getElementById('apiDomain').value = data.apiDomain || '';
             } catch (error) {
                 console.error('Error fetching API settings:', error);
-                document.getElementById('apiDomain').value = '載入錯誤';
+                document.getElementById('apiDomain').value = 'Load error';
             }
         }
 
@@ -133,10 +133,10 @@
                 const response = await fetch('/api/SystemConfig/sftpSettings');
                 if (!response.ok) {
                     console.error('Failed to load SFTP settings:', response.status, await response.text());
-                    document.getElementById('sftpHost').value = '載入失敗';
+                    document.getElementById('sftpHost').value = 'Load failed';
                     document.getElementById('sftpPort').value = '';
-                    document.getElementById('sftpUsername').value = '載入失敗';
-                    document.getElementById('sftpPassword').value = '載入失敗';
+                    document.getElementById('sftpUsername').value = 'Load failed';
+                    document.getElementById('sftpPassword').value = 'Load failed';
                     return;
                 }
                 const data = await response.json();
@@ -146,23 +146,23 @@
                 document.getElementById('sftpPassword').value = data.sftpPassword || '';
             } catch (error) {
                 console.error('Error fetching SFTP settings:', error);
-                document.getElementById('sftpHost').value = '載入錯誤';
+                document.getElementById('sftpHost').value = 'Load error';
                 document.getElementById('sftpPort').value = '';
-                document.getElementById('sftpUsername').value = '載入錯誤';
-                document.getElementById('sftpPassword').value = '載入錯誤';
+                document.getElementById('sftpUsername').value = 'Load error';
+                document.getElementById('sftpPassword').value = 'Load error';
             }
         }
 
         async function viewToken() {
             const tokenDisplay = document.getElementById('apiTokenDisplay');
-            tokenDisplay.innerText = '載入中...';
+            tokenDisplay.innerText = 'Loading...';
 
             try {
                 const response = await fetch('/api/SystemConfig/token');
                 if (!response.ok) {
                     const errorText = await response.text();
-                    tokenDisplay.innerText = `錯誤: ${response.status} - ${errorText}`;
-                    alert(`查看 Token 失敗: ${response.status} - ${errorText}`);
+                    tokenDisplay.innerText = `Error: ${response.status} - ${errorText}`;
+                    alert(`Failed to view Token: ${response.status} - ${errorText}`);
                     return;
                 }
                 const data = await response.json();
@@ -176,11 +176,11 @@
                         tokenDisplay.innerText = fullToken;
                     }
                 } else {
-                    tokenDisplay.innerText = '沒有 Token 資料。';
+                    tokenDisplay.innerText = 'No Token data.';
                 }
             } catch (error) {
-                tokenDisplay.innerText = `載入 Token 失敗: ${error.message}`;
-                alert(`查看 Token 失敗: ${error.message}`);
+                tokenDisplay.innerText = `Failed to load Token: ${error.message}`;
+                alert(`Failed to view Token: ${error.message}`);
                 console.error('Error fetching token:', error);
             }
         }
@@ -190,7 +190,7 @@
             const newToken = newTokenInput.value.trim();
 
             if (!newToken) {
-                alert('請輸入要更新的 API Token。');
+                alert('Please enter the API Token to update.');
                 return;
             }
 
@@ -204,12 +204,12 @@
                 });
 
                 const result = await response.json();
-                alert(result.msg || 'Token 更新成功！');
+                alert(result.msg || 'Token updated successfully!');
                 if (response.ok) {
                     viewToken();
                 }
             } catch (error) {
-                alert(`更新 Token 失敗: ${error.message}`);
+                alert(`Failed to update Token: ${error.message}`);
                 console.error('Error updating token:', error);
             }
         }

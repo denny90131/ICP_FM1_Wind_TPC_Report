@@ -29,19 +29,19 @@ public class SubsystemOrchestrator
         try
         {
             await Task.Delay(1000);
-            _logger.LogInformation("【自動執行】準備從設定檔讀取多組子系統設定...");
+            _logger.LogInformation("[Auto-Run] Preparing to load subsystem configurations from config file...");
             
             var results = await RunAllFromConfigAsync();
             
             foreach (var res in results)
             {
-                _logger.LogInformation("模組 {ModuleId} 自動執行結果: Success={IsSuccess}, Message={Message}", 
+                _logger.LogInformation("Module {ModuleId} auto-run result: Success={IsSuccess}, Message={Message}", 
                     res.Key, res.Value.IsSuccess, res.Value.Message);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "【自動執行】初始化多組設定時發生例外狀況");
+            _logger.LogError(ex, "[Auto-Run] An unexpected exception occurred while initializing multi-module configuration.");
         }
     }
 
@@ -80,7 +80,7 @@ public class SubsystemOrchestrator
 
         if (configSections == null || !configSections.Any())
         {
-            _logger.LogWarning("在設定檔中找不到任何 conf_review:Modules 設定");
+            _logger.LogWarning("No conf_review:Modules configurations found in appsettings.");
             return summaryResults;
         }
 
@@ -88,7 +88,7 @@ public class SubsystemOrchestrator
         {
             if (string.IsNullOrWhiteSpace(config.ModuleId)) continue;
 
-            _logger.LogInformation("【設定檔自動分配】正在派發至子系統: {ModuleId}, 路徑: {Path}", config.ModuleId, config.Folder_Path);
+            _logger.LogInformation("[Config Auto-Dispatch] Dispatching to subsystem: {ModuleId}, Path: {Path}", config.ModuleId, config.Folder_Path);
 
             var parameters = new Dictionary<string, object>
             {
@@ -111,8 +111,8 @@ public class SubsystemOrchestrator
         
         if (targetModule == null)
         {
-            _logger.LogWarning("嘗試執行不存在的子系統 ID: {ModuleId}", moduleId);
-            return new ExecutionResult { IsSuccess = false, Message = $"找不到指定的子系統: {moduleId}" };
+            _logger.LogWarning("Attempted to execute non-existent subsystem ID: {ModuleId}", moduleId);
+            return new ExecutionResult { IsSuccess = false, Message = $"Subsystem not found: {moduleId}" };
         }
 
         try
@@ -124,22 +124,22 @@ public class SubsystemOrchestrator
             if (!string.IsNullOrWhiteSpace(folderPath) && Directory.Exists(folderPath))
             {
                 filteredFiles = Directory.GetFiles(folderPath, fileType).ToList();
-                _logger.LogInformation("在路徑 {FolderPath} 下找到 {Count} 個符合 {FileType} 的檔案", folderPath, filteredFiles.Count, fileType);
+                _logger.LogInformation("Found {Count} file(s) matching {FileType} in path {FolderPath}", filteredFiles.Count, fileType, folderPath);
             }
             else
             {
-                _logger.LogWarning("無效的資料夾路徑: {FolderPath}", folderPath);
+                _logger.LogWarning("Invalid folder path: {FolderPath}", folderPath);
             }
 
             parameters["Filtered_Files"] = filteredFiles;
 
-            _logger.LogInformation("開始執行子系統: {ModuleName}", targetModule.ModuleName);
+            _logger.LogInformation("Starting subsystem: {ModuleName}", targetModule.ModuleName);
             return await targetModule.ExecuteAsync(parameters);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "執行子系統 {ModuleName} 時發生未預期的錯誤", targetModule.ModuleName);
-            return new ExecutionResult { IsSuccess = false, Message = $"執行錯誤: {ex.Message}" };
+            _logger.LogError(ex, "An unexpected error occurred while executing subsystem: {ModuleName}", targetModule.ModuleName);
+            return new ExecutionResult { IsSuccess = false, Message = $"Execution error: {ex.Message}" };
         }
     }
 
@@ -148,11 +148,11 @@ public class SubsystemOrchestrator
     {
         if (string.IsNullOrWhiteSpace(absoluteFilePath) || !File.Exists(absoluteFilePath))
         {
-            _logger.LogWarning("提供的絕對路徑無效或檔案不存在: {Path}", absoluteFilePath);
+            _logger.LogWarning("The provided absolute path is invalid or the file does not exist: {Path}", absoluteFilePath);
             return new ExecutionResult 
             { 
                 IsSuccess = false, 
-                Message = $"找不到指定的檔案或路徑無效: {absoluteFilePath}" 
+                Message = $"Specified file not found or path is invalid: {absoluteFilePath}" 
             };
         }
 
@@ -168,7 +168,7 @@ public class SubsystemOrchestrator
             { "Target_File_Name", fileName }       // 額外指定單一檔名供子系統識別
         };
 
-        _logger.LogInformation("【母系統】準備以絕對路徑執行子系統: {ModuleId}, 檔案: {FilePath}", moduleId, absoluteFilePath);
+        _logger.LogInformation("[Host System] Executing subsystem: {ModuleId} with absolute file path: {FilePath}", moduleId, absoluteFilePath);
 
         // 呼叫原本的執行邏輯
         return await RunModuleAsync(moduleId, parameters);
@@ -184,7 +184,7 @@ public class SubsystemOrchestrator
 
         if (!File.Exists(absoluteFilePath))
         {
-            _logger.LogWarning("欲讀取的 CSV 檔案不存在: {Path}", absoluteFilePath);
+            _logger.LogWarning("Target CSV file does not exist: {Path}", absoluteFilePath);
             return resultList;
         }
 
@@ -208,11 +208,11 @@ public class SubsystemOrchestrator
                 resultList.Add(rowDict);
             }
 
-            _logger.LogInformation("成功讀取 CSV 檔案，共解析 {Count} 筆資料", resultList.Count);
+            _logger.LogInformation("Successfully read CSV file. Parsed {Count} rows.", resultList.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "解析 CSV 檔案時發生錯誤: {Path}", absoluteFilePath);
+            _logger.LogError(ex, "Error occurred while parsing CSV file: {Path}", absoluteFilePath);
         }
 
         return resultList;

@@ -39,12 +39,12 @@ public class SystemConfigController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(request?.Token))
         {
-            return BadRequest(new { code = 400, msg = "Token 不可為空" });
+            return BadRequest(new { code = 400, msg = "Token cannot be empty." });
         }
 
         _tokenManager.SetToken(request.Token);
 
-        return Ok(new { code = 200, msg = "Token 已成功熱重載更新！" });
+        return Ok(new { code = 200, msg = "Token successfully reloaded and updated!" });
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class SystemConfigController : ControllerBase
 
         if (!logFiles.Any())
         {
-            return Ok(new List<string> { "沒有找到日誌檔案。" });
+            return Ok(new List<string> { "No log files found." });
         }
 
         var filteredLogEntries = new List<string>();

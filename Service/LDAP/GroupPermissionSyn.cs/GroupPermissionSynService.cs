@@ -71,7 +71,7 @@ public class GroupPermissionSyncService : IGroupPermissionSyncService
             if (toAdd.Any())
             {
                 await _db.Permissions.AddRangeAsync(toAdd);
-                _logger.LogInformation("權限同步成功：新增 {Count} 個系統權限至 SQLite。", toAdd.Count);
+                _logger.LogInformation("Permission synchronization succeeded: Added {Count} system permission(s) to SQLite.", toAdd.Count);
             }
 
             if (toAdd.Any() || hasModified)
@@ -81,7 +81,7 @@ public class GroupPermissionSyncService : IGroupPermissionSyncService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "同步系統權限至資料庫時發生錯誤。");
+            _logger.LogError(ex, "Error occurred while synchronizing system permissions to the database.");
         }
     }
 
@@ -119,7 +119,7 @@ public class GroupPermissionSyncService : IGroupPermissionSyncService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "讀取 AD 群組失敗，LDAP 路徑: {LdapPath}", ldapPath);
+            _logger.LogError(ex, "Failed to read AD groups. LDAP path: {LdapPath}", ldapPath);
             return;
         }
 
@@ -142,7 +142,7 @@ public class GroupPermissionSyncService : IGroupPermissionSyncService
         {
             await _db.Roles.AddRangeAsync(newGroups);
             await _db.SaveChangesAsync();
-            _logger.LogInformation("同步成功：已將 {Count} 個 AD 群組寫入 SQLite 資料庫。", newGroups.Count);
+            _logger.LogInformation("AD group synchronization succeeded: Wrote {Count} AD group(s) to SQLite database.", newGroups.Count);
         }
     }
 }

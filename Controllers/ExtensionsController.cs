@@ -27,7 +27,7 @@ public class ExtensionsController : Controller
         // 基本參數驗證 (改為回傳匿名物件，產生 JSON 格式)
         if (dataList == null || !dataList.Any())
         {
-            return BadRequest(new { code = 400, message = "上傳資料不能為空或 JSON 欄位解析失敗。" });
+            return BadRequest(new { code = 400, message = "Upload data cannot be empty or JSON parsing failed." });
         }
 
         try
@@ -43,7 +43,7 @@ public class ExtensionsController : Controller
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { code = 500, message = "內部伺服器錯誤", detail = ex.Message });
+            return StatusCode(500, new { code = 500, message = "Internal server error.", detail = ex.Message });
         }
     }
     /// <summary>
@@ -55,7 +55,7 @@ public class ExtensionsController : Controller
         // 基本參數驗證 (改為回傳匿名物件，產生 JSON 格式)
         if (dataList == null || !dataList.Any())
         {
-            return BadRequest(new { code = 400, message = "上傳資料不能為空或 JSON 欄位解析失敗。" });
+            return BadRequest(new { code = 400, message = "Upload data cannot be empty or JSON parsing failed." });
         }
 
         try
@@ -71,7 +71,7 @@ public class ExtensionsController : Controller
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { code = 500, message = "內部伺服器錯誤", detail = ex.Message });
+            return StatusCode(500, new { code = 500, message = "Internal server error.", detail = ex.Message });
         }
     }
 }

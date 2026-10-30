@@ -2,11 +2,11 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     Layout = null;
-    ViewData["Title"] = "系統登入";
+    ViewData["Title"] = "System Login";
 }
 
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -128,8 +128,8 @@
         <!-- 登入頁面抬頭 -->
         <div class="text-center mb-4">
             <span class="eyebrow mb-2">SYSTEM ACCESS</span>
-            <h3 class="fw-bold mt-2 mb-1" style="color: var(--text-1); font-size: 1.5rem;">渢妙風場身分驗證</h3>
-            <p class="small mb-0" style="color: var(--text-3); font-size: 0.82rem;">請輸入 AD 網域帳號密碼或透過企業單一簽入存取系統</p>
+            <h3 class="fw-bold mt-2 mb-1" style="color: var(--text-1); font-size: 1.5rem;">Wind Farm Authentication</h3>
+            <p class="small mb-0" style="color: var(--text-3); font-size: 0.82rem;">Please enter your AD domain credentials or use Enterprise SSO to access the system</p>
         </div>
 
         <!-- 錯誤訊息提示 -->
@@ -149,16 +149,16 @@
             <input type="hidden" asp-for="returnUrl" />
             @* 帳號輸入框 *@
             <div class="mb-3">
-                <label asp-for="Username" class="form-label">AD 帳號 / Username</label>
+                <label asp-for="Username" class="form-label">AD Username</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
                     <input asp-for="Username" class="form-control font-mono"
-                           placeholder="請輸入帳號" required autocomplete="username" autofocus />
+                           placeholder="Enter username" required autocomplete="username" autofocus />
                 </div>
             </div>
             @* 密碼輸入框 *@
             <div class="mb-4">
-                <label asp-for="Password" class="form-label mb-1">AD 密碼 / Password</label>
+                <label asp-for="Password" class="form-label mb-1">AD Password</label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
                     <input asp-for="Password" class="form-control font-mono" 
@@ -172,7 +172,7 @@
             @* AD網域登入按鈕 *@
             <button type="submit" class="btn btn-primary w-100 py-2" id="submitBtn">
                 <i class="bi bi-box-arrow-in-right me-1" id="submitIcon"></i>
-                <span id="submitText">網域帳號登入</span>
+                <span id="submitText">Domain Login</span>
             </button>
         </form>
 
@@ -183,13 +183,13 @@
         <div class="d-grid gap-2">
             <a asp-action="WindowsSso" asp-controller="Auth" asp-route-returnUrl="@Model?.returnUrl" class="btn btn-sso">
                 <i class="bi bi-windows" style="color: var(--accent-cyan);"></i>
-                <span>內部網域快速單一簽入 (Windows SSO)</span>
+                <span>Internal Domain Quick Single Sign-On (Windows SSO)</span>
             </a>
         </div>
 
         @* 頁面結尾提示字 *@
         <div class="page-footnote">
-            工業物聯網與能源管理系統 &copy; @DateTime.Now.Year
+            Industrial IoT & Energy Management System &copy; @DateTime.Now.Year
         </div>
 
     </div>
@@ -218,7 +218,7 @@
 
         submitBtn.disabled = true;
         submitIcon.className = 'spinner-border spinner-border-sm me-1';
-        submitText.innerText = '驗證中...';
+        submitText.innerText = 'Authenticating...';
         this.submit();
     });
 </script>

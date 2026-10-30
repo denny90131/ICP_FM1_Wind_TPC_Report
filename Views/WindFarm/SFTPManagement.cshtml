@@ -1,47 +1,47 @@
 @{
-    ViewData["Title"] = "風場SFTP管理作業";
+    ViewData["Title"] = "Wind Farm SFTP Management";
 }
 <div class="container mb-5">
     <!-- 0. SFTP 連線狀態提示 -->
     <div class="d-flex justify-content-end align-items-center mb-3">
         <span id="sftpStatusBadge" class="badge rounded-pill bg-secondary font-mono">
             <i class="bi bi-question-circle me-1"></i>
-            <span>正在檢查 SFTP 連線狀態...</span>
+            <span>Checking SFTP connection status...</span>
         </span>
     </div>
 
     <!-- 1. 上傳工具區塊 -->
     <div class="card shadow-sm p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-upload me-2 text-primary"></i>SFTP 手動檔案上傳工具</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-upload me-2 text-primary"></i>SFTP Manual File Upload Tool</h5>
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="fileInput" class="form-label small fw-bold">選擇本機檔案：</label>
+                <label for="fileInput" class="form-label small fw-bold">Select Local File:</label>
                 <input type="file" class="form-control shadow-none" id="fileInput" />
                 <small id="fileNameDisplay" class="form-text text-muted mt-1 d-block"></small>
             </div>
             <div class="col-md-6">
-                <label for="remotePathInput" class="form-label small fw-bold">遠端路徑 (Remote Path)：</label>
+                <label for="remotePathInput" class="form-label small fw-bold">Remote Path:</label>
                 <input type="text" class="form-control shadow-none font-mono" id="remotePathInput" placeholder="/path/to/remote/directory/">
-                <small class="form-text text-muted mt-1 d-block">檔案將上傳至此 SFTP 路徑。</small>
+                <small class="form-text text-muted mt-1 d-block">File will be uploaded to this SFTP path.</small>
             </div>
         </div>
         <div class="mt-4">
             <button type="button" class="btn btn-primary fw-bold px-4 py-2 shadow-sm" onclick="uploadToSftp()">
-                <i class="bi bi-cloud-arrow-up me-1"></i> 開始上傳至 SFTP
+                <i class="bi bi-cloud-arrow-up me-1"></i> Start Upload to SFTP
             </button>
         </div>
         
         <div id="resultMessage" class="mt-3 p-3 rounded-3 entry-card mb-0" style="min-height: 50px;">
-            <span class="text-muted">等待上傳操作...</span>
+            <span class="text-muted">Waiting for upload operation...</span>
         </div>
     </div>
 
     <!-- 2. 遠端目錄結構瀏覽區塊 -->
     <div class="card shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0"><i class="bi bi-folder2-open me-2 text-warning"></i>遠端主機資料結構</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-folder2-open me-2 text-warning"></i>Remote Host Data Structure</h5>
             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="loadSftpStructure('/')">
-                <i class="bi bi-arrow-clockwise me-1"></i> 重新整理結構
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh Structure
             </button>
         </div>
         
@@ -50,7 +50,7 @@
         
         <!-- 目錄結構容器 -->
         <div id="structureContainer" class="data-readout p-3 font-mono" style="max-height: 400px; overflow-y: auto; font-size: 0.9rem;">
-            <span class="text-muted">點擊「重新整理結構」以載入遠端資料...</span>
+            <span class="text-muted">Click 'Refresh Structure' to load remote data...</span>
         </div>
     </div>
 </div>
@@ -63,7 +63,7 @@
 
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
-                    fileNameDisplay.textContent = `已選取檔案: ${this.files[0].name}`;
+                    fileNameDisplay.textContent = `Selected file: ${this.files[0].name}`;
                 } else {
                     fileNameDisplay.textContent = '';
                 }
@@ -79,7 +79,7 @@
             const msgDiv = document.getElementById('resultMessage');
 
             if (fileInput.files.length === 0) {
-                alert("請先選擇檔案！");
+                alert("Please select a file first!");
                 return;
             }
 
@@ -97,7 +97,7 @@
             formData.append("file", selectedFile);
             formData.append("remotePath", finalRemotePath);
 
-            msgDiv.innerHTML = '<span class="text-info">正在上傳中，請稍候...</span>';
+            msgDiv.innerHTML = '<span class="text-info">Uploading, please wait...</span>';
 
             try {
                 const response = await fetch('/api/sftp/upload', {
@@ -110,10 +110,10 @@
                     msgDiv.innerHTML = `<span class="text-success">${result.message}</span>`;
                     loadSftpStructure('/');
                 } else {
-                    msgDiv.innerHTML = `<span class="text-danger">失敗: ${result.message || '未知錯誤'}</span>`;
+                    msgDiv.innerHTML = `<span class="text-danger">Failed: ${result.message || 'Unknown error'}</span>`;
                 }
             } catch (error) {
-                msgDiv.innerHTML = `<span class="text-danger">發生例外錯誤: ${error.message}</span>`;
+                msgDiv.innerHTML = `<span class="text-danger">Exception occurred: ${error.message}</span>`;
             }
         }
 
@@ -129,24 +129,24 @@
                 if (response.ok) {
                     statusBadge.className = 'badge rounded-pill bg-success font-mono';
                     icon.className = 'bi bi-check-circle-fill me-1';
-                    text.innerText = 'SFTP 連線正常';
+                    text.innerText = 'SFTP Connection Normal';
                 } else {
                     statusBadge.className = 'badge rounded-pill bg-danger font-mono';
                     icon.className = 'bi bi-x-circle-fill me-1';
-                    text.innerText = 'SFTP 連線失敗';
+                    text.innerText = 'SFTP Connection Failed';
                     console.error('SFTP 驗證失敗:', result.message);
                 }
             } catch (error) {
                 statusBadge.className = 'badge rounded-pill bg-danger font-mono';
                 icon.className = 'bi bi-exclamation-triangle-fill me-1';
-                text.innerText = '無法驗證 SFTP 連線';
+                text.innerText = 'Cannot verify SFTP connection';
                 console.error('SFTP 驗證請求錯誤:', error);
             }
         }
 
         async function loadSftpStructure(path = '/') {
             const container = document.getElementById('structureContainer');
-            container.innerHTML = '<span class="text-info">正在載入遠端目錄結構...</span>';
+            container.innerHTML = '<span class="text-info">Loading remote directory structure...</span>';
             updatePathNavigator(path);
 
             try {
@@ -155,7 +155,7 @@
 
                 if (response.ok) {
                     if (!result.data || result.data.length === 0) {
-                        container.innerHTML = '<span class="text-muted">遠端目錄目前是空的。</span>';
+                        container.innerHTML = '<span class="text-muted">Remote directory is currently empty.</span>';
                         return;
                     }
                     
@@ -164,10 +164,10 @@
                     html += '</ul>';
                     container.innerHTML = html;
                 } else {
-                    container.innerHTML = `<span class="text-danger">載入失敗: ${result.message || '未知錯誤'}</span>`;
+                    container.innerHTML = `<span class="text-danger">Load failed: ${result.message || 'Unknown error'}</span>`;
                 }
             } catch (error) {
-                container.innerHTML = `<span class="text-danger">發生例外錯誤: ${error.message}</span>`;
+                container.innerHTML = `<span class="text-danger">Exception occurred: ${error.message}</span>`;
             }
         }
 
@@ -197,11 +197,11 @@
             if (path !== '/') {
                 const parentPath = path.substring(0, path.lastIndexOf('/')) || '/';
                 html += `<a href="#" onclick="event.preventDefault(); loadSftpStructure('${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
-                            <i class="bi bi-arrow-left-circle"></i> 返回上一層
+                            <i class="bi bi-arrow-left-circle"></i> Go back
                          </a> | `;
             }
 
-            html += `<span>目前路徑: </span><strong style="color: var(--accent-cyan);">${path}</strong>`;
+            html += `<span>Current Path: </span><strong style="color: var(--accent-cyan);">${path}</strong>`;
             pathNavigator.innerHTML = html;
         }
     </script>

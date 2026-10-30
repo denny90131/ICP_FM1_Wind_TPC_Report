@@ -22,15 +22,15 @@ public static class AppPermissions
     public static readonly List<PermissionMeta> All = new()
     {
         // 風場模組
-        new(ViewBrowser.ForecastDataManager, "查看風場預測與即時數據", "畫面瀏覽"),
-        new(ViewBrowser.CanaryAPIManager, "配置 Canary API 資料流", "畫面瀏覽"),
-        new(ViewBrowser.TaskManager, "背景工作排程管理員", "畫面瀏覽"),
-        new(ViewBrowser.WTGOperator, "渢妙風機狀態表單-台電", "畫面瀏覽"),
-        new(ViewBrowser.SFTPManager, "SFTP通訊介接", "畫面瀏覽"),
-        new(ViewBrowser.EventLogViewer, "服務事件紀錄", "畫面瀏覽"),
+        new(ViewBrowser.ForecastDataManager, "View wind farm forecast and real-time data", "View Browser"),
+        new(ViewBrowser.CanaryAPIManager, "Configure Canary API data flow", "View Browser"),
+        new(ViewBrowser.TaskManager, "Background task schedule manager", "View Browser"),
+        new(ViewBrowser.WTGOperator, "WTG status form - Taipower", "View Browser"),
+        new(ViewBrowser.SFTPManager, "SFTP communication interface", "View Browser"),
+        new(ViewBrowser.EventLogViewer, "Service event log", "View Browser"),
 
         // 系統管理
-        new(SystemAdmin.SystemAdminOption, "管理畫面全域主題及相關Token設置", "系統設定"),
-        new(SystemAdmin.SystemAdminPermission, "管理角色與權限映射設定", "系統設定")
+        new(SystemAdmin.SystemAdminOption, "Manage global theme and related Token settings", "System Settings"),
+        new(SystemAdmin.SystemAdminPermission, "Manage role and permission mapping settings", "System Settings")
     };
 }

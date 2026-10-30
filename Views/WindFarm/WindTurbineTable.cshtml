@@ -1,34 +1,34 @@
 @{
-    ViewData["Title"] = "各風機信息概覽";
+    ViewData["Title"] = "Wind Turbine Information Overview";
 }
 <div style="height: calc(100vh - 180px); overflow: hidden;">
     <div class="row g-3 h-100">
         <!-- 左側：操作面板 -->
         <div class="col-lg-3 h-100" style="min-height: 0;">
             <div class="card shadow-sm p-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
-                <h5 class="fw-bold mb-3 flex-shrink-0"><i class="bi bi-gear-wide-connected me-2 text-primary"></i>操作面板</h5>
+                <h5 class="fw-bold mb-3 flex-shrink-0"><i class="bi bi-gear-wide-connected me-2 text-primary"></i>Control Panel</h5>
 
                 <!-- 子系統選擇 -->
                 <div class="mb-3 flex-shrink-0">
-                    <label for="moduleSelector" class="form-label small fw-bold">1. 選擇子系統</label>
+                    <label for="moduleSelector" class="form-label small fw-bold">1. Select Subsystem</label>
                     <select id="moduleSelector" class="form-select shadow-none">
-                        <option selected>載入中...</option>
+                        <option selected>Loading...</option>
                     </select>
                 </div>
 
                 <!-- 檔案選擇 -->
                 <div class="mb-3 flex-grow-1 d-flex flex-column" style="min-height: 0;">
                     <div class="d-flex justify-content-between align-items-center flex-shrink-0">
-                        <label for="fileSelector" class="form-label small fw-bold mb-1">2. 選擇檔案</label>
+                        <label for="fileSelector" class="form-label small fw-bold mb-1">2. Select File</label>
                     </div>
                     <!-- 路徑導覽列 -->
                     <div id="pathNavigator" class="entry-card mb-1 p-2 rounded-2 small flex-shrink-0 font-mono" style="min-height: 28px;"></div>
                     <!-- 檔案/資料夾列表 -->
                     <div id="fileListContainer" class="list-group flex-grow-1 data-readout" style="overflow-y: auto; min-height: 0;">
-                        <div class="list-group-item text-muted border-0 bg-transparent">請先選擇子系統</div>
+                        <div class="list-group-item text-muted border-0 bg-transparent">Please select a subsystem first</div>
                     </div>
                 </div>
-                <small class="text-muted text-center mt-2 flex-shrink-0 font-mono">雙擊檔案即可直接讀取資料</small>
+                <small class="text-muted text-center mt-2 flex-shrink-0 font-mono">Double-click a file to read data directly</small>
             </div>
         </div>
 
@@ -37,11 +37,11 @@
             <div class="card shadow-sm p-4 h-100 d-flex flex-column" style="min-height: 0; overflow: hidden;">
                 <!-- 頂部：標題、結果訊息與搜尋篩選框 -->
                 <div class="d-flex flex-wrap align-items-center gap-3 mb-3 flex-shrink-0">
-                    <h5 class="fw-bold mb-0 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>資料預覽</h5>
+                    <h5 class="fw-bold mb-0 flex-shrink-0"><i class="bi bi-table me-2 text-success"></i>Data Preview</h5>
 
                     <!-- 執行結果訊息 -->
                     <div id="resultMessage" class="entry-card p-2 px-3 rounded-3 flex-grow-1 font-mono" style="display: none;">
-                        <span class="text-muted">等待執行...</span>
+                        <span class="text-muted">Waiting for execution...</span>
                     </div>
 
                     <!-- 資料篩選框 (預設隱藏，載入資料後顯示) -->
@@ -50,8 +50,8 @@
                             <span class="input-group-text bg-transparent border-end-0 text-muted">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" id="tableFilterInput" class="form-control border-start-0 shadow-none font-mono" placeholder="搜尋表格內容..." />
-                            <button class="btn btn-outline-secondary" type="button" id="clearFilterBtn" title="清除搜尋">
+                            <input type="text" id="tableFilterInput" class="form-control border-start-0 shadow-none font-mono" placeholder="Search table content..." />
+                            <button class="btn btn-outline-secondary" type="button" id="clearFilterBtn" title="Clear search">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
@@ -60,7 +60,7 @@
 
                 <!-- 資料表格 -->
                 <div id="dataTableContainer" class="table-responsive flex-grow-1 font-mono" style="overflow-y: auto; min-height: 0;">
-                    <p class="text-muted">執行處理後，結果將會顯示於此。</p>
+                    <p class="text-muted">After execution, results will be displayed here.</p>
                 </div>
             </div>
         </div>
@@ -189,28 +189,28 @@
         const moduleSelector = document.getElementById('moduleSelector');
         try {
             const response = await fetch('/api/excelreader/modules');
-            if (!response.ok) throw new Error('無法獲取子系統列表');
+            if (!response.ok) throw new Error('Failed to get subsystem list');
             
             const modules = await response.json();
-            moduleSelector.innerHTML = '<option value="" selected>-- 請選擇一個子系統 --</option>';
+            moduleSelector.innerHTML = '<option value="" selected>-- Please select a subsystem --</option>';
             
             modules.forEach(module => {
                 const option = new Option(`${module.moduleName} (${module.moduleId})`, module.moduleId);
                 moduleSelector.add(option);
             });
         } catch (error) {
-            moduleSelector.innerHTML = `<option selected>錯誤: ${error.message}</option>`;
+            moduleSelector.innerHTML = `<option selected>Error: ${error.message}</option>`;
             console.error(error);
         }
     }
 
     async function fetchFiles(moduleId, path = '') {
         const fileListContainer = document.getElementById('fileListContainer');
-        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">載入檔案中...</div>';
+        fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">Loading files...</div>';
 
         try {
             const response = await fetch(`/api/excelreader/files/${moduleId}?path=${encodeURIComponent(path)}`);
-            if (!response.ok) throw new Error('無法獲取檔案列表');
+            if (!response.ok) throw new Error('Failed to get file list');
 
             const result = await response.json();
             const items = result.items;
@@ -248,7 +248,7 @@
                     fileListContainer.appendChild(fileItem);
                 });
             } else {
-                fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">此目錄是空的</div>';
+                fileListContainer.innerHTML = '<div class="list-group-item text-muted border-0 bg-transparent">This directory is empty</div>';
             }
         } catch (error) {
             fileListContainer.innerHTML = `<div class="list-group-item text-danger border-0 bg-transparent">${error.message}</div>`;
@@ -269,12 +269,12 @@
             }
 
             html += `<a href="#" onclick="event.preventDefault(); fetchFiles('${moduleId}', '${parentPath.replace(/'/g, "\\'")}')" class="text-decoration-none me-2">
-                        <i class="bi bi-arrow-left-circle"></i> 返回
+                        <i class="bi bi-arrow-left-circle"></i> Back
                     </a> | `;
         }
 
         const displayPath = (!currentPath || currentPath === '') ? '/' : currentPath;
-        html += `<span>路徑: </span><strong style="color: var(--accent-cyan);">${displayPath}</strong>`;
+        html += `<span>Path: </span><strong style="color: var(--accent-cyan);">${displayPath}</strong>`;
         pathNavigator.innerHTML = html;
     }
     
@@ -286,13 +286,13 @@
         const filterInput = document.getElementById('tableFilterInput');
 
         if (!moduleId || !filePath) {
-            alert('請先選擇子系統和檔案！');
+            alert('Please select a subsystem and file first!');
             return;
         }
 
         resultMessage.style.display = 'block';
-        resultMessage.innerHTML = '<span class="text-info">處理中，請稍候...</span>';
-        tableContainer.innerHTML = '<p class="text-info">正在等待後端回傳資料...</p>';
+        resultMessage.innerHTML = '<span class="text-info">Processing, please wait...</span>';
+        tableContainer.innerHTML = '<p class="text-info">Waiting for backend response...</p>';
         filterContainer.style.display = 'none';
         filterInput.value = '';
 
@@ -313,13 +313,13 @@
                 renderTable(currentRawData);
             } else {
                 currentRawData = [];
-                tableContainer.innerHTML = '<p class="text-muted">無資料可供顯示。</p>';
+                tableContainer.innerHTML = '<p class="text-muted">Returned data is empty.</p>';
             }
 
         } catch (error) {
             currentRawData = [];
-            resultMessage.innerHTML = `<span class="text-danger">請求失敗: ${error.message}</span>`;
-            tableContainer.innerHTML = `<p class="text-danger">無法載入資料: ${error.message}</p>`;
+            resultMessage.innerHTML = `<span class="text-danger">Request failed: ${error.message}</span>`;
+            tableContainer.innerHTML = `<p class="text-danger">Failed to load data: ${error.message}</p>`;
             console.error(error);
         }
     }
@@ -347,8 +347,8 @@
         const tableContainer = document.getElementById('dataTableContainer');
         if (!data || data.length === 0) {
             tableContainer.innerHTML = isFiltered 
-                ? '<p class="text-muted"><i class="bi bi-search me-1"></i>找不到符合篩選條件的資料。</p>'
-                : '<p class="text-muted">回傳資料為空。</p>';
+                ? '<p class="text-muted"><i class="bi bi-search me-1"></i>No data matches the filter criteria.</p>'
+                : '<p class="text-muted">Returned data is empty.</p>';
             return;
         }
 

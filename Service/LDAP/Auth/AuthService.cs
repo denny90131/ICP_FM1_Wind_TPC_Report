@@ -36,7 +36,7 @@ public class AuthService : IAuthService
                     {
                         LoginStatus = false,
                         UserName = username,
-                        ErrorMessage = "帳號或密碼錯誤。"
+                        ErrorMessage = "Invalid username or password."
                     };
                 }
             }
@@ -56,7 +56,7 @@ public class AuthService : IAuthService
             {
                 LoginStatus = false,
                 UserName = username,
-                ErrorMessage = $"AD 連線驗證失敗: {ex.Message}"
+                ErrorMessage = $"Active Directory connection/authentication failed: {ex.Message}"
             };
         }
     }

@@ -25,7 +25,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
     public async Task<Dictionary<string, TurbineData_Detail>> SyncCombinedTurbineDataAsync()
     {
         var sw = Stopwatch.StartNew();
-        _logger.LogInformation("Canary Reader Sync Job 開始執行 (混合數據聚合模式)...");
+        _logger.LogInformation("Canary Reader Sync Job started (hybrid aggregation mode)...");
 
         //StringComparer.OrdinalIgnoreCase => 忽略大小寫鍵值比對
         var combinedResult = new Dictionary<string, TurbineData_Detail>(StringComparer.OrdinalIgnoreCase);
@@ -76,7 +76,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
         
         //計時終止，結算花費時間
         sw.Stop();
-        _logger.LogInformation("Canary 混合數據聚合完成，總耗時: {Elapsed} ms", sw.ElapsedMilliseconds);
+        _logger.LogInformation("Canary hybrid data aggregation completed, elapsed time: {Elapsed} ms", sw.ElapsedMilliseconds);
 
         return combinedResult;
     }
@@ -113,7 +113,7 @@ public class CanaryReaderSyncJob : ICanaryReaderSyncJob
 
         if (!response.IsSuccess || response.Data?.Data == null)
         {
-            _logger.LogError("Canary API [{Mode}] 呼叫失敗: {Errors}", isAverage ? "AVG" : "REAL", response.Errors);
+            _logger.LogError("Canary API [{Mode}] call failed: {Errors}", isAverage ? "AVG" : "REAL", response.Errors);
             return result;
         }
 

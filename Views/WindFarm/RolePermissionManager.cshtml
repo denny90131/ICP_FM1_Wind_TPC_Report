@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "AD 角色與 RBAC 權限管理";
+    ViewData["Title"] = "AD Role and RBAC Permission Management";
 }
 
 <div class="container-fluid mb-5">
@@ -10,7 +10,7 @@
             <span id="syncStatusText" class="badge-outline">READY</span>
         </div>
         <button type="button" class="btn btn-primary btn-sm" id="btnSyncAd" onclick="syncAdGroups()">
-            <i class="bi bi-arrow-repeat me-1"></i> 立即同步 AD 群組
+            <i class="bi bi-arrow-repeat me-1"></i> Sync AD Groups Now
         </button>
     </div>
 
@@ -23,7 +23,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="panel-title mb-0">
                             <span class="idx">01</span>
-                            <i class="bi bi-diagram-3"></i> AD 角色群組
+                            <i class="bi bi-diagram-3"></i> AD Role Groups
                         </h5>
                         <span class="badge-outline" id="roleCountBadge">0 ROLES</span>
                     </div>
@@ -40,14 +40,14 @@
                             class="role-tab-btn active" 
                             id="btnFilterConfigured" 
                             onclick="setRoleFilter('configured')">
-                        <span>已配置</span>
+                        <span>Configured</span>
                         <span class="role-tab-badge" id="configuredCountBadge">0</span>
                     </button>
                     <button type="button" 
                             class="role-tab-btn" 
                             id="btnFilterUnconfigured" 
                             onclick="setRoleFilter('unconfigured')">
-                        <span>未配置</span>
+                        <span>Unconfigured</span>
                         <span class="role-tab-badge" id="unconfiguredCountBadge">0</span>
                     </button>
                 </div>
@@ -56,7 +56,7 @@
                 <div class="role-list-scroll" id="roleListContainer" style="max-height: 600px; overflow-y: auto;">
                     <div class="text-center py-5 text-muted empty-state">
                         <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
-                        <div>載入 AD 角色中...</div>
+                        <div>Loading AD roles...</div>
                     </div>
                 </div>
             </div>
@@ -70,22 +70,22 @@
                     <div>
                         <h5 class="panel-title mb-1">
                             <span class="idx">02</span>
-                            <i class="bi bi-shield-lock"></i> 模組權限配置
+                            <i class="bi bi-shield-lock"></i> Module Permission Configuration
                         </h5>
                         <div class="d-flex align-items-center gap-2 mt-2">
-                            <span class="fw-bold fs-6" id="selectedRoleTitle" style="color: var(--text-1);">請先從左側選擇角色</span>
+                            <span class="fw-bold fs-6" id="selectedRoleTitle" style="color: var(--text-1);">Please select a role from the left first</span>
                             <span class="badge-outline d-none" id="selectedRoleBadge" style="color: var(--accent-cyan); border-color: var(--accent-cyan-dim);"></span>
                         </div>
                     </div>
                     <button type="button" class="btn btn-success btn-sm" id="btnSavePermissions" onclick="savePermissions()" disabled>
-                        <i class="bi bi-check2-circle me-1"></i> 儲存變更
+                        <i class="bi bi-check2-circle me-1"></i> Save Changes
                     </button>
                 </div>
 
                 <div id="permissionPanelContainer" style="max-height: 600px; overflow-y: auto;">
                     <div class="text-center py-5 empty-state" id="noRoleSelectedPrompt">
                         <i class="bi bi-arrow-left-circle display-5 mb-3 d-block" style="color: var(--text-3);"></i>
-                        請在左側點選要設定的 AD 角色群組
+                        Please click on the AD role group to configure on the left
                     </div>
                     <!-- 動態渲染各模組區塊 -->
                     <div id="moduleGroupsContainer" class="d-none"></div>
@@ -281,7 +281,7 @@
 
                 // 無任何AD群組之提示字
                 if (roles.length === 0) {
-                    container.innerHTML = '<div class="text-center py-4 empty-state">目前無任何角色，請點選上方同步。</div>';
+                    container.innerHTML = '<div class="text-center py-4 empty-state">Currently no roles, please click sync above.</div>';
                     return;
                 }
 
@@ -301,7 +301,7 @@
             catch (err) 
             {
                 //若發生錯誤，則提示
-                container.innerHTML = `<div class="p-3 text-center empty-state text-danger">載入失敗: ${err.message}</div>`;
+                container.innerHTML = `<div class="p-3 text-center empty-state text-danger">Load failed: ${err.message}</div>`;
             }
         }
         
@@ -328,8 +328,8 @@
             // 如果篩選結果 = 0 則須出現提示，並依照是否分配決策提示為何
             if (filtered.length === 0) {
                 const emptyMsg = currentFilter === 'configured' 
-                    ? '尚無任何已配置權限的群組。' 
-                    : '目前所有群組皆已完成權限配置。';
+                    ? 'No groups with configured permissions yet.' 
+                    : 'All groups have completed permission configuration.';
                 container.innerHTML = `<div class="text-center py-4 empty-state text-muted">${emptyMsg}</div>`;
                 return;
             }
@@ -358,11 +358,11 @@
         async function loadGroupedPermissions() {
             try {
                 const res = await fetch('/api/RoleManagement/permissions');
-                if (!res.ok) throw new Error('無法載入權限清單');
+                if (!res.ok) throw new Error('Failed to load permission list');
                 groupedPermissions = await res.json();
                 renderPermissionTemplate();
             } catch (err) {
-                console.error('載入權限結構失敗:', err);
+                console.error('Failed to load permission structure:', err);
             }
         }
 
@@ -376,7 +376,7 @@
                             ${group.module || 'General Module'}
                         </span>
                         <button type="button" class="btn-mini btn-mini-positive" onclick="toggleModuleCheckboxes('${group.module}')">
-                            <i class="bi bi-check-all"></i> 全選 / 反選
+                            <i class="bi bi-check-all"></i> Select All / Invert
                         </button>
                     </div>
                     <div class="module-card-body">
@@ -390,7 +390,7 @@
                                                id="perm-${p.id}">
                                         <label class="form-check-label" for="perm-${p.id}" style="cursor: pointer;">
                                             <span class="fw-bold d-block font-mono" style="font-size: 0.82rem; color: var(--accent-cyan);">${p.code}</span>
-                                            <span class="d-block" style="font-size: 0.78rem; color: var(--text-2);">${p.description || '無描述'}</span>
+                                            <span class="d-block" style="font-size: 0.78rem; color: var(--text-2);">${p.description || 'No description'}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -417,7 +417,7 @@
             try {
                 //取得該AD群組之內部權限
                 const res = await fetch(`/api/RoleManagement/roles/${roleId}`);
-                if (!res.ok) throw new Error('取得角色資訊失敗');
+                if (!res.ok) throw new Error('Failed to get role information');
                 
                 const roleDetail = await res.json();
 
@@ -472,7 +472,7 @@
             const btn = document.getElementById('btnSavePermissions');
             //按下時之轉場
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 儲存中...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
             // 取得所有被按下時checkbox 物件
             const checkedBoxes = document.querySelectorAll('.perm-checkbox:checked');
@@ -493,7 +493,7 @@
                 const result = await res.json();
                 if (res.ok) {
                     //彈出視窗
-                    alert(result.message || '權限配置更新成功！');
+                    alert(result.message || 'Permission configuration updated successfully!');
 
                     // 根據是否有勾選項目更新狀態
                     const targetRole = allRoles.find(r => r.roleId === currentSelectedRoleId);
@@ -506,15 +506,15 @@
                 }
                 else {
                     //彈出視窗
-                    alert('儲存失敗：' + (result.message || res.statusText));
+                    alert('Save failed: ' + (result.message || res.statusText));
                 }
             } catch (err) {
                 //彈出視窗
-                alert('連線失敗：' + err.message);
+                alert('Connection failed: ' + err.message);
             } finally {
                 //轉場呼叫結束
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> 儲存變更';
+                btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Save Changes';
             }
         }
 
@@ -530,7 +530,7 @@
             // 按下同步按鈕時，暫時關閉按鈕 (執行轉場 - 燈號變化 文字變化 按鈕鎖定)
             btn.disabled = true;
             // 將文字轉換為同步中
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 同步中...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Syncing...';
             // 將燈號狀態轉為執行中
             lamp.className = 'status-lamp is-busy';
             // 將狀態文字顯示同步AD中
@@ -545,7 +545,7 @@
                 lamp.className = 'status-lamp is-live';
                 statusText.innerText = 'SYNCED';
                 //彈出視窗 - 同步成功
-                alert(result.message || 'AD 群組與系統權限已重新同步！');
+                alert(result.message || 'AD groups and system permissions have been resynchronized!');
 
                 await loadRoles();
             } catch (err) {
@@ -553,12 +553,12 @@
                 lamp.className = 'status-lamp is-error';
                 statusText.innerText = 'SYNC ERROR';
                 //彈出視窗 - 同步失敗
-                alert('同步失敗：' + err.message);
+                alert('Sync failed: ' + err.message);
             } finally {
                 // 不論如何 按鈕皆須回復
                 btn.disabled = false;
                 // 按鈕文字更改為原預設文字
-                btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 立即同步 AD 群組';
+                btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Sync AD Groups Now';
             }
         }
     </script>

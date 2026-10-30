@@ -27,7 +27,7 @@ public class CanaryController : ControllerBase
         {
             var apiResponse = await _canaryService.GetLiveDataTokenAsync(externalRequest);
 
-            // 🔴【在這裡印出完整資訊，讓你看到底錯在哪】
+            // Print full debug details
             Console.WriteLine($"[DEBUG] IsSuccess: {apiResponse.IsSuccess}");
             Console.WriteLine($"[DEBUG] StatusCode: {apiResponse.StatusCode}");
             Console.WriteLine($"[DEBUG] Data Is Null?: {apiResponse.Data == null}");
@@ -45,11 +45,11 @@ public class CanaryController : ControllerBase
                     return Ok(apiResponse.Data);
                 }
                 
-                var error = apiResponse.Data?.Errors ?? apiResponse.Errors ?? "從 Canary API 收到的回應資料為空或狀態不正確。";
+                var error = apiResponse.Data?.Errors ?? apiResponse.Errors ?? "Received empty response or invalid status from Canary API.";
                 
-                // 同時回傳詳細資訊給前端，讓你從瀏覽器或 Postman 也看得見
+                // Return detailed info to the client
                 return BadRequest(new { 
-                    message = "初始化 Token 失敗", 
+                    message = "Token initialization failed.", 
                     canaryStatusCode = apiResponse.Data?.StatusCode,
                     details = error,
                     raw = apiResponse.RawErrorResponse 
@@ -87,12 +87,12 @@ public class CanaryController : ControllerBase
                 {
                     return Ok(apiResponse.Data);
                 }
-                var error = apiResponse.Data.Errors ?? "Canary API 回應狀態不為 'Good'。";
-                return BadRequest(new { message = "註銷 Token 失敗", details = error });
+                var error = apiResponse.Data.Errors ?? "Canary API response status is not 'Good'.";
+                return BadRequest(new { message = "Revoke token failed.", details = error });
             }
 
-            var failureDetails = apiResponse.Errors ?? apiResponse.RawErrorResponse ?? "從 Canary API 收到的回應資料為空或無法解析。";
-            return StatusCode(apiResponse.StatusCode > 0 ? apiResponse.StatusCode : 500, new { message = "呼叫 Canary API 失敗", details = failureDetails });
+            var failureDetails = apiResponse.Errors ?? apiResponse.RawErrorResponse ?? "Received empty response or failed to parse response from Canary API.";
+            return StatusCode(apiResponse.StatusCode > 0 ? apiResponse.StatusCode : 500, new { message = "Failed to call Canary API.", details = failureDetails });
         }
         catch (Exception ex)
         {
@@ -122,8 +122,8 @@ public class CanaryController : ControllerBase
                 return Ok(apiResponse.Data);
             }
 
-            var failureDetails = apiResponse.Errors ?? apiResponse.RawErrorResponse ?? "從 Canary API 收到的回應資料為空或無法解析。";
-            return StatusCode(apiResponse.StatusCode > 0 ? apiResponse.StatusCode : 500, new { message = "抓取資料失敗", details = failureDetails });
+            var failureDetails = apiResponse.Errors ?? apiResponse.RawErrorResponse ?? "Received empty response or failed to parse response from Canary API.";
+            return StatusCode(apiResponse.StatusCode > 0 ? apiResponse.StatusCode : 500, new { message = "Failed to fetch live data.", details = failureDetails });
         }
         catch (Exception ex) // Catch and log exceptions
         {
